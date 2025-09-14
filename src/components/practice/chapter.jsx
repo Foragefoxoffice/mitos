@@ -188,7 +188,7 @@ export default function Chapter({
     "Cell Cycle & Cell Division": {
       image: "/images/chapterImg/B11.9-Cell-Cycle-&-Cell-Division.svg",
     },
-    "Anatomy of Flowering Plants": {
+    "Biomolecule": {
       image: "/images/chapterImg/B11.10-Biomolecule.svg",
     },
     "Photosynthesis in Higher Plants": {
