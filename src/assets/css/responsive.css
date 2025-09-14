@@ -1,0 +1,206 @@
+@media (max-width: 700px) {
+  .container {
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+  }
+  .tabs {
+    padding: 16px;
+  }
+  .nav_btns button:last-child {
+    padding: 6px 40px;
+  }
+  .inside_practice .subject_card {
+    height: 100%;
+  }
+  .subject_cards {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .chapter_cards {
+    grid-template-columns: repeat(1, 1fr);
+    padding: 0 0 0 0;
+  }
+  .btns_group {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0;
+  }
+  .topic_cards {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .question_popup {
+    padding: 20px;
+    width: 90%;
+  }
+  .test_containers {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .test_container2 {
+    width: 100%;
+    padding: 20px;
+    height: auto;
+    position: relative;
+    top: 0px;
+  }
+  .test_container1 {
+    width: 100%;
+    padding: 40px 20px;
+  }
+  .rounded_navs {
+    display: flex;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    place-items: center;
+  }
+  .rounded_navs button {
+    padding: 10px 21px;
+  }
+  .portion_cards {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .portion_card .btns_group {
+    display: grid;
+    gap: 0px;
+  }
+  .answer_label {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 20px;
+  }
+  .login_content {
+    padding: 0px 30px;
+    height: 100%;
+    display: grid;
+    place-content: center;
+  }
+  .custom-chap {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .test_container1 h2 {
+    padding: 20px 0 10px;
+  }
+  .above_score {
+    place-content: start;
+    display: flex;
+    gap: 10px;
+  }
+  .nav_btns button {
+    padding: 10px 15px;
+  }
+  .ascore_content {
+    width: 50%;
+    margin: 20px 0;
+  }
+  .below_scroe {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    place-content: center;
+    margin-top: 20px;
+  }
+  .ascore_content:first-child span {
+    color: #35095e;
+    font-size: 28px;
+    font-weight: 700;
+  }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 1024px) {
+  .sidebar {
+    width: 190px !important;
+    padding: 6px !important;
+  }
+
+  .sidebar .logo img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .sidebar a {
+    padding: 6px !important;
+    height: auto !important;
+    margin-bottom: 20px;
+  }
+
+  .test-container-main {
+    padding: 20px !important;
+  }
+
+  .score-predictor-subjects {
+    grid-template-columns: repeat(1, minmax(0px, 1fr)) !important;
+  }
+
+  .leader-board-top-section {
+    grid-template-columns: repeat(1, minmax(0px, 1fr)) !important;
+  }
+
+  .subject_cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .chapter_cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .chapter-card-inner h2 {
+    font-size: 22px !important;
+    padding-bottom: 10px;
+  }
+
+  .topic_card label {
+    font-size: 16px !important;
+    line-height: 18px;
+  }
+
+  .topic_card {
+    padding: 12px 10px !important;
+  }
+
+  .attemtpt-checkbox input {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .test_containers{
+    display: inline !important;
+  }
+
+  .test_container2 {
+    width: 90% !important;
+    margin-top: 20px !important;
+}
+}
+
+@media (max-width: 900px) {
+  .test_containers {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+  }
+  .answer_label {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .test_container2 {
+    width: 100% !important;
+    padding: 20px;
+    height: auto;
+    position: relative;
+    top: 0px;
+  }
+  .test_container1 {
+    width: 100%;
+    padding: 40px 20px;
+  }
+  .rounded_navs {
+    display: flex;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    place-items: center;
+  }
+.nav_btns button {
+    width: 100%;
+    display: flex
+;
+    justify-content: center;
+}
+}
