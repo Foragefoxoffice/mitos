@@ -132,7 +132,7 @@ export const TestQuestion = ({
         </button>
       </div>
 
-      <div className="mb-4 question_option">
+      <div className="mb-4 question_option qution_text">
         <HtmlWithMath html={question.question} />
       </div>
       {question.image && (

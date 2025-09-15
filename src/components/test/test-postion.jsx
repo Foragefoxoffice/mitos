@@ -112,7 +112,12 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
                 <h2 className="md:text-lg text-3xl font-semibold mb-1">
                   Full Portion
                 </h2>
-                <p className="text-md text-white mb-6" style={{ color: "white" }}>11th & 12th</p>
+                <p
+                  className="text-md text-white mb-6"
+                  style={{ color: "white" }}
+                >
+                  11th & 12th
+                </p>
               </div>
               <div>
                 <img
@@ -125,7 +130,7 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
 
             <button
               onClick={handleFullPortionTestClick}
-              className={`w-full hover:translate-y-[-1px] transition-all py-3 rounded-full bg-white text-green-700 font-semibold text-md ${
+              className={`w-full hover:translate-y-[-1px] cursor-pointer transition-all py-3 rounded-full bg-white text-green-700 font-semibold text-md ${
                 isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={fullPortionLoading}
@@ -183,7 +188,10 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
                     <h2 className="md:text-lg text-3xl font-semibold mb-1">
                       {portion.name} Portion
                     </h2>
-                    <p className="text-md text-white mb-6" style={{ color: "white" }}>
+                    <p
+                      className="text-md text-white mb-6"
+                      style={{ color: "white" }}
+                    >
                       {portion.detailCount} Subjects
                     </p>
                   </div>
@@ -199,7 +207,7 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
                 <div className="space-y-3">
                   <button
                     onClick={() => handleCustomPortionClick(portion)}
-                    className={`w-full hover:translate-y-[-1px] transition-all md:mt-2 mt-14 py-3 rounded-full bg-white ${btnText} font-semibold text-md ${
+                    className={`w-full hover:translate-y-[-1px] cursor-pointer transition-all md:mt-2 mt-14 py-3 rounded-full bg-white ${btnText} font-semibold text-md ${
                       isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
@@ -207,7 +215,7 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
                   </button>
                   <button
                     onClick={() => handlePortionClick(portion)}
-                    className={`w-full py-3 hover:translate-y-[-1px] transition-all rounded-full bg-white ${btnText} font-semibold text-md ${
+                    className={`w-full py-3 hover:translate-y-[-1px] cursor-pointer transition-all rounded-full bg-white ${btnText} font-semibold text-md ${
                       isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >

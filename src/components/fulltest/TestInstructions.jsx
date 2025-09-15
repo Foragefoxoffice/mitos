@@ -4,7 +4,6 @@ export const TestInstructions = ({ setShowInstructionPopup }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
       <div className="bg-[#f5faff] w-full max-w-4xl rounded-xl overflow-auto md:overflow-hidden h-[100%] md:h-auto shadow-lg flex flex-col md:flex-row">
-        
         {/* Left Side - Images */}
         <div className="w-[90%] border border-[#007ACC40] md:w-1/2 bg-white p-4 m-6 grid rounded-lg justify-items-center text-center">
           <img
@@ -26,20 +25,28 @@ export const TestInstructions = ({ setShowInstructionPopup }) => {
           </h2>
 
           <ul className="text-sm space-y-2 text-gray-700 list-decimal pl-5">
-            <li className="pb-4">Each correctly answered question carries 4 marks.</li>
-            <li className="pb-4">Each wrongly answered question deducts 1 mark.</li>
+            <li className="pb-4">
+              Each correctly answered question carries 4 marks.
+            </li>
+            <li className="pb-4">
+              Each wrongly answered question deducts 1 mark.
+            </li>
             <li className="pb-4">
               4 buttons for navigation: <strong>“Previous Question”</strong>,{" "}
               <strong>“Mark for Review”</strong>, <strong>“Next”</strong>,{" "}
               <strong>“Questions”</strong>.
             </li>
             <li className="pb-4">
-              Questions will have a pop-up box for navigating to any subject or question.
+              Questions will have a pop-up box for navigating to any subject or
+              question.
             </li>
             <li className="pb-4">
-              Timer will be based on NEET standard (Approx 1 minute per question).
+              Timer will be based on NEET standard (Approx 1 minute per
+              question).
             </li>
-            <li className="pb-4">No corrections can be made after submitting the exam.</li>
+            <li className="pb-4">
+              No corrections can be made after submitting the exam.
+            </li>
           </ul>
 
           <div className="mt-4 mb-2 text-center">
@@ -67,7 +74,7 @@ export const TestInstructions = ({ setShowInstructionPopup }) => {
                   -7px 94px 26px 0px #00000000
                 `,
               }}
-              className="bg-[#31CA31] hover:bg-green-600 text-white px-5 py-2 font-medium shadow rounded-full"
+              className="bg-[#31CA31] hover:bg-green-600 text-white px-5 py-2 font-medium shadow rounded-full cursor-pointer"
             >
               Start Test
             </button>

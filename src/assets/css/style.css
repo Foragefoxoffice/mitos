@@ -83,6 +83,21 @@
   width: 40%;
   object-fit: contain;
 }
+
+.login_content input {
+  padding: 20px;
+  display: block;
+  width: 100%;
+  border: 2px solid #007acc;
+  border-radius: var(--borderRadius);
+  color: var(--primery);
+}
+
+.login_content label span {
+  color: red;
+  padding-left: 5pxZZZ;
+}
+
 .login_content {
   padding: 0px 160px;
   height: 100%;
@@ -227,6 +242,17 @@
   border-radius: 50px;
   font-weight: 600;
   color: #00497a;
+  transition: 0.4s all ease-in-out;
+}
+
+.tab:hover {
+  background: #007acc;
+  cursor: pointer;
+  color: #fff;
+}
+
+.tab:hover span {
+  color: #fff;
 }
 /*-------------------
  subject page style 
@@ -238,7 +264,6 @@
   gap: 20px;
 }
 .subject_card {
-
   width: 100%;
   padding: 40px 30px;
   border-radius: var(--borderRadius);
@@ -270,13 +295,11 @@
   justify-content: space-between;
 }
 
-
 .chapter-card-inner img {
   width: 85px;
   height: 85px;
   object-fit: contain;
 }
-
 
 .study-material-card img {
   width: 100px;
@@ -483,6 +506,7 @@ input[type="checkbox"] {
   font-size: 20px !important;
   font-weight: 500;
 }
+
 .option_btns {
   display: grid;
   gap: 10px;
@@ -495,7 +519,7 @@ input[type="checkbox"] {
 .option_label {
   border: 1px solid #c5b5ce;
   background: #fffafa;
-  color:var(--primery);
+  color: var(--primery);
   font-weight: 700;
   font-size: 20px;
   width: 35px;
@@ -506,7 +530,9 @@ input[type="checkbox"] {
 .option_btns button div {
   font-size: 18px;
 }
-.option_btns span,.option_btns p,.option_btns div {
+.option_btns span,
+.option_btns p,
+.option_btns div {
   font-size: 18px;
 }
 
@@ -632,11 +658,18 @@ input[type="checkbox"] {
   font-size: 22px;
 }
 
-.question_option a,.test_container1 a {
+.question_option a,
+.test_container1 a {
   pointer-events: none;
   cursor: default;
   text-decoration: none;
   color: #000;
+}
+
+.qution_text {
+  color: var(--text);
+  font-size: 20px !important;
+  font-weight: 500;
 }
 
 /*-------------------
@@ -816,7 +849,6 @@ input[type="checkbox"] {
   gap: 20px;
 }
 .subject_card {
-
   width: 100%;
   padding: 40px 30px;
   border-radius: 16px;

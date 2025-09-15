@@ -55,8 +55,9 @@ export const TestResults = ({
 
     if (rbsValues.length > 0) {
       for (const r of rbsValues) {
-        const key =
-          normalizeToNEET(r?.subjectName || r?.name || r?.subject || r?.title);
+        const key = normalizeToNEET(
+          r?.subjectName || r?.name || r?.subject || r?.title
+        );
         if (!key) continue;
         agg[key].correct += Number(r?.correct || 0);
         agg[key].wrong += Number(r?.wrong || 0);
@@ -106,12 +107,17 @@ export const TestResults = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-sm md:px-20 px-4">
           <div className="border border-[#D3CBFB] flex flex-col gap-2 rounded-3xl py-4 px-2 bg-white shadow-inner">
             <p className="text-black text-2xl font-semibold">Overall Score :</p>
-            <p className="text-[#007ACC] md:text-4xl text-2xl font-semibold">
+            <p
+              style={{ color: "#007ACC" }}
+              className="text-[#007ACC] md:text-4xl text-2xl font-semibold"
+            >
               {calculateScore()} / {totalMarks}
             </p>
           </div>
           <div className="border border-[#e0e0e0] rounded-3xl py-6 px-4 bg-white flex flex-col gap-2 shadow-inner">
-            <p className="text-black text-2xl font-semibold">Total Time Taken:</p>
+            <p className="text-black text-2xl font-semibold">
+              Total Time Taken:
+            </p>
             <div className="flex justify-center items-center gap-1 text-red-600 font-bold text-2xl">
               <img src="/images/menuicon/time.png" className="w-8 h-auto" />
               {formatTime(totalTime - timeLeft)} MIN
@@ -124,35 +130,59 @@ export const TestResults = ({
           {processedSubjects.map(({ name, marks }) => (
             <div
               key={name}
-              className={`${subjectColors[name]} text-white flex flex-col gap-2 rounded-3xl py-5 px-4 font-semibold text-lg`}
+              className={`${subjectColors[name]} text-[white] flex flex-col gap-2 rounded-3xl py-5 px-4 font-semibold text-lg`}
             >
-              <p className="text-2xl">{name}</p>
-              <p className="text-2xl">{marks}</p>
+              <p style={{ color: "#fff" }} className="text-2xl">
+                {name}
+              </p>
+              <p style={{ color: "#fff" }} className="text-2xl">
+                {marks}
+              </p>
             </div>
           ))}
         </div>
 
         {/* Stats Badges */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs mb-6">
-          <div className="bg-[#9BCD1326] text-[#759E05] px-2 py-2 rounded-xl font-medium">
-            <p className="text-lg font-bold">Correct</p>
-            <p className="text-xl font-bold">{calculateCorrectAnswers()}</p>
+          <div className="bg-[#32CD32] text-[#759E05] px-2 py-2 rounded-xl font-medium">
+            <p style={{ color: "#fff" }} className="text-lg font-bold">
+              Correct
+            </p>
+            <p style={{ color: "#fff" }} className="text-xl font-bold">
+              {calculateCorrectAnswers()}
+            </p>
           </div>
-          <div className="bg-[#E3F2FD] text-[#007ACC] px-2 py-2 rounded-xl font-medium">
-            <p className="text-lg font-bold">Attempted</p>
-            <p className="text-xl font-bold">{attempted}</p>
+          <div className="bg-[#24a1fb] text-[#007ACC] px-2 py-2 rounded-xl font-medium">
+            <p style={{ color: "#fff" }} className="text-lg font-bold">
+              Attempted
+            </p>
+            <p style={{ color: "#fff" }} className="text-xl font-bold">
+              {attempted}
+            </p>
           </div>
-          <div className="bg-[#3157D426] text-[#3457a1] px-2 py-2 rounded-xl font-medium">
-            <p className="text-lg font-bold">Unanswered</p>
-            <p className="text-xl font-bold">{questions.length - attempted}</p>
+          <div className="bg-[#d49331] text-[#3457a1] px-2 py-2 rounded-xl font-medium">
+            <p style={{ color: "#fff" }} className="text-lg font-bold">
+              Unanswered
+            </p>
+            <p style={{ color: "#fff" }} className="text-xl font-bold">
+              {questions.length - attempted}
+            </p>
           </div>
-          <div className="bg-[#D4319026] text-[#b30c91] px-2 py-2 rounded-xl font-medium">
-            <p className="text-lg font-bold">Accuracy</p>
-            <p className="text-xl font-bold">{calculateAccuracy()}%</p>
+          <div className="bg-[#d43190fe] text-[#b30c91] px-2 py-2 rounded-xl font-medium">
+            <p style={{ color: "#fff" }} className="text-lg font-bold">
+              Accuracy
+            </p>
+            <p style={{ color: "#fff" }} className="text-xl font-bold">
+              {calculateAccuracy()}%
+            </p>
           </div>
-          <div className="bg-[#D4313126] text-[#b10000] px-2 py-2 rounded-xl font-medium">
-            <p className="text-lg font-bold">Wrong</p>
-            <p className="text-xl font-bold">{calculateWrongAnswers()}</p>
+          <div className="bg-[#d43131] text-[#b10000] px-2 py-2 rounded-xl font-medium">
+            <p style={{ color: "#fff" }} className="text-lg font-bold">
+              Wrong
+            </p>
+            <p style={{ color: "#fff" }} className="text-xl font-bold">
+              {calculateWrongAnswers()}
+            </p>
           </div>
         </div>
 
@@ -160,19 +190,19 @@ export const TestResults = ({
         <div className="grid md:flex gap-3 md:justify-between justify-center mt-4 bg-white md:rounded-full p-4 rounded-md border border-[#007ACC40]">
           <button
             onClick={() => setShowTypeResults(true)}
-            className="bg-[#31CA31] text-white rounded-full py-4 px-4 font-semibold shadow hover:bg-[#009044]"
+            className="bg-[#31CA31] text-white rounded-full py-4 px-4 font-semibold shadow hover:bg-[#009044] cursor-pointer"
           >
             View Question Type Analysis
           </button>
           <button
             onClick={() => onShowAnswers?.(true)}
-            className="bg-[#31CA31] text-white rounded-full py-4 px-4 font-semibold shadow hover:bg-[#009044]"
+            className="bg-[#31CA31] text-white rounded-full py-4 px-4 font-semibold shadow hover:bg-[#009044] cursor-pointer"
           >
             View Answers
           </button>
           <button
             onClick={() => navigate("/user/dashboard")}
-            className="bg-[#31CA31] text-white rounded-full py-4 px-4 font-semibold shadow hover:bg-[#009044]"
+            className="bg-[#31CA31] text-white rounded-full py-4 px-4 font-semibold shadow hover:bg-[#009044] cursor-pointer"
           >
             Go Back to Another Test
           </button>
@@ -206,23 +236,23 @@ export const TestResults = ({
                 >
                   <div className="flex justify-between items-center">
                     <h3 className="text-[15px] font-semibold text-[#333]">
-                      {typeData.typeName}
+                      {typeData?.typeName || typeId}
                     </h3>
                     <div className="flex gap-2 text-xs md:text-sm">
                       <span className="bg-[#E3F2FD] text-[#007ACC] font-medium px-3 py-1 rounded-full">
-                        Attempted: {typeData.attempted}
+                        Attempted: {typeData?.attempted ?? 0}
                       </span>
                       <span className="bg-[#E6F4EA] text-[#28A745] font-medium px-3 py-1 rounded-full">
-                        Correct: {typeData.correct}
+                        Correct: {typeData?.correct ?? 0}
                       </span>
                       <span className="bg-[#FCECEC] text-[#D32F2F] font-medium px-3 py-1 rounded-full">
-                        Wrong: {typeData.wrong}
+                        Wrong: {typeData?.wrong ?? 0}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    {Object.entries(typeData.subjects || {}).map(
+                    {Object.entries(typeData?.subjects || {}).map(
                       ([subjectId, subjectData]) => (
                         <div
                           key={subjectId}
@@ -233,13 +263,13 @@ export const TestResults = ({
                           </span>
                           <div className="flex gap-12 text-sm">
                             <span className="text-[#007ACC]">
-                              ↻ {subjectData.attempted}
+                              ↻ {subjectData?.attempted ?? 0}
                             </span>
                             <span className="text-[#28A745]">
-                              ✓ {subjectData.correct}
+                              ✓ {subjectData?.correct ?? 0}
                             </span>
                             <span className="text-[#D32F2F]">
-                              ✗ {subjectData.wrong}
+                              ✗ {subjectData?.wrong ?? 0}
                             </span>
                           </div>
                         </div>

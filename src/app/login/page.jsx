@@ -100,11 +100,23 @@ export default function LoginPage() {
           <div className="w-[40%] hidden md:flex">
             <div className="login">
               <div className="login_img">
-                <img src="/images/login/login_img.png"   referrerPolicy="no-referrer" alt="Login Illustration" />
+                <img
+                  src="/images/login/login_img.png"
+                  referrerPolicy="no-referrer"
+                  alt="Login Illustration"
+                />
               </div>
               <div className="flying_logo">
-                <img src="/images/login/pop1.png"   referrerPolicy="no-referrer" alt="pop1" />
-                <img src="/images/login/pop2.png"   referrerPolicy="no-referrer" alt="pop2" />
+                <img
+                  src="/images/login/pop1.png"
+                  referrerPolicy="no-referrer"
+                  alt="pop1"
+                />
+                <img
+                  src="/images/login/pop2.png"
+                  referrerPolicy="no-referrer"
+                  alt="pop2"
+                />
               </div>
             </div>
           </div>
@@ -117,13 +129,15 @@ export default function LoginPage() {
                   <img
                     src="/images/logo/logo.png"
                     alt="Logo"
-                      referrerPolicy="no-referrer"
+                    referrerPolicy="no-referrer"
                     className="mx-auto"
                   />
                 </Link>
               </div>
 
-              <h1 className="font-bold text-center pt-6">Student Login</h1>
+              <h1 className="text-[#35095e] font-bold text-4xl mt-6 text-center">
+                Student Login
+              </h1>
 
               <form onSubmit={handleSubmit} className="mt-6">
                 <div className="mb-4">

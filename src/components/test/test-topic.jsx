@@ -19,8 +19,11 @@ export default function TestTopics({
   const [showQuantityPopup, setShowQuantityPopup] = useState(false);
   const navigate = useNavigate();
 
-  const { setTestData, selectedTopics = [], setSelectedTopics } =
-    useContext(TestContext);
+  const {
+    setTestData,
+    selectedTopics = [],
+    setSelectedTopics,
+  } = useContext(TestContext);
 
   const questionLimits = [40, 80, 120, 180, "full"];
 
@@ -104,17 +107,17 @@ export default function TestTopics({
                   checked={(selectedTopics || []).includes(topic.id)}
                   onChange={() => handleCheckboxChange(topic.id)}
                 />
-                <label
-                  htmlFor={`topic-${topic.id}`}
-                  className="cursor-pointer"
-                >
+                <label htmlFor={`topic-${topic.id}`} className="cursor-pointer">
                   {topic.name}
                 </label>
               </div>
             ))}
           </div>
 
-          <button className="mx-auto mt-6 btn" onClick={startTest}>
+          <button
+            className="mx-auto mt-6 btn cursor-pointer"
+            onClick={startTest}
+          >
             Start Test
           </button>
         </>

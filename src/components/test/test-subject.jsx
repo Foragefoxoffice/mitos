@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
-import { fetchSubjectsByPortions, fetchChaptersBySubject } from "../../utils/api"; // ✅ fix alias
+import {
+  fetchSubjectsByPortions,
+  fetchChaptersBySubject,
+} from "../../utils/api"; // ✅ fix alias
 import { TestContext } from "../../contexts/TestContext";
 import { useNavigate } from "react-router-dom"; // ✅ instead of useRouter
 import { FaAngleDown } from "react-icons/fa6";
@@ -266,7 +269,10 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
                             type="checkbox"
                             checked={allSelectedVisible}
                             onChange={() =>
-                              toggleSelectAllVisible(subject.id, visibleChapters)
+                              toggleSelectAllVisible(
+                                subject.id,
+                                visibleChapters
+                              )
                             }
                             className="w-4 h-4 border-2 border-blue-500"
                           />
@@ -314,7 +320,7 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
           <div className="mt-10 text-center">
             <button
               onClick={handleStart}
-              className="px-8 py-3 bg-[#31CA31] text-white rounded-full font-medium shadow hover:bg-green-600"
+              className="px-8 py-3 bg-[#31CA31] text-white rounded-full font-medium shadow hover:bg-green-600 cursor-pointer"
             >
               Take Your Test
             </button>
@@ -373,13 +379,13 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
                 <div className="px-6 py-4 flex justify-between">
                   <button
                     onClick={() => setShowLimitPopup(false)}
-                    className="px-12 py-2 bg-[#CDEFE3] text-[#068457] rounded-full font-medium"
+                    className="px-12 py-2 bg-[#CDEFE3] text-[#068457] rounded-full font-medium cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     onClick={confirmStartTest}
-                    className="px-4 py-2 bg-[#31CA31] text-white rounded-full font-medium shadow hover:bg-green-600"
+                    className="px-4 py-2 bg-[#31CA31] text-white rounded-full font-medium shadow hover:bg-green-600 cursor-pointer"
                   >
                     Start Test
                   </button>

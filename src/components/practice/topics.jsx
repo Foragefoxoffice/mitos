@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // ✅ replace next/navigation
-import { fetchTopics, fetchQuestionByTopic } from "../../utils/api"; // ✅ fix alias
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { fetchTopics, fetchQuestionByTopic } from "../../utils/api";
 import { useSelectedTopics } from "../../contexts/SelectedTopicsContext";
 import axios from "axios";
 import PremiumPopup from "../PremiumPopup";
@@ -23,11 +23,7 @@ const getSpecialRank = (name = "") => {
   return i === -1 ? -1 : i; // -1 means not special
 };
 
-export default function TopicsPage({
-  selectedChapter,
-  onTopicSelect,
-  searchTerm = "", // ⬅️ from nav.js
-}) {
+export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
   const [searchParams] = useSearchParams();
   const chapterId = selectedChapter?.id || searchParams.get("chapterId");
 
@@ -176,7 +172,7 @@ export default function TopicsPage({
 
   const startTest = () => {
     if (selectedTopics.length > 0) {
-      navigate("/user/practice"); // ✅ navigate
+      navigate("/user/practice");
     } else {
       alert("Please select at least one topic.");
     }
@@ -188,9 +184,19 @@ export default function TopicsPage({
     filteredTopics.length === 0 &&
     searchTerm.trim().length > 0;
 
+  // ✅ order topics: keep DB order, push special to bottom
+  const orderedTopics = [
+    ...filteredTopics.filter((t) => getSpecialRank(t.name) === -1), // normal DB order
+    ...filteredTopics
+      .filter((t) => getSpecialRank(t.name) !== -1)
+      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name)), // special bottom
+  ];
+
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold text-[#017bcd] pb-6">Attempt by Topic</h1>
+      <h1 className="text-xl font-bold text-[#017bcd] pb-6">
+        Attempt by Topic
+      </h1>
       {chapterName && <h2 className="text-lg mb-4">{chapterName}</h2>}
 
       {loading && <CommonLoader />}
@@ -205,6 +211,7 @@ export default function TopicsPage({
           {!noMatches && (
             <>
               <div className="topic_cards space-y-3">
+                {/* ✅ Always show Full Chapter first (if topics exist) */}
                 {filteredTopics.length > 0 && !isGuestUser() && (
                   <div className="topic_card">
                     <input
@@ -222,66 +229,48 @@ export default function TopicsPage({
                   </div>
                 )}
 
-                {[...filteredTopics]
-                  .sort((a, b) => {
-                    const guest = isGuestUser();
-                    const aLocked = guest && a.isPremium;
-                    const bLocked = guest && b.isPremium;
-                    if (aLocked !== bLocked) return aLocked - bLocked;
-
-                    const aRank = getSpecialRank(a.name);
-                    const bRank = getSpecialRank(b.name);
-                    const aIsSpecial = aRank !== -1;
-                    const bIsSpecial = bRank !== -1;
-
-                    if (aIsSpecial !== bIsSpecial) return aIsSpecial ? 1 : -1;
-                    if (aIsSpecial && bIsSpecial) return aRank - bRank;
-
-                    return String(a.name || "").localeCompare(
-                      String(b.name || "")
-                    );
-                  })
-                  .map((topic) => {
-                    const isLocked = isGuestUser() && topic.isPremium;
-                    return (
-                      <div
-                        key={topic.id}
-                        style={{ margin: 0 }}
-                        className={`topic_card flex items-center space-x-2 ${
-                          isLocked ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                        onClick={() => {
-                          if (isLocked) setShowPopup(true);
+                {/* ✅ show ordered topics */}
+                {orderedTopics.map((topic) => {
+                  const isLocked = isGuestUser() && topic.isPremium;
+                  return (
+                    <div
+                      key={topic.id}
+                      style={{ margin: 0 }}
+                      className={`topic_card flex items-center space-x-2 ${
+                        isLocked ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                      onClick={() => {
+                        if (isLocked) setShowPopup(true);
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        id={`topic-${topic.id}`}
+                        className="cursor-pointer"
+                        checked={selectedTopics.includes(topic.id)}
+                        disabled={isLocked}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleCheckboxChange(topic);
                         }}
+                      />
+                      <label
+                        htmlFor={`topic-${topic.id}`}
+                        className="cursor-pointer text-lg font-normal"
                       >
-                        <input
-                          type="checkbox"
-                          id={`topic-${topic.id}`}
-                          className="cursor-pointer"
-                          checked={selectedTopics.includes(topic.id)}
-                          disabled={isLocked}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleCheckboxChange(topic);
-                          }}
-                        />
-                        <label
-                          htmlFor={`topic-${topic.id}`}
-                          className="cursor-pointer text-lg font-normal"
-                        >
-                          {topic.name}
-                          {topic.isPremium && isGuestUser() && (
-                            <span className="text-red-500 ml-2">🔒 Locked</span>
-                          )}
-                        </label>
-                      </div>
-                    );
-                  })}
+                        {topic.name}
+                        {topic.isPremium && isGuestUser() && (
+                          <span className="text-red-500 ml-2">🔒 Locked</span>
+                        )}
+                      </label>
+                    </div>
+                  );
+                })}
               </div>
 
               {filteredTopics.length > 0 && (
                 <button
-                  className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
+                  className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 cursor-pointer rounded"
                   onClick={startTest}
                 >
                   Lets Practice

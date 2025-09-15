@@ -65,7 +65,7 @@ const COLOR_MAP = {
   Accuracy: "#4E79A7", // Base color for subject accuracies (overridden by specific colors)
   "Total Questions": "#35095e",
 };
-const BAR_ORDER = [ "Correct", "Wrong","Unanswered"];
+const BAR_ORDER = ["Correct", "Wrong", "Unanswered"];
 const SUBJECT_COLORS = [
   "#e6194B",
   "#3cb44b",
@@ -118,7 +118,9 @@ const CustomTooltip = ({ active, payload, label }) => {
           <div className="flex items-center">
             <div className="w-3 h-3 rounded-full mr-2 bg-[#35095e]" />
             <span className="text-gray-600 font-medium">Total Questions:</span>
-            <span className="ml-1 font-semibold">{totalQuestions}</span>
+            <span style={{ color: "#2a2a2a" }} className="ml-1 font-semibold">
+              {totalQuestions}
+            </span>
           </div>
         </div>
       )}
@@ -159,7 +161,12 @@ const CustomTooltip = ({ active, payload, label }) => {
                 <span className="text-gray-600 font-medium">
                   {displayName}:
                 </span>
-                <span className="ml-1 font-semibold">{entry.value}</span>
+                <span
+                  style={{ color: "#2a2a2a" }}
+                  className="ml-1 font-semibold"
+                >
+                  {entry.value}
+                </span>
               </div>
             );
           })}
@@ -200,7 +207,12 @@ const CustomTooltip = ({ active, payload, label }) => {
                   <span className="text-gray-600 font-medium">
                     {displayName}:
                   </span>
-                  <span className="ml-1 font-semibold">{entry.value}%</span>
+                  <span
+                    style={{ color: "#2a2a2a" }}
+                    className="ml-1 font-semibold"
+                  >
+                    {entry.value}%
+                  </span>
                 </div>
               );
             })}
@@ -704,7 +716,6 @@ export default function ChartResultsByWeek({ results = [] }) {
     <div className="bg-[#F0F8FF] pt-6">
       <div className="bg-[#007ACC] py-2 md:py-6 px-3 rounded-2xl flex items-center justify-center md:gap-7 gap-2">
         <img
-        
           className="w-[10%] md:w-[auto]"
           src="/images/practice/report.png"
           alt=""
@@ -773,7 +784,7 @@ export default function ChartResultsByWeek({ results = [] }) {
                   legendType="none"
                   isAnimationActive={false}
                 />
-               
+
                 <Bar
                   dataKey="totalUnanswered"
                   stackId="a"
@@ -782,7 +793,7 @@ export default function ChartResultsByWeek({ results = [] }) {
                   radius={[4, 4, 0, 0]}
                   {...BAR_ANIMATION}
                 />
-                 
+
                 <Bar
                   dataKey="totalWrong"
                   stackId="a"

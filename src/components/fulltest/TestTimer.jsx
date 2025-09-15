@@ -104,7 +104,7 @@ export const TestTimer = ({
         {showAnswer === false && (
           <button
             onClick={showSubmitConfirmationPopup}
-            className="btn hover:text-[#fff] hover:border-none text-md"
+            className="btn hover:text-[#fff] hover:border-none text-md cursor-pointer"
             style={{ padding: "6px 40px", backgroundColor: "#007ACC" }}
           >
             Submit

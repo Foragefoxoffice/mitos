@@ -31,7 +31,8 @@ const HtmlWithMath = ({ html }) => {
 
 export default function PracticePage() {
   const { selectedTopics } = useSelectedTopics();
-  const { selectedQuestionTypes, chapterId, subjectId } = useSelectedQuestionTypes();
+  const { selectedQuestionTypes, chapterId, subjectId } =
+    useSelectedQuestionTypes();
 
   const [questions, setQuestions] = useState([]);
   const [filteredQuestions, setFilteredQuestions] = useState([]);
@@ -73,10 +74,12 @@ export default function PracticePage() {
   const navigate = useNavigate(); // ✅ React Router navigation
   const navButtonRefs = useRef([]);
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const userId =
+    typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
-useEffect(() => {
+  useEffect(() => {
     if (navButtonRefs.current[currentQuestionIndex]) {
       navButtonRefs.current[currentQuestionIndex].scrollIntoView({
         behavior: "smooth",
@@ -371,7 +374,7 @@ useEffect(() => {
   };
 
   const handleSubmit = () => {
-    router.push("/user/dashboard");
+    navigate("/user/dashboard");
   };
 
   const handleLimitSelection = (limit) => {
@@ -422,8 +425,12 @@ useEffect(() => {
             onClick={() => handleAnswer(question.id, currentOptionLabel)}
             className={buttonClass}
           >
-            <span className="font-bold option_label flex items-center justify-center col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-1">{currentOptionLabel}</span>
-           <div className="col-span-10 md:col-span-10 lg:col-span-11"><HtmlWithMath html={option} /></div>
+            <span className="font-bold option_label flex items-center justify-center col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-1">
+              {currentOptionLabel}
+            </span>
+            <div className="col-span-10 md:col-span-10 lg:col-span-11">
+              <HtmlWithMath html={option} />
+            </div>
           </button>
         </motion.div>
       );
@@ -504,8 +511,8 @@ useEffect(() => {
               {/* Buttons */}
               <div className="flex justify-between items-center px-6 py-6">
                 <button
-                  onClick={() => router.back()}
-                  className="bg-[#DFF1E5] text-[#3D9970] font-semibold px-6 py-2 rounded-full shadow"
+                  onClick={() => navigate(-1)}
+                  className="bg-[#DFF1E5] text-[#3D9970] font-semibold px-6 py-2 cursor-pointer rounded-full shadow"
                 >
                   Back
                 </button>
@@ -522,7 +529,7 @@ useEffect(() => {
                   onClick={() => {
                     if (questionLimit !== null) setShowQuantityPopup(false); // <-- Only here it starts
                   }}
-                  className="bg-[#0FBD4D] hover:bg-[#0da742] text-white font-semibold px-6 py-2 rounded-full shadow disabled:opacity-50"
+                  className="bg-[#0FBD4D] hover:bg-[#0da742] text-white cursor-pointer font-semibold px-6 py-2 rounded-full shadow disabled:opacity-50"
                   disabled={questionLimit === null}
                 >
                   Start Practice
@@ -624,13 +631,13 @@ useEffect(() => {
                       questionId: null,
                     })
                   }
-                  className="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-semibold"
+                  className="px-4 cursor-pointer py-2 rounded-lg text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleReportQuestion}
-                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-[#35095e] to-[#51216e] text-white hover:brightness-110 text-sm font-semibold shadow-lg"
+                  className="px-5 cursor-pointer py-2 rounded-lg bg-gradient-to-r from-[#35095e] to-[#51216e] text-white hover:brightness-110 text-sm font-semibold shadow-lg"
                 >
                   Submit Report
                 </button>
@@ -742,7 +749,7 @@ useEffect(() => {
                 <img
                   src={`https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].image}`}
                   alt="Question illustration"
-                    referrerPolicy="no-referrer"
+                  referrerPolicy="no-referrer"
                   className="max-w-full h-auto my-4 cursor-zoom-in"
                   onClick={() =>
                     setImagePopup({
@@ -781,7 +788,7 @@ useEffect(() => {
                         <img
                           src={`https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].hintImage}`}
                           alt="Hint illustration"
-                            referrerPolicy="no-referrer"
+                          referrerPolicy="no-referrer"
                           className="max-w-full h-auto my-2 cursor-zoom-in"
                           onClick={() =>
                             setImagePopup({
@@ -810,7 +817,7 @@ useEffect(() => {
                 {currentQuestionIndex === filteredQuestions.length - 1 ? (
                   <button
                     onClick={handleSubmit}
-                    className="md:px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="md:px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
                   >
                     More practice
                   </button>

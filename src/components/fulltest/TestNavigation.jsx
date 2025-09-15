@@ -50,7 +50,7 @@ export const TestNavigation = ({
     <div className="nav_btns grid lg:flex lg:flex-wrap lg:flex-row flex-row-reverse gap-0 justify-around items-center mb-4">
       <button
         onClick={handlePrevious}
-        className=" bg-gray-300 rounded hover:bg-gray-400 flex md:flex items-center"
+        className=" bg-gray-300 cursor-pointer rounded hover:bg-gray-400 flex md:flex items-center"
         disabled={currentQuestionIndex === 0}
       >
         <ArrowLeft size={20} className="mr-2" /> Previous Questions
@@ -59,7 +59,7 @@ export const TestNavigation = ({
       {onShowAnswers === false && (
         <button
           onClick={() => toggleMarkAsReview(question?.id)}
-          className={`flex items-center ${
+          className={`flex items-center cursor-pointer ${
             markedQuestions[question?.id] ? "bg-yellow-500" : "bg-gray-300"
           } rounded hover:bg-yellow-600`}
         >
@@ -70,7 +70,7 @@ export const TestNavigation = ({
 
       <button
         onClick={nextAction}
-        className=" bg-blue-500 text-white rounded hover:bg-blue-600"
+        className=" bg-blue-500 cursor-pointer text-white rounded hover:bg-blue-600"
         disabled={disableNextButton}
       >
         {nextButtonText}

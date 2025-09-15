@@ -725,7 +725,7 @@ export default function TestPage() {
         if (!testData) {
           setError("Test data is not available. Please go back and try again.");
           setLoading(false);
-           navigate("/user/dashboard"); 
+          navigate("/user/dashboard");
           return;
         }
 
@@ -880,13 +880,13 @@ export default function TestPage() {
             <div className="flex justify-end gap-4">
               <button
                 onClick={() => setShowSubmitConfirmation(false)}
-                className="px-4 py-2 hover:text-[red] bg-[red] border border-gray-300 rounded hover:bg-gray-100"
+                className="px-4 py-2 hover:text-[red] bg-[red] border border-gray-300 rounded hover:bg-gray-100 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
-                className="px-4 py-2 bg-[#34c534] text-white rounded hover:bg-[#34c534]"
+                className="px-4 py-2 bg-[#34c534] text-white rounded hover:bg-[#34c534] cursor-pointer"
               >
                 Submit Test
               </button>

@@ -28,7 +28,8 @@ const Leaderboard = () => {
 
   const getProfileImageUrl = (url = "") => {
     if (!url) return "/images/user/default.png";
-    if (url.startsWith("/images/user/")) return `https://mitoslearning.in${url}`;
+    if (url.startsWith("/images/user/"))
+      return `https://mitoslearning.in${url}`;
     return url;
   };
 
@@ -38,7 +39,13 @@ const Leaderboard = () => {
   };
 
   const getTotalScore = (u) => {
-    const candidates = [u.totalScore, u.total_score, u.score, u.marks, u.points];
+    const candidates = [
+      u.totalScore,
+      u.total_score,
+      u.score,
+      u.marks,
+      u.points,
+    ];
     for (const c of candidates) {
       const n = toNumber(c);
       if (n !== 0) return n;
@@ -74,7 +81,9 @@ const Leaderboard = () => {
         setLeaderboard(ranked);
 
         if (currentUserId) {
-          const me = ranked.find((u) => String(u.userId) === String(currentUserId));
+          const me = ranked.find(
+            (u) => String(u.userId) === String(currentUserId)
+          );
           setCurrentUserRank(me || null);
         } else {
           setCurrentUserRank(null);
@@ -188,15 +197,21 @@ const Leaderboard = () => {
               const rankNum = user.rank ?? index + 1;
               const p = palette[index] || palette[2];
               return (
-                <div key={String(user.userId)} className="flex flex-col items-center">
+                <div
+                  key={String(user.userId)}
+                  className="flex flex-col items-center"
+                >
                   <div className="grid md:flex items-center gap-0 md:gap-2 mb-2">
                     <img
                       src={getProfileImageUrl(user.profile)}
                       alt="Profile"
-                        referrerPolicy="no-referrer"
+                      referrerPolicy="no-referrer"
                       className="rounded-full mb-2 w-10 h-10"
                     />
-                    <span className="font-semibold text-sm md:text-lg">
+                    <span
+                      style={{ color: "#2a2a2a" }}
+                      className="font-semibold text-sm md:text-lg"
+                    >
                       {user.name || "User"}
                     </span>
                   </div>
@@ -207,7 +222,9 @@ const Leaderboard = () => {
                     className={`w-[60px] md:w-[150px] mt-3 ${heights[index]} ${p.block} rounded-t-3xl flex items-center justify-center text-white text-lg md:text-xl font-bold`}
                   >
                     {rankNum}
-                    <sup className="text-lg md:text-2xl ml-1">{ordinal(rankNum)}</sup>
+                    <sup className="text-lg md:text-2xl ml-1">
+                      {ordinal(rankNum)}
+                    </sup>
                   </div>
                 </div>
               );
@@ -221,14 +238,17 @@ const Leaderboard = () => {
           {newsLoading && <CommonLoader />}
           {newsError && <p className="text-red-500">{newsError}</p>}
           {!newsLoading && !newsError && newsItems.length === 0 && (
-            <p className="text-sm text-gray-500">No news available right now.</p>
+            <p className="text-sm text-gray-500">
+              No news available right now.
+            </p>
           )}
           {!newsLoading && !newsError && newsItems.length > 0 && (
             <div className="space-y-3">
               {newsItems.map((n) => {
                 const id = n.id ?? n._id ?? n.slug ?? n.newsId ?? "";
                 const title = n.title ?? n.heading ?? "Untitled";
-                const thumb = n.image ?? n.thumbnail ?? "/images/user/default.png";
+                const thumb =
+                  n.image ?? n.thumbnail ?? "/images/user/default.png";
                 const createdAt = n.createdAt ?? n.publishedAt ?? n.date;
                 const href = id ? `/news/${id}` : "#";
                 return (
@@ -238,13 +258,20 @@ const Leaderboard = () => {
                     className="group flex items-center gap-3 rounded-lg border bg-[#F9FAFB] p-3 hover:bg-white hover:shadow transition"
                   >
                     <div className="relative w-14 h-14 rounded-md overflow-hidden shrink-0">
-                      <img src={thumb} alt={title}   referrerPolicy="no-referrer" className="object-cover w-full h-full" />
+                      <img
+                        src={thumb}
+                        alt={title}
+                        referrerPolicy="no-referrer"
+                        className="object-cover w-full h-full"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-gray-800 line-clamp-1 group-hover:text-[#017bcd]">
                         {title}
                       </div>
-                      <div className="text-xs text-gray-500">{formatDate(createdAt)}</div>
+                      <div className="text-xs text-gray-500">
+                        {formatDate(createdAt)}
+                      </div>
                     </div>
                   </Link>
                 );
@@ -290,10 +317,12 @@ const Leaderboard = () => {
               <img
                 src={getProfileImageUrl(user.profile)}
                 alt="Profile"
-                  referrerPolicy="no-referrer"
+                referrerPolicy="no-referrer"
                 className="rounded-full w-6 h-6 md:w-10 md:h-10"
               />
-              <span className="font-medium text-sm md:text-xl text-[#282c35]">{user.name || "User"}</span>
+              <span className="font-medium text-sm md:text-xl text-[#282c35]">
+                {user.name || "User"}
+              </span>
             </div>
             <div className="md:col-span-2 col-span-3 flex justify-end">
               <span
@@ -314,7 +343,9 @@ const Leaderboard = () => {
         <div className="text-center mt-4">
           {canShowMore ? (
             <button
-              onClick={() => setVisibleCount(others.length + (currentUserRank ? 1 : 0))}
+              onClick={() =>
+                setVisibleCount(others.length + (currentUserRank ? 1 : 0))
+              }
               className="px-6 py-2 bg-[#017bcd] text-white rounded-full hover:bg-[#005fa3] transition"
             >
               Show More
