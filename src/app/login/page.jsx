@@ -175,8 +175,9 @@ export default function LoginPage() {
                 </div>
 
                 <button
+                  style={{ color: "#fff" }}
                   type="submit"
-                  className="login_btn bg-[#007ACC]  flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="login_btn bg-[#007ACC] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={isLoading}
                 >
                   {isLoading && (

@@ -5,6 +5,7 @@ import { FaHeart, FaRegHeart, FaFlag } from "react-icons/fa";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 import ImagePopup from "@/components/ImagePopup";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 // Helper component to render HTML with MathJax support
 const HtmlWithMath = ({ html }) => {
@@ -33,6 +34,7 @@ export const TestQuestion = ({
     show: false,
     src: "",
   });
+  const navigate = useNavigate();
 
   const renderOptionButtons = useCallback(
     (question) => {
@@ -153,11 +155,10 @@ export const TestQuestion = ({
       </div>
       {onShowAnswers === true && (
         <div
-          className={`mb-4 question_option p-4 rounded-lg border ${
-            userAnswers[question.id] === question.correctOption
-              ? "bg-green-100 border-green-300"
-              : "bg-red-100 border-red-300"
-          }`}
+          className={`mb-4 question_option p-4 rounded-lg border ${userAnswers[question.id] === question.correctOption
+            ? "bg-green-100 border-green-300"
+            : "bg-red-100 border-red-300"
+            }`}
         >
           <div className="mb-4 question_option flex gap-2">
             <span

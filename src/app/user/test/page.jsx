@@ -595,9 +595,8 @@ export default function TestPage() {
         return;
       }
 
-      const finalReason = `${selectedOptions.join(", ")}${
-        additionalMessage ? ` | Details: ${additionalMessage}` : ""
-      }`;
+      const finalReason = `${selectedOptions.join(", ")}${additionalMessage ? ` | Details: ${additionalMessage}` : ""
+        }`;
 
       await reportWrongQuestion(questionId, finalReason);
 
@@ -926,11 +925,10 @@ export default function TestPage() {
               {REPORT_OPTIONS.map((option) => (
                 <label
                   key={option}
-                  className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${
-                    reportModal.selectedOptions?.includes(option)
-                      ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
-                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
-                  }`}
+                  className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${reportModal.selectedOptions?.includes(option)
+                    ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
+                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                    }`}
                 >
                   <input
                     type="checkbox"
@@ -939,8 +937,8 @@ export default function TestPage() {
                       const updatedOptions = e.target.checked
                         ? [...(reportModal.selectedOptions || []), option]
                         : (reportModal.selectedOptions || []).filter(
-                            (o) => o !== option
-                          );
+                          (o) => o !== option
+                        );
 
                       setReportModal((prev) => ({
                         ...prev,
@@ -1041,7 +1039,16 @@ export default function TestPage() {
         questions.length > 0 &&
         !showInstructionPopup && (
           <div className="test_containers">
-            <div className="test_container1">
+            <div className="test_container1 relative">
+              <button
+                onClick={() => navigate("/user/dashboard", { replace: true })}
+                className="flex items-center px-3 py-1.5 rounded-md 
+             bg-[#007ACC] border border-[#007ACC] 
+             text-[#fff] font-medium shadow-sm 
+             transition-all duration-200 cursor-pointer absolute top-0 left-0"
+              >
+                ← Back
+              </button>
               <TestTimer
                 timeLeft={timeLeft}
                 totalTime={totalTime}

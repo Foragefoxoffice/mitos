@@ -46,10 +46,13 @@ const PracticeNavbar = () => {
         <div className="flex justify-center items-center gap-6">
           <button
             onClick={() => navigate(-1)} // ✅ back navigation
-            className="flex items-center p-3 rounded-md ml-4 h-10 bg-[transparent]"
+            className="flex items-center px-3 py-1.5 rounded-xl 
+             bg-[#007ACC] border border-[#007ACC] 
+             text-[#fff] font-medium shadow-sm 
+             transition-all duration-200 cursor-pointer"
           >
-            <FaArrowLeft className="text-lg text-[#017bcd]" />
-            <span className="text-md text-[#017bcd] pl-2 font-medium">
+            <FaArrowLeft />
+            <span className="pl-2">
               Back
             </span>
           </button>
@@ -62,7 +65,7 @@ const PracticeNavbar = () => {
             src={"/images/logo/logo.png"} // ✅ normal <img> in Vite
             className="hidden md:block"
             alt="logo"
-              referrerPolicy="no-referrer"
+            referrerPolicy="no-referrer"
             width={150}
             height={80}
           />

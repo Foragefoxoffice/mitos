@@ -31,8 +31,8 @@ const customStyles = {
     backgroundColor: state.isFocused
       ? "#51216E"
       : state.isSelected
-      ? "#017bcd"
-      : "#fff",
+        ? "#017bcd"
+        : "#fff",
     color: state.isFocused || state.isSelected ? "#fff" : "#333",
     padding: "10px",
     cursor: "pointer",

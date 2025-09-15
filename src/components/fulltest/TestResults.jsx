@@ -236,7 +236,9 @@ export const TestResults = ({
                 >
                   <div className="flex justify-between items-center">
                     <h3 className="text-[15px] font-semibold text-[#333]">
-                      {typeData?.typeName || typeId}
+                      {typeData?.typeName
+                        || Object.keys(typeData?.subjects || {})[0]
+                        || "General"}
                     </h3>
                     <div className="flex gap-2 text-xs md:text-sm">
                       <span className="bg-[#E3F2FD] text-[#007ACC] font-medium px-3 py-1 rounded-full">

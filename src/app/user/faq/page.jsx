@@ -89,12 +89,6 @@ export default function FAQPage() {
       answer:
         "Our platform auto-saves your progress every 30 seconds. If you face issues, you can resume from where you left off. For immediate assistance, use the 'Help' button or contact our 24/7 support team.",
     },
-    {
-      icon: <FaChartPie />,
-      question: "Do you offer refunds?",
-      answer:
-        "We offer a 15-day money-back guarantee if you're not satisfied with our service. After completing your first mock test, if you feel it didn't meet your expectations, you can request a full refund.",
-    },
   ];
 
   return (
@@ -112,11 +106,10 @@ export default function FAQPage() {
         {faqs.map((faq, index) => (
           <div key={index} className="rounded-lg overflow-hidden shadow-sm">
             <button
-              className={`w-full flex justify-between items-center px-6 py-4 rounded-lg transition-colors duration-300 ${
-                activeIndex === index
-                  ? "bg-[#007ACC] text-white"
-                  : "bg-[#007ACC] text-white"
-              }`}
+              className={`w-full flex justify-between items-center px-6 py-4 rounded-lg transition-colors duration-300 ${activeIndex === index
+                ? "bg-[#007ACC] text-white"
+                : "bg-[#007ACC] text-white"
+                }`}
               onClick={() => toggleAccordion(index)}
             >
               <div className="flex items-center space-x-3">
@@ -126,11 +119,10 @@ export default function FAQPage() {
                 </span>
               </div>
               <svg
-                className={`w-5 h-5 transform transition-transform duration-300 ${
-                  activeIndex === index
-                    ? "rotate-180 text-[#007ACC] bg-white h-8 w-8 rounded-full"
-                    : "text-[#007ACC] bg-white h-8 w-8 rounded-full"
-                }`}
+                className={`w-5 h-5 transform transition-transform duration-300 ${activeIndex === index
+                  ? "rotate-180 text-[#007ACC] bg-white h-8 w-8 rounded-full"
+                  : "text-[#007ACC] bg-white h-8 w-8 rounded-full"
+                  }`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

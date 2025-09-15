@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Subject from "@/components/practice/subject";
 import Chapter from "@/components/practice/chapter";
@@ -19,200 +18,30 @@ import { HiArrowSmallLeft } from "react-icons/hi2";
 import { FiSearch, FiX } from "react-icons/fi";
 import PremiumPopup from "@/components/PremiumPopup";
 
-/* ----------------------- small reusable components ----------------------- */
-
-// Search
-const SearchBar = ({ value, onChange, placeholder = "Search..." }) => {
-  return (
-    <div className="relative w-full max-w-xs md:max-w-md">
-      <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#007acc]" />
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full pl-10 pr-10 py-2 rounded-lg border border-[#cfe9fb] focus:outline-none focus:ring-2 focus:ring-[#007acc] text-[#00497a]"
-      />
-      {value ? (
-        <button
-          type="button"
-          onClick={() => onChange("")}
-          className="absolute right-3 top-1/2 -translate-y-1/2"
-          aria-label="Clear search"
-        >
-          <FiX className="text-[#4b6b86] bg-[#fff]" />
-        </button>
-      ) : null}
-    </div>
-  );
-};
-
-// Blocking modal to complete profile (mobile + class)
-// Blocking modal to complete profile (mobile + class)
-const ProfileCompletionModal = ({
-  open,
-  values,
-  setValues,
-  onSubmit,
-  submitting,
-  error,            // top-level/server error
-  errors = {},      // NEW: field-level errors
-  onValidate,       // NEW: live validation callback
-}) => {
-  if (!open) return null;
-
-  const [touched, setTouched] = useState({
-    phoneNumber: false,
-    className: false,
-  });
-
-  const classOptions = [
-    { label: "Select class…", value: "" },
-    { label: "Class 11", value: "CLASS_11" },
-    { label: "Class 12", value: "CLASS_12" },
-    { label: "Repeater", value: "REPEATER" },
-  ];
-
-  const phoneInvalid =
-    !!errors.phoneNumber && (touched.phoneNumber || submitting);
-  const classInvalid = !!errors.className && (touched.className || submitting);
-
-  const setTouchedField = (k) =>
-    setTouched((t) => ({ ...t, [k]: true }));
-
-  const handlePhoneChange = (e) => {
-    const onlyDigits = e.target.value.replace(/\D/g, "").slice(0, 10);
-    setValues((v) => ({ ...v, phoneNumber: onlyDigits }));
-    onValidate && onValidate({ ...values, phoneNumber: onlyDigits });
-  };
-
-  const handlePhonePaste = (e) => {
-    e.preventDefault();
-    const text = (e.clipboardData.getData("text") || "")
-      .replace(/\D/g, "")
-      .slice(0, 10);
-    setValues((v) => ({ ...v, phoneNumber: text }));
-    setTouchedField("phoneNumber");
-    onValidate && onValidate({ ...values, phoneNumber: text });
-  };
-
-  const handlePhoneKeyDown = (e) => {
-    const allowed = [
-      "Backspace",
-      "Delete",
-      "ArrowLeft",
-      "ArrowRight",
-      "Tab",
-    ];
-    if (allowed.includes(e.key)) return;
-    if (!/^\d$/.test(e.key)) e.preventDefault();
-  };
-
-  const handleClassChange = (e) => {
-    const val = e.target.value;
-    setValues((v) => ({ ...v, className: val }));
-    onValidate && onValidate({ ...values, className: val });
-  };
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-xl font-semibold text-[#00497a] mb-1">
-          Complete your profile
-        </h3>
-        <p className="text-sm text-[#4b6b86] mb-4">
-          Please add your mobile number and class to continue.
-        </p>
-
-        <div className="space-y-4">
-          {/* Phone */}
-          <div>
-            <label className="block text-sm text-[#00497a] mb-1" htmlFor="profile-phone">
-              Mobile number (India)
-            </label>
-            <input
-              id="profile-phone"
-              type="tel"
-              inputMode="numeric"
-              maxLength={10}
-              placeholder="10-digit mobile (starts with 6–9)"
-              className={[
-                "w-full rounded-lg px-3 py-2 text-black focus:outline-none",
-                phoneInvalid
-                  ? "border border-red-500 ring-1 ring-red-300 focus:ring-red-500"
-                  : "border border-[#cfe9fb] focus:ring-2 focus:ring-[#007acc]",
-              ].join(" ")}
-              value={values.phoneNumber}
-              onChange={handlePhoneChange}
-              onBlur={() => setTouchedField("phoneNumber")}
-              onPaste={handlePhonePaste}
-              onKeyDown={handlePhoneKeyDown}
-              aria-invalid={phoneInvalid ? "true" : "false"}
-              aria-describedby={phoneInvalid ? "profile-phone-error" : undefined}
-            />
-            {phoneInvalid && (
-              <p id="profile-phone-error" className="mt-1 text-xs text-red-600">
-                {errors.phoneNumber}
-              </p>
-            )}
-          </div>
-
-          {/* Class */}
-          <div>
-            <label className="block text-sm text-[#00497a] mb-1" htmlFor="profile-class">
-              Class
-            </label>
-            <select
-              id="profile-class"
-              className={[
-                "w-full rounded-lg px-3 py-2 bg-white text-black focus:outline-none",
-                classInvalid
-                  ? "border border-red-500 ring-1 ring-red-300 focus:ring-red-500"
-                  : "border border-[#cfe9fb] focus:ring-2 focus:ring-[#007acc]",
-              ].join(" ")}
-              value={values.className}
-              onChange={handleClassChange}
-              onBlur={() => setTouchedField("className")}
-              aria-invalid={classInvalid ? "true" : "false"}
-              aria-describedby={classInvalid ? "profile-class-error" : undefined}
-            >
-              {classOptions.map((opt) => (
-                <option key={opt.value || "empty"} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            {classInvalid && (
-              <p id="profile-class-error" className="mt-1 text-xs text-red-600">
-                {errors.className}
-              </p>
-            )}
-          </div>
-
-          {/* Server/top-level error */}
-          {error ? (
-            <div className="text-sm text-red-600">{error}</div>
-          ) : null}
-
-          <button
-            onClick={onSubmit}
-            disabled={submitting}
-            className="w-full bg-[#007ACC] text-white font-semibold rounded-lg py-2 hover:opacity-95 disabled:opacity-60"
-          >
-            {submitting ? "Saving..." : "Save & continue"}
-          </button>
-
-          <p className="text-xs text-[#4b6b86] text-center">
-            These details help us tailor your experience.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+/* ----------------------- reusable search ----------------------- */
+const SearchBar = ({ value, onChange, placeholder = "Search..." }) => (
+  <div className="relative w-full max-w-xs md:max-w-md">
+    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#007acc]" />
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full pl-10 pr-10 py-2 rounded-lg border border-[#cfe9fb] focus:outline-none focus:ring-2 focus:ring-[#007acc] text-[#00497a]"
+    />
+    {value && (
+      <button
+        type="button"
+        onClick={() => onChange("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2"
+        aria-label="Clear search"
+      >
+        <FiX className="text-[#4b6b86] bg-[#fff]" />
+      </button>
+    )}
+  </div>
+);
 
 /* ---------------------------- tab state helper --------------------------- */
-
 const useTabState = (tabKey, initialScreen) => {
   const sessionKey = `tabState-${tabKey}`;
 
@@ -290,7 +119,6 @@ const useTabState = (tabKey, initialScreen) => {
 };
 
 /* --------------------------------- page --------------------------------- */
-
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("tab1");
   const [isLoading, setIsLoading] = useState(false);
@@ -299,127 +127,33 @@ export default function Dashboard() {
   const testState = useTabState("test", "full-portion");
   const studyMaterialState = useTabState("study-material", "subject");
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
-
-  // NEW: profile requirements
-  const [user, setUser] = useState(null);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [profileValues, setProfileValues] = useState({
-    phoneNumber: "",
-    className: "",
-  });
-  const [savingProfile, setSavingProfile] = useState(false);
-  const [profileError, setProfileError] = useState("");
-
   // per-tab search terms
   const [practiceSearch, setPracticeSearch] = useState("");
   const [testSearch, setTestSearch] = useState("");
   const [studySearch, setStudySearch] = useState("");
-const [profileErrors, setProfileErrors] = useState({
-  phoneNumber: "",
-  className: "",
-});
 
-const validateProfile = (vals) => {
-  const errors = { phoneNumber: "", className: "" };
-
-  const phone = (vals.phoneNumber || "").replace(/\D/g, "");
-  if (!phone) errors.phoneNumber = "Mobile number is required.";
-  else if (!/^[6-9]\d{9}$/.test(phone)) {
-    errors.phoneNumber =
-      "Enter a valid Indian mobile (10 digits, starts with 6–9).";
-  }
-
-  const allowed = new Set(["CLASS_11", "CLASS_12", "REPEATER"]);
-  if (!vals.className) errors.className = "Please select your class.";
-  else if (!allowed.has(vals.className))
-    errors.className = "Invalid class selected.";
-
-  return { errors, isValid: !errors.phoneNumber && !errors.className };
-};
-
-  // Init active tab + logged-in
-  useEffect(() => {
-    const savedTab = sessionStorage.getItem("activeTab");
-    if (savedTab) setActiveTab(savedTab);
-
-    const userId =
-      typeof window !== "undefined" && localStorage.getItem("userId");
-    // treat presence of userId as logged-in
-    setIsLoggedIn(!!userId);
-  }, []);
-
-  // Fetch user and enforce profile completion
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    const token =
-      typeof window !== "undefined" && localStorage.getItem("token");
-    if (!token) return; // cannot fetch without token
-
-    (async () => {
-      try {
-        const res = await fetch("https://mitoslearning.in/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to fetch user profile");
-        const data = await res.json();
-        const u = data?.user ?? data; // support either shape
-        setUser(u);
-
-        const phoneOk =
-          !!u?.phoneNumber && String(u.phoneNumber).trim().length >= 10;
-        const classOk = !!u?.className && String(u.className).trim().length > 0;
-
-        // seed modal form with current values
-        setProfileValues({
-          phoneNumber: u?.phoneNumber ? String(u.phoneNumber).slice(0, 10) : "",
-          className: u?.className ?? "",
-        });
-
-        // Block the page until completed
-        setShowProfileModal(!(phoneOk && classOk));
-      } catch (e) {
-        // Silent fail: do not block if /me fails
-        console.error(e);
-      }
-    })();
-  }, [isLoggedIn]);
-
-  // Reset search when screen changes (scoped feel)
+  // Reset search when screen changes
   useEffect(() => setPracticeSearch(""), [practiceState.currentScreen]);
   useEffect(() => setTestSearch(""), [testState.currentScreen]);
   useEffect(() => setStudySearch(""), [studyMaterialState.currentScreen]);
 
   const tabDetails = {
-    tab1: {
-      label: "Practice",
-      icon: <TbBulb className="inline md:mr-2 mr-1" />,
-    },
-    tab2: {
-      label: "Test",
-      icon: <LuNotebookPen className="inline md:mr-2 mr-1" />,
-    },
-    tab3: {
-      label: "Study Material",
-      icon: <RiBook2Line className="inline md:mr-2 mr-1" />,
-    },
+    tab1: { label: "Practice", icon: <TbBulb className="inline mr-1" /> },
+    tab2: { label: "Test", icon: <LuNotebookPen className="inline mr-1" /> },
+    tab3: { label: "Study Material", icon: <RiBook2Line className="inline mr-1" /> },
   };
 
- const handleTabClick = (tab) => {
-  // ❌ no popup for study material in guest mode
-  setIsLoading(true);
-  setTimeout(() => {
-    setActiveTab(tab);
-    sessionStorage.setItem("activeTab", tab);
-    setIsLoading(false);
-
-    if (tab === "tab1") practiceState.navigateTo("subject");
-    else if (tab === "tab2") testState.navigateTo("full-portion");
-    else if (tab === "tab3") studyMaterialState.navigateTo("subject");
-  }, 50);
-};
+  const handleTabClick = (tab) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setActiveTab(tab);
+      sessionStorage.setItem("activeTab", tab);
+      setIsLoading(false);
+      if (tab === "tab1") practiceState.navigateTo("subject");
+      else if (tab === "tab2") testState.navigateTo("full-portion");
+      else if (tab === "tab3") studyMaterialState.navigateTo("subject");
+    }, 50);
+  };
 
   // helpers to know when to show Back + Search
   const showPracticeHeader = ["chapter", "topic", "questiontype"].includes(
@@ -435,167 +169,127 @@ const validateProfile = (vals) => {
     studyMaterialState.currentScreen
   );
 
-const handleSaveProfile = async () => {
-  setProfileError("");
-
-  const { errors, isValid } = validateProfile(profileValues);
-  setProfileErrors(errors);
-  if (!isValid) {
-    setShowProfileModal(true);
-    setProfileError("Please fix the highlighted fields.");
-    return;
-  }
-  if (!user?.id) {
-    setProfileError("User not found. Please re-login.");
-    return;
-  }
-
-  try {
-    setSavingProfile(true);
-    const token = localStorage.getItem("token");
-    const phone = (profileValues.phoneNumber || "").replace(/\D/g, "");
-
-    // 🔁 Map UI values -> Prisma enum values (adjust names to match your schema)
-    const classMap = {
-      "11": "CLASS_11",
-      "12": "CLASS_12",
-      "REPEATER": "REPEATER",
-      // Fallback: if your schema uses plain "11" / "12", reverse this map or skip it
-    };
-    const normalizedClass =
-      classMap[profileValues.className] || profileValues.className;
-
-    const fd = new FormData();
-    fd.append("phoneNumber", phone);
-    fd.append("className", normalizedClass);
-
-    const res = await fetch(
-      `https://mitoslearning.in/api/users/update-profile/${user.id}`,
-      {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
-      }
-    );
-
-    if (!res.ok) {
-      let serverMsg = "Failed to update profile";
-      try {
-        const data = await res.json();
-        if (data?.errors) {
-          setProfileErrors((prev) => ({ ...prev, ...data.errors }));
-          serverMsg = "Please fix the highlighted fields.";
-        } else if (data?.message) {
-          serverMsg = String(data.message);
-        }
-      } catch {
-        const t = await res.text().catch(() => "");
-        if (t) serverMsg = t;
-      }
-      throw new Error(serverMsg);
+  const getSearchPlaceholder = (tab, screen) => {
+    if (tab === "tab1") {
+      if (screen === "chapter") return "Search chapters...";
+      if (screen === "topic") return "Search topics...";
+      if (screen === "questiontype") return "Search types...";
     }
-
-    setUser((u) => ({
-      ...(u || {}),
-      phoneNumber: phone,
-      className: normalizedClass,
-    }));
-    setShowProfileModal(false);
-  } catch (err) {
-    setProfileError(err.message || "Something went wrong.");
-  } finally {
-    setSavingProfile(false);
-  }
-};
-
-
+    if (tab === "tab2") {
+      if (screen === "test-subject") return "Search subjects...";
+      if (screen === "test-chapter") return "Search chapters...";
+      if (screen === "test-topic") return "Search topics...";
+      if (screen === "questiontype") return "Search types...";
+    }
+    if (tab === "tab3") {
+      if (screen === "chapter") return "Search chapters...";
+      if (screen === "topic") return "Search topics...";
+    }
+    return "Search...";
+  };
 
   return (
     <div className="pt-6">
-      {/* Force profile completion (blocking) */}
-    <ProfileCompletionModal
-  open={isLoggedIn && showProfileModal}
-  values={profileValues}
-  setValues={setProfileValues}
-  onSubmit={handleSaveProfile}
-  submitting={savingProfile}
-  error={profileError}
-  errors={profileErrors}                                
-  onValidate={(vals) => setProfileErrors(              
-    validateProfile(vals).errors
-  )}
-/>
-
-      {/* Tabs */}
-      <div className="tabs flex space-x-3 md:space-x-4 md:p-3">
-        {["tab1", "tab2", "tab3"].map((tab) => (
-          <button
-            key={tab}
-            className={`tab ${
-              activeTab === tab
-                ? "bg-[#007ACC] font-bold rounded-5xl "
-                : "text-[#00497A] bg-[#dff4ff]"
-            } px-2 sm:px-6 lg:px-9 md:py-3 py-2`}
-            onClick={() => handleTabClick(tab)}
-            aria-label={tabDetails[tab]?.label || "Tab"}
-            aria-selected={activeTab === tab}
-          >
-            <span
-              className={`flex items-center transition-all duration-300 ease-in-out ${
-                tab === activeTab
-                  ? "text-white md:text-[18px] text-[13px]"
-                  : "text-[#00497a] md:text-[16px] text-[14px]"
-              }`}
-            >
-              {tabDetails[tab]?.icon}
-              <span
-                className={`flex items-center transition-all duration-300 ease-in-out ${
-                  tab === activeTab
-                    ? "text-white md:text-[18px] text-[13px]"
-                    : "text-[#00497a] md:text-[16px] text-[14px]"
-                }`}
+      {/* Unified sticky header */}
+      <div className="sticky top-0 z-50 bg-white rounded-4xl">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-5 py-6">
+          {/* Tabs */}
+          <div className="flex space-x-2 md:space-x-4">
+            {["tab1", "tab2", "tab3"].map((tab) => (
+              <button
+                key={tab}
+                className={`tab px-3 sm:px-6 py-2 md:py-2.5 rounded-3xl transition-all duration-200 ${activeTab === tab
+                  ? "bg-[#007ACC] text-white font-semibold shadow-md"
+                  : "bg-[#dff4ff] text-[#00497A]"
+                  }`}
+                onClick={() => handleTabClick(tab)}
               >
-                {tabDetails[tab]?.label ?? "Unknown Tab"}
-              </span>
-            </span>
-          </button>
-        ))}
+                <span className="flex items-center text-sm md:text-base">
+                  {tabDetails[tab]?.icon}
+                  {tabDetails[tab]?.label}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Back + Search */}
+          <div className="flex items-center gap-3 md:gap-4">
+            {(activeTab === "tab1" && showPracticeHeader) && (
+              <button
+                onClick={practiceState.goBack}
+                className="flex items-center px-3 py-1.5 rounded-xl 
+             bg-[#007ACC] border border-[#007ACC] 
+             text-[#fff] font-medium shadow-sm 
+             transition-all duration-200 cursor-pointer"
+              >
+                <HiArrowSmallLeft className="text-lg" />
+                <span className="ml-1 hidden sm:inline">Back</span>
+              </button>
+
+            )}
+            {(activeTab === "tab2" && showTestHeader) && (
+              <button
+                onClick={testState.goBack}
+                className="flex items-center px-3 py-1.5 rounded-xl 
+             bg-[#007ACC] border border-[#007ACC] 
+             text-[#fff] font-medium shadow-sm 
+             transition-all duration-200 cursor-pointer"
+              >
+                <HiArrowSmallLeft className="text-lg" />
+                <span className="ml-1 hidden sm:inline">Back</span>
+              </button>
+            )}
+            {(activeTab === "tab3" && showStudyHeader) && (
+              <button
+                onClick={studyMaterialState.goBack}
+                className="flex items-center px-3 py-1.5 rounded-xl 
+             bg-[#007ACC] border border-[#007ACC] 
+             text-[#fff] font-medium shadow-sm 
+             transition-all duration-200 cursor-pointer"
+              >
+                <HiArrowSmallLeft className="text-lg" />
+                <span className="ml-1 hidden sm:inline">Back</span>
+              </button>
+            )}
+
+            {(showPracticeHeader || showTestHeader || showStudyHeader) && (
+              <SearchBar
+                value={
+                  activeTab === "tab1"
+                    ? practiceSearch
+                    : activeTab === "tab2"
+                      ? testSearch
+                      : studySearch
+                }
+                onChange={
+                  activeTab === "tab1"
+                    ? setPracticeSearch
+                    : activeTab === "tab2"
+                      ? setTestSearch
+                      : setStudySearch
+                }
+                placeholder={getSearchPlaceholder(
+                  activeTab,
+                  activeTab === "tab1"
+                    ? practiceState.currentScreen
+                    : activeTab === "tab2"
+                      ? testState.currentScreen
+                      : studyMaterialState.currentScreen
+                )}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
+      {/* Content */}
       {isLoading ? (
         <CommonLoader />
       ) : (
         <div className="mt-4">
           {/* PRACTICE */}
           {activeTab === "tab1" && (
-            <div
-              className={
-                showProfileModal ? "pointer-events-none opacity-40" : ""
-              }
-            >
-              {showPracticeHeader && (
-                <div className="flex justify-between items-center gap-3 md:gap-4 px-4 mb-3">
-                  <button
-                    onClick={practiceState.goBack}
-                    className="flex items-center p-2 rounded-md bg-transparent"
-                  >
-                    <HiArrowSmallLeft className="text-xl text-[#007acc]" />
-                    <span className="text-[#007acc] ml-1">Back</span>
-                  </button>
-                  <SearchBar
-                    value={practiceSearch}
-                    onChange={setPracticeSearch}
-                    placeholder={
-                      practiceState.currentScreen === "chapter"
-                        ? "Search chapters..."
-                        : practiceState.currentScreen === "topic"
-                        ? "Search topics..."
-                        : "Search types..."
-                    }
-                  />
-                </div>
-              )}
-
+            <>
               {practiceState.currentScreen === "subject" && (
                 <Subject
                   onSubjectSelect={practiceState.handleSubjectSelect}
@@ -626,41 +320,12 @@ const handleSaveProfile = async () => {
                   searchTerm={practiceSearch}
                 />
               )}
-            </div>
+            </>
           )}
 
           {/* TEST */}
           {activeTab === "tab2" && (
-            <div
-              className={
-                showProfileModal ? "pointer-events-none opacity-40" : ""
-              }
-            >
-              {showTestHeader && (
-                <div className="flex justify-between items-center gap-3 md:gap-4 px-4 mb-3">
-                  <button
-                    onClick={testState.goBack}
-                    className="flex items-center p-2 rounded-md bg-transparent"
-                  >
-                    <HiArrowSmallLeft className="text-xl text-[#007acc]" />
-                    <span className="text-[#007acc] ml-1">Back</span>
-                  </button>
-                  <SearchBar
-                    value={testSearch}
-                    onChange={setTestSearch}
-                    placeholder={
-                      testState.currentScreen === "test-subject"
-                        ? "Search subjects..."
-                        : testState.currentScreen === "test-chapter"
-                        ? "Search chapters..."
-                        : testState.currentScreen === "test-topic"
-                        ? "Search topics..."
-                        : "Search types..."
-                    }
-                  />
-                </div>
-              )}
-
+            <>
               {testState.currentScreen === "full-portion" && (
                 <Portion
                   onPortionSelect={testState.handlePortionSelect}
@@ -702,37 +367,12 @@ const handleSaveProfile = async () => {
                   searchTerm={testSearch}
                 />
               )}
-            </div>
+            </>
           )}
 
           {/* STUDY MATERIAL */}
           {activeTab === "tab3" && (
-            <div
-              className={
-                showProfileModal ? "pointer-events-none opacity-40" : ""
-              }
-            >
-              {showStudyHeader && (
-                <div className="flex items-center justify-between gap-3 md:gap-4 px-4 mb-3">
-                  <button
-                    className="flex bg-transparent items-center p-2 rounded-md"
-                    onClick={studyMaterialState.goBack}
-                  >
-                    <HiArrowSmallLeft className="text-xl text-[#007acc]" />
-                    <span className="text-[#007acc] ml-1">Back</span>
-                  </button>
-                  <SearchBar
-                    value={studySearch}
-                    onChange={setStudySearch}
-                    placeholder={
-                      studyMaterialState.currentScreen === "chapter"
-                        ? "Search chapters..."
-                        : "Search topics..."
-                    }
-                  />
-                </div>
-              )}
-
+            <>
               {studyMaterialState.currentScreen === "subject" && (
                 <MeterialsSubject
                   onSubjectSelect={studyMaterialState.handleSubjectSelect}
@@ -754,14 +394,13 @@ const handleSaveProfile = async () => {
                   searchTerm={studySearch}
                 />
               )}
-            </div>
+            </>
           )}
         </div>
       )}
 
-      {showPremiumPopup && (
-        <PremiumPopup onClose={() => setShowPremiumPopup(false)} />
-      )}
+      {/* Premium popup */}
+      {false && <PremiumPopup onClose={() => { }} />}
     </div>
   );
 }

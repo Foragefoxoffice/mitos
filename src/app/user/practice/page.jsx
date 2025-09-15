@@ -268,9 +268,8 @@ export default function PracticePage() {
         return;
       }
 
-      const finalReason = `${selectedOptions.join(", ")}${
-        additionalMessage ? ` | Details: ${additionalMessage}` : ""
-      }`;
+      const finalReason = `${selectedOptions.join(", ")}${additionalMessage ? ` | Details: ${additionalMessage}` : ""
+        }`;
 
       await reportWrongQuestion(questionId, finalReason);
 
@@ -484,11 +483,10 @@ export default function PracticePage() {
                   return (
                     <label
                       key={index}
-                      className={`flex items-center justify-left p-4 rounded-xl border-2 transition-all duration-150 cursor-pointer ${
-                        isSelected
-                          ? "bg-[#E5F3FF] border-[#007acc] shadow-[0px_2px_2px_0px_#00000040,-1px_2px_6px_0px_#00000036,-3px_14px_20px_0px_#00000021,-5px_60px_24px_0px_#0000000A,-7px_94px_26px_0px_#00000000]"
-                          : "bg-[#F7F9FB] border-[#C7D3DD]"
-                      }`}
+                      className={`flex items-center justify-left p-4 rounded-xl border-2 transition-all duration-150 cursor-pointer ${isSelected
+                        ? "bg-[#E5F3FF] border-[#007acc] shadow-[0px_2px_2px_0px_#00000040,-1px_2px_6px_0px_#00000036,-3px_14px_20px_0px_#00000021,-5px_60px_24px_0px_#0000000A,-7px_94px_26px_0px_#00000000]"
+                        : "bg-[#F7F9FB] border-[#C7D3DD]"
+                        }`}
                       onClick={() => setQuestionLimit(limit)} // <-- Only selection here
                     >
                       <input
@@ -512,7 +510,10 @@ export default function PracticePage() {
               <div className="flex justify-between items-center px-6 py-6">
                 <button
                   onClick={() => navigate(-1)}
-                  className="bg-[#DFF1E5] text-[#3D9970] font-semibold px-6 py-2 cursor-pointer rounded-full shadow"
+                  className="flex items-center px-3 py-1.5 rounded-xl 
+             bg-[#007ACC] border border-[#007ACC] 
+             text-[#fff] font-medium shadow-sm 
+             transition-all duration-200 cursor-pointer"
                 >
                   Back
                 </button>
@@ -573,11 +574,10 @@ export default function PracticePage() {
                 {REPORT_OPTIONS.map((option) => (
                   <label
                     key={option}
-                    className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${
-                      reportModal.selectedOptions.includes(option)
-                        ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
-                        : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
-                    }`}
+                    className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${reportModal.selectedOptions.includes(option)
+                      ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
+                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                      }`}
                   >
                     <input
                       type="checkbox"
@@ -586,8 +586,8 @@ export default function PracticePage() {
                         const updatedOptions = e.target.checked
                           ? [...reportModal.selectedOptions, option]
                           : reportModal.selectedOptions.filter(
-                              (o) => o !== option
-                            );
+                            (o) => o !== option
+                          );
                         setReportModal((prev) => ({
                           ...prev,
                           selectedOptions: updatedOptions,
@@ -766,12 +766,11 @@ export default function PracticePage() {
 
               {userAnswers[filteredQuestions[currentQuestionIndex].id] && (
                 <div
-                  className={`mt-4 p-6 rounded-lg border ${
-                    userAnswers[filteredQuestions[currentQuestionIndex].id] ===
+                  className={`mt-4 p-6 rounded-lg border ${userAnswers[filteredQuestions[currentQuestionIndex].id] ===
                     filteredQuestions[currentQuestionIndex].correctOption
-                      ? "bg-green-100 border-green-300"
-                      : "bg-red-100 border-red-300"
-                  }`}
+                    ? "bg-green-100 border-green-300"
+                    : "bg-red-100 border-red-300"
+                    }`}
                 >
                   <p
                     className="text-green-800 font-bold"
@@ -809,7 +808,7 @@ export default function PracticePage() {
               <div className="nav_btns flex justify-between mt-6">
                 <button
                   onClick={handlePrevious}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50 cursor-pointer"
                   disabled={currentQuestionIndex === 0}
                 >
                   Previous
@@ -824,7 +823,7 @@ export default function PracticePage() {
                 ) : (
                   <button
                     onClick={handleNext}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
                   >
                     Next
                   </button>
