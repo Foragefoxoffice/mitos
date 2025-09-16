@@ -283,6 +283,7 @@ export default function Dashboard() {
       </div>
 
       {/* Content */}
+
       {isLoading ? (
         <CommonLoader />
       ) : (
