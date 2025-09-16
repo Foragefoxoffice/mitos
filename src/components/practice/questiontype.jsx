@@ -78,9 +78,9 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
 
         const sorted = isGuest
           ? [...chapterQuestionTypes].sort((a, b) => {
-              if (a.isPremium === b.isPremium) return 0;
-              return a.isPremium ? 1 : -1;
-            })
+            if (a.isPremium === b.isPremium) return 0;
+            return a.isPremium ? 1 : -1;
+          })
           : chapterQuestionTypes;
 
         setAvailableQuestionTypes(sorted);
@@ -205,9 +205,8 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
                   return (
                     <div
                       key={type.id}
-                      className={`topic_card flex items-center space-x-2 ${
-                        isLocked ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                      className={`topic_card flex items-center space-x-2 ${isLocked ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                       onClick={() => {
                         if (isLocked) setShowPopup(true);
                       }}
@@ -253,7 +252,7 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
               </div>
 
               <button
-                className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
+                className="mx-auto cursor-pointer mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
                 onClick={startTest}
               >
                 Lets Practice

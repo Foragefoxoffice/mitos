@@ -777,15 +777,6 @@ export default function TestPage() {
         );
 
         const formattedQuestions = deduplicatedQuestions.map((question) => {
-          const typeName =
-            question.questionType?.name?.trim() ||
-            question.type?.name?.trim() ||
-            (typeof question.questionType === "string"
-              ? question.questionType.trim()
-              : "") ||
-            (typeof question.type === "string" ? question.type.trim() : "") ||
-            "General";
-
           const chapterName =
             question.chapter?.name?.trim() ||
             (typeof question.chapter === "string"
@@ -794,6 +785,20 @@ export default function TestPage() {
             (question.chapterId
               ? `Chapter ${question.chapterId}`
               : "General Chapter");
+
+          let typeName;
+          if (testData?.testname === "custom-test") {
+            typeName = chapterName;
+          } else {
+            typeName =
+              question.questionType?.name?.trim() ||
+              question.type?.name?.trim() ||
+              (typeof question.questionType === "string"
+                ? question.questionType.trim()
+                : "") ||
+              (typeof question.type === "string" ? question.type.trim() : "") ||
+              "General";
+          }
 
           return {
             id: question.id || "N/A",

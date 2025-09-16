@@ -268,153 +268,151 @@ export default function Chapter({
     "Basics Concepts in Chemistry": {
       image: "/images/chapterImg/C11.1-Some-Basic-Concepts-of-Chemistry.svg",
     },
-        "Atomic Structure": {
+    "Atomic Structure": {
       image: "/images/chapterImg/C11.2-Structure-of-Atom.svg",
     },
-        "Classification of Elements & Periodicity in Properties": {
+    "Classification of Elements & Periodicity in Properties": {
       image: "/images/chapterImg/C11.3-Classification-of-Elements-and-Periodicity-in-Properties.svg",
     },
-        "Chemical Bonding & Molecular Structure": {
+    "Chemical Bonding & Molecular Structure": {
       image: "/images/chapterImg/C11.4-Chemical-Bonding-and-Molecular-Structure.svg",
     },
-        "Equilibrium": {
+    "Equilibrium": {
       image: "/images/chapterImg/C11.6-Equilibrium.svg",
     },
-        "Hydrocarbons": {
+    "Hydrocarbons": {
       image: "/images/chapterImg/C11.9-Hydrocarbons.svg",
     },
-        "Solutions": {
+    "Solutions": {
       image: "/images/chapterImg/C12.1-SOLUTIONS.svg",
     },
-        "Electrochemistry": {
+    "Electrochemistry": {
       image: "/images/chapterImg/C12.2-ELECTROCHEMISTRY.svg",
     },
-        "Chemical Kinetics": {
+    "Chemical Kinetics": {
       image: "/images/chapterImg/C12.3-CHEMICAL-KINETICS.svg",
     },
-        "Haloalkanes & Haloarenes": {
+    "Haloalkanes & Haloarenes": {
       image: "/images/chapterImg/C12.6-Haloalkanes-and-Haloarenes.svg",
     },
-        "Alcohols, Phenols & Ethers": {
+    "Alcohols, Phenols & Ethers": {
       image: "/images/chapterImg/C12.7-Alcohols-Phenols-and-Ethers.svg",
     },
-        "Aldehydes, Ketones & Carboxylic Acids": {
+    "Aldehydes, Ketones & Carboxylic Acids": {
       image: "/images/chapterImg/C12.8-Aldehydes-Ketones-and-Carboxylic-Acids.svg",
     },
-        "Amines": {
+    "Amines": {
       image: "/images/chapterImg/C12.9-Amines.svg",
     },
-        "Biomolecules": {
+    "Biomolecules": {
       image: "/images/chapterImg/C12.10-Biomolecules.svg",
     },
-        "Thermodynamics": {
+    "Thermodynamics": {
       image: "/images/chapterImg/C11.5-Thermodynamics.svg",
     },
-        "Redox Reactions": {
+    "Redox Reactions": {
       image: "/images/chapterImg/C11.7-Redox-Reactions.svg",
     },
-        "General Organic Chemistry": {
+    "General Organic Chemistry": {
       image: "/images/chapterImg/C11.8-General-Organic-Chemistry.svg",
     },
-        "d & f Block": {
+    "d & f Block": {
       image: "/images/chapterImg/C12.4-THE-d-AND-f-BLOCK-ELEMENTS.svg",
     },
-        "Coordination Compounds": {
+    "Coordination Compounds": {
       image: "/images/chapterImg/C12.5-COORDINATION-COMPOUNDS.svg",
     },
 
     // physics
     "Units and Measurements": {
-      image: "/images/chapterImg/P11.1-Units-&-Measurement.svg", 
+      image: "/images/chapterImg/P11.1-Units-&-Measurement.svg",
     },
-        "Motion in a Straight Line": {
-      image: "/images/chapterImg/P11.2-Motion-in-A-Straight-Line.svg", 
+    "Motion in a Straight Line": {
+      image: "/images/chapterImg/P11.2-Motion-in-A-Straight-Line.svg",
     },
-        "Motion in a Plane": {
-      image: "/images/chapterImg/P11.3-Motion-in-a-Plane.svg", 
+    "Motion in a Plane": {
+      image: "/images/chapterImg/P11.3-Motion-in-a-Plane.svg",
     },
-        "Laws of Motion": {
-      image: "/images/chapterImg/P11.4-Laws-of-Motion.svg", 
+    "Laws of Motion": {
+      image: "/images/chapterImg/P11.4-Laws-of-Motion.svg",
     },
-        "Work, Power, Energy": {
-      image: "/images/chapterImg/P11.5-Work-Energy-and-Power.svg", 
+    "Work, Power, Energy": {
+      image: "/images/chapterImg/P11.5-Work-Energy-and-Power.svg",
     },
-        "System of Particles & Rotational Motion": {
-      image: "/images/chapterImg/P11.6-System-of-Particles-and-Rotational-Motion.svg", 
+    "System of Particles & Rotational Motion": {
+      image: "/images/chapterImg/P11.6-System-of-Particles-and-Rotational-Motion.svg",
     },
-        "Gravitation": {
-      image: "/images/chapterImg/P11.7-Gravitation.svg", 
+    "Gravitation": {
+      image: "/images/chapterImg/P11.7-Gravitation.svg",
     },
-        "Mechanical Properties of Solids": {
-      image: "/images/chapterImg/P11.8-Mechanical-Properties-of-Solids.svg", 
+    "Mechanical Properties of Solids": {
+      image: "/images/chapterImg/P11.8-Mechanical-Properties-of-Solids.svg",
     },
-        "Mechanical Properties of Fluids": {
-      image: "/images/chapterImg/P11.9-Mechanical-Properties-of-Fluids.svg", 
+    "Mechanical Properties of Fluids": {
+      image: "/images/chapterImg/P11.9-Mechanical-Properties-of-Fluids.svg",
     },
-        "Thermal Properties of Matter": {
-      image: "/images/chapterImg/P11.10-Thermal-Properties-of-Matter.svg", 
+    "Thermal Properties of Matter": {
+      image: "/images/chapterImg/P11.10-Thermal-Properties-of-Matter.svg",
     },
-        "Thermodynamics": {
-      image: "/images/chapterImg/P11.11-Thermodynamics.svg", 
+    "Thermodynamics": {
+      image: "/images/chapterImg/P11.11-Thermodynamics.svg",
     },
-        "Kinetic Theory": {
-      image: "/images/chapterImg/P11.12-Kinetic-Theory.svg", 
+    "Kinetic Theory": {
+      image: "/images/chapterImg/P11.12-Kinetic-Theory.svg",
     },
-        "Oscillations": {
-      image: "/images/chapterImg/P11.13-Oscillations.svg", 
+    "Oscillations": {
+      image: "/images/chapterImg/P11.13-Oscillations.svg",
     },
-        "Waves": {
-      image: "/images/chapterImg/P11.14-Waves.svg", 
+    "Waves": {
+      image: "/images/chapterImg/P11.14-Waves.svg",
     },
-        "Electric Charges & Fields": {
-      image: "/images/chapterImg/P12.1-ELECTRIC-CHARGES-AND-FIELDS.svg", 
+    "Electric Charges & Fields": {
+      image: "/images/chapterImg/P12.1-ELECTRIC-CHARGES-AND-FIELDS.svg",
     },
 
-        "Electrostatic Potential & Capacitance": {
-      image: "/images/chapterImg/P12.2-ELECTROSTATIC-POTENTIAL-AND-CAPACITANCE.svg", 
+    "Electrostatic Potential & Capacitance": {
+      image: "/images/chapterImg/P12.2-ELECTROSTATIC-POTENTIAL-AND-CAPACITANCE.svg",
     },
-        "Current Electricity": {
-      image: "/images/chapterImg/P12.3-CURRENT-ELECTRICITY.svg", 
+    "Current Electricity": {
+      image: "/images/chapterImg/P12.3-CURRENT-ELECTRICITY.svg",
     },
-        "Moving Charges & Magnetism": {
-      image: "/images/chapterImg/P12.4-MOVING-CHARGES-AND-MAGNETISM.svg", 
+    "Moving Charges & Magnetism": {
+      image: "/images/chapterImg/P12.4-MOVING-CHARGES-AND-MAGNETISM.svg",
     },
-        "Magnetism & Matter": {
-      image: "/images/chapterImg/P12.5-MAGNETISM-AND-MATTER.svg", 
+    "Magnetism & Matter": {
+      image: "/images/chapterImg/P12.5-MAGNETISM-AND-MATTER.svg",
     },
-        "Electromagnetic Induction": {
-      image: "/images/chapterImg/P12.6-ELECTROMAGNETIC-INDUCTION.svg", 
+    "Electromagnetic Induction": {
+      image: "/images/chapterImg/P12.6-ELECTROMAGNETIC-INDUCTION.svg",
     },
-        "Alternating Current": {
-      image: "/images/chapterImg/P12.7-ALTERNATING-CURRENT.svg", 
+    "Alternating Current": {
+      image: "/images/chapterImg/P12.7-ALTERNATING-CURRENT.svg",
     },
-        "Electromagnetic Waves": {
-      image: "/images/chapterImg/P12.8-ELECTROMAGNETIC-WAVES.svg", 
+    "Electromagnetic Waves": {
+      image: "/images/chapterImg/P12.8-ELECTROMAGNETIC-WAVES.svg",
     },
-        "Ray Optics": {
-      image: "/images/chapterImg/P12.9-RAY-OPTICS-AND-OPTICAL-INSTRUMENTS-01.svg", 
+    "Ray Optics": {
+      image: "/images/chapterImg/P12.9-RAY-OPTICS-AND-OPTICAL-INSTRUMENTS-01.svg",
     },
-        "Wave Optics": {
-      image: "/images/chapterImg/P12.10-WAVE-OPTICS.svg", 
+    "Wave Optics": {
+      image: "/images/chapterImg/P12.10-WAVE-OPTICS.svg",
     },
-        "Dual Nature of Radiation & Matter": {
-      image: "/images/chapterImg/P12.11-DUAL-NATURE-OF-RADIATION-AND-MATTER.svg", 
+    "Dual Nature of Radiation & Matter": {
+      image: "/images/chapterImg/P12.11-DUAL-NATURE-OF-RADIATION-AND-MATTER.svg",
     },
-        "Atoms": {
-      image: "/images/chapterImg/P12.12-ATOMS.svg", 
+    "Atoms": {
+      image: "/images/chapterImg/P12.12-ATOMS.svg",
     },
-        "Nuclei": {
-      image: "/images/chapterImg/P12.13-NUCLEI.svg", 
+    "Nuclei": {
+      image: "/images/chapterImg/P12.13-NUCLEI.svg",
     },
-        "Semiconductors Electronics": {
-      image: "/images/chapterImg/P12.14-SEMICONDUCTOR-ELECTRONICS-MATERIALS-DEVICES-AND-SIMPLE-CIRCUITS.svg", 
+    "Semiconductors Electronics": {
+      image: "/images/chapterImg/P12.14-SEMICONDUCTOR-ELECTRONICS-MATERIALS-DEVICES-AND-SIMPLE-CIRCUITS.svg",
     },
   };
 
   return (
     <div className="p-4 inside_practice">
-      {loading && <CommonLoader />}
-      {error && <p className="text-center pt-10">{error}</p>}
 
       <div className="mb-4">
         <div className="flex items-center gap-3 rounded-xl border border-purple-200 bg-purple-50 p-3 md:p-4">
@@ -431,6 +429,8 @@ export default function Chapter({
           </p>
         </div>
       </div>
+      {loading && <CommonLoader />}
+      {error && <p className="text-center pt-10">{error}</p>}
 
       {!loading && !error && (
         <>

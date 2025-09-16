@@ -120,9 +120,8 @@ export default function MeterialsSubject({
           {subjects.map((subject) => (
             <div
               key={subject.id}
-              className={`subject_card ${
-                subjectStyles[subject.name]?.bgColor || "bg-gray-200"
-              }`}
+              className={`subject_card ${subjectStyles[subject.name]?.bgColor || "bg-gray-200"
+                }`}
             >
               <div className="subject-card-inner study-material-card">
                 <div>
@@ -145,9 +144,8 @@ export default function MeterialsSubject({
               <button
                 disabled={loadingSubjectId === subject.id}
                 onClick={() => handleSubjectClick(subject)}
-                className={`mt-4 px-4 py-2 rounded-full font-semibold bg-white ${
-                  subjectStyles[subject.name]?.buttonTextColor || "text-black"
-                } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
+                className={`mt-4 px-4 py-2 rounded-full font-semibold bg-white ${subjectStyles[subject.name]?.buttonTextColor || "text-black"
+                  } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
               >
                 {loadingSubjectId === subject.id ? (
                   <>

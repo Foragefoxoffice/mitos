@@ -77,39 +77,39 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
   const subjectStyles = {
     "11th Biology": {
       image: "/images/practice/11th-biology.svg",
-      bgColor: "bg-[#cd7432]",
-      buttonTextColor: "text-[#cd7432]",
-      spinnerColor: "#cd7432",
+      bgColor: "bg-[#32CD32]",
+      buttonTextColor: "text-[#32CD32]",
+      spinnerColor: "#32CD32",
     },
     "11th Physics": {
       image: "/images/practice/11th-physics.svg",
       bgColor: "bg-[#B57170]",
-      buttonTextColor: "text-[#8C5756]",
-      spinnerColor: "#8C5756",
+      buttonTextColor: "text-[#B57170]",
+      spinnerColor: "#B57170",
     },
     "11th Chemistry": {
       image: "/images/practice/11th-chemistry.svg",
       bgColor: "bg-[#E1AD01]",
-      buttonTextColor: "text-[#9B8108]",
-      spinnerColor: "#9B8108",
+      buttonTextColor: "text-[#E1AD01]",
+      spinnerColor: "#E1AD01",
     },
     "12th Biology": {
       image: "/images/practice/12th-biology.svg",
       bgColor: "bg-[#00A86B]",
-      buttonTextColor: "text-[#088356]",
-      spinnerColor: "#088356",
+      buttonTextColor: "text-[#00A86B]",
+      spinnerColor: "#00A86B",
     },
     "12th Physics": {
       image: "/images/practice/12th-physics.svg",
       bgColor: "bg-[#967969]",
-      buttonTextColor: "text-[#7D6659]",
-      spinnerColor: "#7D6659",
+      buttonTextColor: "text-[#967969]",
+      spinnerColor: "#967969",
     },
     "12th Chemistry": {
       image: "/images/practice/12th-chemistry.svg",
       bgColor: "bg-[#CDC50A]",
-      buttonTextColor: "text-[#999308]",
-      spinnerColor: "#999308",
+      buttonTextColor: "text-[#CDC50A]",
+      spinnerColor: "#CDC50A",
     },
   };
 
@@ -123,9 +123,8 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
           {subjects.map((subject) => (
             <div
               key={subject.id}
-              className={`subject_card ${
-                subjectStyles[subject.name]?.bgColor || "bg-gray-200"
-              }`}
+              className={`subject_card ${subjectStyles[subject.name]?.bgColor || "bg-gray-200"
+                }`}
             >
               <div className="subject-card-inner">
                 <div>
@@ -148,9 +147,8 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
               <button
                 disabled={loadingSubjectId === subject.id}
                 onClick={() => handleSubjectClick(subject)}
-                className={`mt-4 px-4 py-4 rounded-full font-semibold bg-white ${
-                  subjectStyles[subject.name]?.buttonTextColor || "text-black"
-                } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
+                className={`mt-4 px-4 py-4 rounded-full font-semibold bg-white ${subjectStyles[subject.name]?.buttonTextColor || "text-black"
+                  } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
               >
                 {loadingSubjectId === subject.id ? (
                   <>

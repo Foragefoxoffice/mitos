@@ -19,6 +19,7 @@ import { FaHeart, FaRegHeart, FaFlag } from "react-icons/fa";
 import DOMPurify from "dompurify";
 import ImagePopup from "@/components/ImagePopup";
 import { motion } from "framer-motion";
+import CommonLoader from "../../../components/commonLoader";
 
 const HtmlWithMath = ({ html }) => {
   const cleanHtml = DOMPurify.sanitize(html);
@@ -170,8 +171,10 @@ export default function PracticePage() {
         console.error("Failed to fetch questions:", err);
         setError("Unable to load questions. Please try again later.");
       } finally {
-        setLoading(false);
-        setHasCheckedQuestions(true);
+        setTimeout(() => {
+          setLoading(false);
+          setHasCheckedQuestions(true);
+        }, 2000);
       }
     };
 
@@ -300,7 +303,7 @@ export default function PracticePage() {
       if (questions.length === 0) {
         setShowNoQuestionsPopup(true);
         const timer = setTimeout(() => {
-          router.push("/user/dashboard");
+          navigate("/user/dashboard");
         }, 2000);
         return () => clearTimeout(timer);
       } else {
@@ -413,6 +416,15 @@ export default function PracticePage() {
         buttonClass += "bg-[#F0F8FF] border border-[#C5B5CE] hover:bg-gray-100";
       }
 
+      {
+        loading && (
+          <div className="flex justify-center items-center h-screen">
+            <CommonLoader />
+          </div>
+        )
+      }
+
+
       return (
         <motion.div
           key={index}
@@ -455,410 +467,419 @@ export default function PracticePage() {
       }}
     >
       <div className="px-4 sm:px-10 md:px-10 lg:px-40 pt-6">
-        {showNoQuestionsPopup && questions.length === 0 && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
-            <div className="question_popup">
-              <h2>No Questions Available</h2>
-              <p className="text-center">
-                You will be redirected to the dashboard shortly.
-              </p>
-            </div>
-          </div>
-        )}
 
-        {showQuantityPopup && questions.length > 0 && !showNoQuestionsPopup && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-            <div className="bg-white w-[90%] max-w-md rounded-2xl overflow-hidden shadow-2xl">
-              {/* Header */}
-              <div className="bg-[#007acc] text-white text-center py-6 px-6">
-                <h2 className="text-2xl font-bold">
-                  Select Number Of Questions
-                </h2>
+        {loading ? (
+          <CommonLoader />
+        ) : (
+          <>
+            {showNoQuestionsPopup && questions.length === 0 && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+                <div className="question_popup">
+                  <h2>No Questions Available</h2>
+                  <p className="text-center">
+                    You will be redirected to the dashboard shortly.
+                  </p>
+                </div>
               </div>
+            )}
 
-              {/* Options */}
-              <div className="px-6 py-6 space-y-4">
-                {questionLimits.map((limit, index) => {
-                  const isSelected = questionLimit === limit;
-                  return (
-                    <label
-                      key={index}
-                      className={`flex items-center justify-left p-4 rounded-xl border-2 transition-all duration-150 cursor-pointer ${isSelected
-                        ? "bg-[#E5F3FF] border-[#007acc] shadow-[0px_2px_2px_0px_#00000040,-1px_2px_6px_0px_#00000036,-3px_14px_20px_0px_#00000021,-5px_60px_24px_0px_#0000000A,-7px_94px_26px_0px_#00000000]"
-                        : "bg-[#F7F9FB] border-[#C7D3DD]"
-                        }`}
-                      onClick={() => setQuestionLimit(limit)} // <-- Only selection here
-                    >
-                      <input
-                        type="radio"
-                        name="questionLimit"
-                        checked={isSelected}
-                        readOnly
-                        className="w-5 h-5 text-[#007acc] border-gray-300 pointer-events-none"
-                      />
-                      <span className="text-md font-medium text-gray-800 ml-3">
-                        {limit === "full"
-                          ? `Practice Full Questions (${questions.length})`
-                          : `${limit} Questions`}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
+            {showQuantityPopup && questions.length > 0 && !showNoQuestionsPopup && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+                <div className="bg-white w-[90%] max-w-md rounded-2xl overflow-hidden shadow-2xl">
+                  {/* Header */}
+                  <div className="bg-[#007acc] text-white text-center py-6 px-6">
+                    <h2 className="text-2xl font-bold">
+                      Select Number Of Questions
+                    </h2>
+                  </div>
 
-              {/* Buttons */}
-              <div className="flex justify-between items-center px-6 py-6">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="flex items-center px-3 py-1.5 rounded-xl 
+                  {/* Options */}
+                  <div className="px-6 py-6 space-y-4">
+                    {questionLimits.map((limit, index) => {
+                      const isSelected = questionLimit === limit;
+                      return (
+                        <label
+                          key={index}
+                          className={`flex items-center justify-left p-4 rounded-xl border-2 transition-all duration-150 cursor-pointer ${isSelected
+                            ? "bg-[#E5F3FF] border-[#007acc] shadow-[0px_2px_2px_0px_#00000040,-1px_2px_6px_0px_#00000036,-3px_14px_20px_0px_#00000021,-5px_60px_24px_0px_#0000000A,-7px_94px_26px_0px_#00000000]"
+                            : "bg-[#F7F9FB] border-[#C7D3DD]"
+                            }`}
+                          onClick={() => setQuestionLimit(limit)} // <-- Only selection here
+                        >
+                          <input
+                            type="radio"
+                            name="questionLimit"
+                            checked={isSelected}
+                            readOnly
+                            className="w-5 h-5 text-[#007acc] border-gray-300 pointer-events-none"
+                          />
+                          <span className="text-md font-medium text-gray-800 ml-3">
+                            {limit === "full"
+                              ? `Practice Full Questions (${questions.length})`
+                              : `${limit} Questions`}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex justify-between items-center px-6 py-6">
+                    <button
+                      onClick={() => navigate(-1)}
+                      className="flex items-center px-3 py-1.5 rounded-xl 
              bg-[#007ACC] border border-[#007ACC] 
              text-[#fff] font-medium shadow-sm 
              transition-all duration-200 cursor-pointer"
-                >
-                  Back
-                </button>
-                <button
-                  style={{
-                    boxShadow: `
+                    >
+                      Back
+                    </button>
+                    <button
+                      style={{
+                        boxShadow: `
                 0px 4px 8px 0px #00000040,
                 -1px 15px 15px 0px #00000036,
                 -3px 34px 20px 0px #00000021,
                 -5px 60px 24px 0px #0000000A,
                 -7px 94px 26px 0px #00000000
               `,
-                  }}
-                  onClick={() => {
-                    if (questionLimit !== null) setShowQuantityPopup(false); // <-- Only here it starts
-                  }}
-                  className="bg-[#0FBD4D] hover:bg-[#0da742] text-white cursor-pointer font-semibold px-6 py-2 rounded-full shadow disabled:opacity-50"
-                  disabled={questionLimit === null}
-                >
-                  Start Practice
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {reportModal.show && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[black/50] backdrop-blur-sm">
-            <div className="w-full max-w-xl rounded-2xl shadow-2xl p-6 bg-[#35095e] dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 animate-fade-in">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                  🚨 Report Issue
-                </h2>
-                <button
-                  onClick={() =>
-                    setReportModal({
-                      show: false,
-                      selectedOptions: [],
-                      additionalMessage: "",
-                      questionId: null,
-                    })
-                  }
-                  className="text-xl text-white p-2 py-0 rounded-full hover:text-red-500 transition"
-                >
-                  &times;
-                </button>
-              </div>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                What seems to be the problem with this question? You can select
-                multiple options.
-              </p>
-
-              {/* Issue Options */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                {REPORT_OPTIONS.map((option) => (
-                  <label
-                    key={option}
-                    className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${reportModal.selectedOptions.includes(option)
-                      ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
-                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
-                      }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={reportModal.selectedOptions.includes(option)}
-                      onChange={(e) => {
-                        const updatedOptions = e.target.checked
-                          ? [...reportModal.selectedOptions, option]
-                          : reportModal.selectedOptions.filter(
-                            (o) => o !== option
-                          );
-                        setReportModal((prev) => ({
-                          ...prev,
-                          selectedOptions: updatedOptions,
-                        }));
                       }}
-                      className="h-5 w-5 text-purple-600 accent-purple-600"
-                    />
-                    <span className="flex-1 text-white">{option}</span>
-                  </label>
-                ))}
-              </div>
-
-              {/* Additional Comments */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
-                  Additional Comments{" "}
-                  <span className="text-gray-400">(optional)</span>
-                </label>
-                <textarea
-                  value={reportModal.additionalMessage}
-                  onChange={(e) =>
-                    setReportModal((prev) => ({
-                      ...prev,
-                      additionalMessage: e.target.value,
-                    }))
-                  }
-                  placeholder="Tell us anything else you noticed..."
-                  rows={3}
-                  className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-sm dark:bg-gray-800 bg-white text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() =>
-                    setReportModal({
-                      show: false,
-                      selectedOptions: [],
-                      additionalMessage: "",
-                      questionId: null,
-                    })
-                  }
-                  className="px-4 cursor-pointer py-2 rounded-lg text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleReportQuestion}
-                  className="px-5 cursor-pointer py-2 rounded-lg bg-gradient-to-r from-[#35095e] to-[#51216e] text-white hover:brightness-110 text-sm font-semibold shadow-lg"
-                >
-                  Submit Report
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="test_nav">
-          <PracticeNavbar />
-        </div>
-
-        {filteredQuestions.length > 0 && (
-          <div className="test_containerss">
-            <div className="question-navigation mb-4 navborders overflow-x-auto m-auto w-full scroll-smooth">
-              <div className="flex gap-2 m-3 p-2 rounded-lg min-w-max">
-                {filteredQuestions.map((question, index) => {
-                  const isCurrent = currentQuestionIndex === index;
-                  const isVisited = visitedQuestions[question.id];
-                  const isAnswered = userAnswers[question.id];
-                  const isCorrect =
-                    isAnswered &&
-                    userAnswers[question.id] === question.correctOption;
-
-                  let buttonClass =
-                    "min-w-[40px] h-10 rounded-full flex items-center justify-center transition duration-300 shadow-sm hover:scale-105";
-
-                  if (isCurrent) {
-                    buttonClass += " bg-[#e49331] text-white";
-                  } else if (isAnswered) {
-                    buttonClass += isCorrect
-                      ? " bg-green-500 text-white"
-                      : " bg-red-500 text-black";
-                  } else if (isVisited) {
-                    buttonClass += " bg-[#e49331] ";
-                  } else {
-                    buttonClass += " bg-[#CAE2FF] text-[#282c35]";
-                  }
-
-                  return (
-                    <button
-                      key={index}
-                      ref={(el) => (navButtonRefs.current[index] = el)}
-                      onClick={() => handleQuestionNavigation(index)}
-                      className={buttonClass}
-                      aria-label={`Question ${index + 1}`}
+                      onClick={() => {
+                        if (questionLimit !== null) setShowQuantityPopup(false); // <-- Only here it starts
+                      }}
+                      className="bg-[#0FBD4D] hover:bg-[#0da742] text-white cursor-pointer font-semibold px-6 py-2 rounded-full shadow disabled:opacity-50"
+                      disabled={questionLimit === null}
                     >
-                      {index + 1}
+                      Start Practice
                     </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="test_container1 m-auto">
-              <div className="flex justify-between items-center">
-                <h2 className="">
-                  Question {currentQuestionIndex + 1} /{" "}
-                  {filteredQuestions.length}
-                </h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() =>
-                      setReportModal({
-                        show: true,
-                        selectedOptions: [],
-                        additionalMessage: "",
-                        questionId: filteredQuestions[currentQuestionIndex].id,
-                      })
-                    }
-                    className="p-2 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200 flex items-center gap-1"
-                    title="Report this question"
-                  >
-                    <FaFlag className="w-4 h-4" />
-                    <span className="hidden sm:inline">Report</span>
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      toggleFavorite(filteredQuestions[currentQuestionIndex].id)
-                    }
-                    className="p-2 rounded-full bg-transparent transition duration-200"
-                    aria-label={
-                      favoriteQuestions[
-                        filteredQuestions[currentQuestionIndex].id
-                      ]
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                    }
-                  >
-                    {favoriteQuestions[
-                      filteredQuestions[currentQuestionIndex].id
-                    ] ? (
-                      <FaHeart className="text-red-500 w-6 h-6" />
-                    ) : (
-                      <FaRegHeart className="text-black w-6 h-6" />
-                    )}
-                  </button>
+                  </div>
                 </div>
               </div>
+            )}
 
-              <div className="question-content">
-                <HtmlWithMath
-                  html={filteredQuestions[currentQuestionIndex].question}
-                />
-              </div>
+            {reportModal.show && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-[black/50] backdrop-blur-sm">
+                <div className="w-full max-w-xl rounded-2xl shadow-2xl p-6 bg-[#35095e] dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 animate-fade-in">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                      🚨 Report Issue
+                    </h2>
+                    <button
+                      onClick={() =>
+                        setReportModal({
+                          show: false,
+                          selectedOptions: [],
+                          additionalMessage: "",
+                          questionId: null,
+                        })
+                      }
+                      className="text-xl text-white p-2 py-0 rounded-full hover:text-red-500 transition"
+                    >
+                      &times;
+                    </button>
+                  </div>
 
-              {filteredQuestions[currentQuestionIndex].image && (
-                <img
-                  src={`https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].image}`}
-                  alt="Question illustration"
-                  referrerPolicy="no-referrer"
-                  className="max-w-full h-auto my-4 cursor-zoom-in"
-                  onClick={() =>
-                    setImagePopup({
-                      show: true,
-                      src: `https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].image}`,
-                    })
-                  }
-                />
-              )}
-
-              <div className="option_btns grid md:grid-cols-2 gap-4">
-                {renderOptionButtons(filteredQuestions[currentQuestionIndex])}
-              </div>
-
-              {userAnswers[filteredQuestions[currentQuestionIndex].id] && (
-                <div
-                  className={`mt-4 p-6 rounded-lg border ${userAnswers[filteredQuestions[currentQuestionIndex].id] ===
-                    filteredQuestions[currentQuestionIndex].correctOption
-                    ? "bg-green-100 border-green-300"
-                    : "bg-red-100 border-red-300"
-                    }`}
-                >
-                  <p
-                    className="text-green-800 font-bold"
-                    style={{ fontWeight: 800 }}
-                  >
-                    Correct Answer:{" "}
-                    {filteredQuestions[currentQuestionIndex].correctOption}
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    What seems to be the problem with this question? You can select
+                    multiple options.
                   </p>
 
-                  {filteredQuestions[currentQuestionIndex].hint && (
-                    <div className="mt-2">
-                      <p className="text-red-500 font-bold">Solution:</p>
-                      {filteredQuestions[currentQuestionIndex].hintImage && (
-                        <img
-                          src={`https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].hintImage}`}
-                          alt="Hint illustration"
-                          referrerPolicy="no-referrer"
-                          className="max-w-full h-auto my-2 cursor-zoom-in"
-                          onClick={() =>
-                            setImagePopup({
-                              show: true,
-                              src: `https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].hintImage}`,
-                            })
-                          }
+                  {/* Issue Options */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    {REPORT_OPTIONS.map((option) => (
+                      <label
+                        key={option}
+                        className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${reportModal.selectedOptions.includes(option)
+                          ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
+                          : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={reportModal.selectedOptions.includes(option)}
+                          onChange={(e) => {
+                            const updatedOptions = e.target.checked
+                              ? [...reportModal.selectedOptions, option]
+                              : reportModal.selectedOptions.filter(
+                                (o) => o !== option
+                              );
+                            setReportModal((prev) => ({
+                              ...prev,
+                              selectedOptions: updatedOptions,
+                            }));
+                          }}
+                          className="h-5 w-5 text-purple-600 accent-purple-600"
                         />
+                        <span className="flex-1 text-white">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Additional Comments */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                      Additional Comments{" "}
+                      <span className="text-gray-400">(optional)</span>
+                    </label>
+                    <textarea
+                      value={reportModal.additionalMessage}
+                      onChange={(e) =>
+                        setReportModal((prev) => ({
+                          ...prev,
+                          additionalMessage: e.target.value,
+                        }))
+                      }
+                      placeholder="Tell us anything else you noticed..."
+                      rows={3}
+                      className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-sm dark:bg-gray-800 bg-white text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                    />
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      onClick={() =>
+                        setReportModal({
+                          show: false,
+                          selectedOptions: [],
+                          additionalMessage: "",
+                          questionId: null,
+                        })
+                      }
+                      className="px-4 cursor-pointer py-2 rounded-lg text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-semibold"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleReportQuestion}
+                      className="px-5 cursor-pointer py-2 rounded-lg bg-gradient-to-r from-[#35095e] to-[#51216e] text-white hover:brightness-110 text-sm font-semibold shadow-lg"
+                    >
+                      Submit Report
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="test_nav">
+              <PracticeNavbar />
+            </div>
+
+            {filteredQuestions.length > 0 && (
+              <div className="test_containerss">
+                <div className="question-navigation mb-4 navborders overflow-x-auto m-auto w-full scroll-smooth">
+                  <div className="flex gap-2 m-3 p-2 rounded-lg min-w-max">
+                    {filteredQuestions.map((question, index) => {
+                      const isCurrent = currentQuestionIndex === index;
+                      const isVisited = visitedQuestions[question.id];
+                      const isAnswered = userAnswers[question.id];
+                      const isCorrect =
+                        isAnswered &&
+                        userAnswers[question.id] === question.correctOption;
+
+                      let buttonClass =
+                        "min-w-[40px] h-10 rounded-full flex items-center justify-center transition duration-300 shadow-sm hover:scale-105";
+
+                      if (isCurrent) {
+                        buttonClass += " bg-[#e49331] text-white";
+                      } else if (isAnswered) {
+                        buttonClass += isCorrect
+                          ? " bg-green-500 text-white"
+                          : " bg-red-500 text-black";
+                      } else if (isVisited) {
+                        buttonClass += " bg-[#e49331] ";
+                      } else {
+                        buttonClass += " bg-[#CAE2FF] text-[#282c35]";
+                      }
+
+                      return (
+                        <button
+                          key={index}
+                          ref={(el) => (navButtonRefs.current[index] = el)}
+                          onClick={() => handleQuestionNavigation(index)}
+                          className={buttonClass}
+                          aria-label={`Question ${index + 1}`}
+                        >
+                          {index + 1}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="test_container1 m-auto">
+                  <div className="flex justify-between items-center">
+                    <h2 className="">
+                      Question {currentQuestionIndex + 1} /{" "}
+                      {filteredQuestions.length}
+                    </h2>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          setReportModal({
+                            show: true,
+                            selectedOptions: [],
+                            additionalMessage: "",
+                            questionId: filteredQuestions[currentQuestionIndex].id,
+                          })
+                        }
+                        className="p-2 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200 flex items-center gap-1"
+                        title="Report this question"
+                      >
+                        <FaFlag className="w-4 h-4" />
+                        <span className="hidden sm:inline">Report</span>
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          toggleFavorite(filteredQuestions[currentQuestionIndex].id)
+                        }
+                        className="p-2 rounded-full bg-transparent transition duration-200"
+                        aria-label={
+                          favoriteQuestions[
+                            filteredQuestions[currentQuestionIndex].id
+                          ]
+                            ? "Remove from favorites"
+                            : "Add to favorites"
+                        }
+                      >
+                        {favoriteQuestions[
+                          filteredQuestions[currentQuestionIndex].id
+                        ] ? (
+                          <FaHeart className="text-red-500 w-6 h-6" />
+                        ) : (
+                          <FaRegHeart className="text-black w-6 h-6" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="question-content">
+                    <HtmlWithMath
+                      html={filteredQuestions[currentQuestionIndex].question}
+                    />
+                  </div>
+
+                  {filteredQuestions[currentQuestionIndex].image && (
+                    <img
+                      src={`https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].image}`}
+                      alt="Question illustration"
+                      referrerPolicy="no-referrer"
+                      className="max-w-full h-auto my-4 cursor-zoom-in"
+                      onClick={() =>
+                        setImagePopup({
+                          show: true,
+                          src: `https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].image}`,
+                        })
+                      }
+                    />
+                  )}
+
+                  <div className="option_btns grid md:grid-cols-2 gap-4">
+                    {renderOptionButtons(filteredQuestions[currentQuestionIndex])}
+                  </div>
+
+                  {userAnswers[filteredQuestions[currentQuestionIndex].id] && (
+                    <div
+                      className={`mt-4 p-6 rounded-lg border ${userAnswers[filteredQuestions[currentQuestionIndex].id] ===
+                        filteredQuestions[currentQuestionIndex].correctOption
+                        ? "bg-green-100 border-green-300"
+                        : "bg-red-100 border-red-300"
+                        }`}
+                    >
+                      <p
+                        className="text-green-800 font-bold"
+                        style={{ fontWeight: 800 }}
+                      >
+                        Correct Answer:{" "}
+                        {filteredQuestions[currentQuestionIndex].correctOption}
+                      </p>
+
+                      {filteredQuestions[currentQuestionIndex].hint && (
+                        <div className="mt-2">
+                          <p className="text-red-500 font-bold">Solution:</p>
+                          {filteredQuestions[currentQuestionIndex].hintImage && (
+                            <img
+                              src={`https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].hintImage}`}
+                              alt="Hint illustration"
+                              referrerPolicy="no-referrer"
+                              className="max-w-full h-auto my-2 cursor-zoom-in"
+                              onClick={() =>
+                                setImagePopup({
+                                  show: true,
+                                  src: `https://mitoslearning.in/${filteredQuestions[currentQuestionIndex].hintImage}`,
+                                })
+                              }
+                            />
+                          )}
+                          <HtmlWithMath
+                            html={filteredQuestions[currentQuestionIndex].hint}
+                          />
+                        </div>
                       )}
-                      <HtmlWithMath
-                        html={filteredQuestions[currentQuestionIndex].hint}
-                      />
                     </div>
                   )}
+
+                  <div className="nav_btns flex justify-between mt-6">
+                    <button
+                      onClick={handlePrevious}
+                      className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50 cursor-pointer"
+                      disabled={currentQuestionIndex === 0}
+                    >
+                      Previous
+                    </button>
+                    {currentQuestionIndex === filteredQuestions.length - 1 ? (
+                      <button
+                        onClick={handleSubmit}
+                        className="md:px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                      >
+                        More practice
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleNext}
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                      >
+                        Next
+                      </button>
+                    )}
+                  </div>
                 </div>
-              )}
-
-              <div className="nav_btns flex justify-between mt-6">
-                <button
-                  onClick={handlePrevious}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50 cursor-pointer"
-                  disabled={currentQuestionIndex === 0}
-                >
-                  Previous
-                </button>
-                {currentQuestionIndex === filteredQuestions.length - 1 ? (
-                  <button
-                    onClick={handleSubmit}
-                    className="md:px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
-                  >
-                    More practice
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleNext}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
-                  >
-                    Next
-                  </button>
-                )}
               </div>
-            </div>
-          </div>
+            )}
+
+            {lastQuestionAttempted && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+                <div className="question_popup grid place-content-center gap-6">
+                  <h3>Try another set of questions</h3>
+                  <button onClick={handleSubmit} className="btn">
+                    Click Here
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {notification.show && (
+              <Notification
+                message={notification.message}
+                type={notification.type}
+                onClose={() =>
+                  setNotification((prev) => ({ ...prev, show: false }))
+                }
+              />
+            )}
+            {imagePopup.show && (
+              <ImagePopup
+                src={imagePopup.src}
+                onClose={() => setImagePopup({ show: false, src: "" })}
+              />
+            )}
+
+          </>
         )}
 
-        {lastQuestionAttempted && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
-            <div className="question_popup grid place-content-center gap-6">
-              <h3>Try another set of questions</h3>
-              <button onClick={handleSubmit} className="btn">
-                Click Here
-              </button>
-            </div>
-          </div>
-        )}
-
-        {notification.show && (
-          <Notification
-            message={notification.message}
-            type={notification.type}
-            onClose={() =>
-              setNotification((prev) => ({ ...prev, show: false }))
-            }
-          />
-        )}
-        {imagePopup.show && (
-          <ImagePopup
-            src={imagePopup.src}
-            onClose={() => setImagePopup({ show: false, src: "" })}
-          />
-        )}
       </div>
     </MathJaxContext>
   );

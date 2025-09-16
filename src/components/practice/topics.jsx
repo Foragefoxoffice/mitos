@@ -120,10 +120,10 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
     const valid = topics.filter((t) => t.questionCount > 0);
     const bySearch = term
       ? valid.filter((t) =>
-          String(t.name || "")
-            .toLowerCase()
-            .includes(term)
-        )
+        String(t.name || "")
+          .toLowerCase()
+          .includes(term)
+      )
       : valid;
 
     setFilteredTopics(bySearch);
@@ -236,9 +236,8 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
                     <div
                       key={topic.id}
                       style={{ margin: 0 }}
-                      className={`topic_card flex items-center space-x-2 ${
-                        isLocked ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                      className={`topic_card flex items-center space-x-2 ${isLocked ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                       onClick={() => {
                         if (isLocked) setShowPopup(true);
                       }}
@@ -270,7 +269,7 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
 
               {filteredTopics.length > 0 && (
                 <button
-                  className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 cursor-pointer rounded"
+                  className="mx-auto cursor-pointer mt-14 btn bg-blue-600 text-white px-4 py-2 cursor-pointer rounded"
                   onClick={startTest}
                 >
                   Lets Practice
