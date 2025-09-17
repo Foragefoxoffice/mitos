@@ -13,6 +13,7 @@ const SPECIAL_BOTTOM_ORDER = [
   "Previous Year Questions-Part 2",
   "Assertion & Reason Questions",
   "Picture Based Questions",
+  "Match Questions",
   "NCERT Exemplar Questions",
 ];
 

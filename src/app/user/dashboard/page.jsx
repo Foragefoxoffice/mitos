@@ -120,7 +120,14 @@ const useTabState = (tabKey, initialScreen) => {
 
 /* --------------------------------- page --------------------------------- */
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("tab1");
+  // ✅ restore activeTab from sessionStorage
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("activeTab") || "tab1";
+    }
+    return "tab1";
+  });
+
   const [isLoading, setIsLoading] = useState(false);
 
   const practiceState = useTabState("practice", "subject");
@@ -149,9 +156,7 @@ export default function Dashboard() {
       setActiveTab(tab);
       sessionStorage.setItem("activeTab", tab);
       setIsLoading(false);
-      if (tab === "tab1") practiceState.navigateTo("subject");
-      else if (tab === "tab2") testState.navigateTo("full-portion");
-      else if (tab === "tab3") studyMaterialState.navigateTo("subject");
+      // ❌ Removed forced navigateTo resets
     }, 50);
   };
 
@@ -198,10 +203,11 @@ export default function Dashboard() {
             {["tab1", "tab2", "tab3"].map((tab) => (
               <button
                 key={tab}
-                className={`tab px-3 sm:px-6 py-2 md:py-2.5 rounded-3xl transition-all duration-200 ${activeTab === tab
-                  ? "bg-[#007ACC] text-white font-semibold shadow-md"
-                  : "bg-[#dff4ff] text-[#00497A]"
-                  }`}
+                className={`tab px-3 sm:px-6 py-2 md:py-2.5 rounded-3xl transition-all duration-200 ${
+                  activeTab === tab
+                    ? "bg-[#007ACC] text-white font-semibold shadow-md"
+                    : "bg-[#dff4ff] text-[#00497A]"
+                }`}
                 onClick={() => handleTabClick(tab)}
               >
                 <span className="flex items-center text-sm md:text-base">
@@ -225,7 +231,6 @@ export default function Dashboard() {
                 <HiArrowSmallLeft className="text-lg" />
                 <span className="ml-1 hidden sm:inline">Back</span>
               </button>
-
             )}
             {(activeTab === "tab2" && showTestHeader) && (
               <button
@@ -258,23 +263,23 @@ export default function Dashboard() {
                   activeTab === "tab1"
                     ? practiceSearch
                     : activeTab === "tab2"
-                      ? testSearch
-                      : studySearch
+                    ? testSearch
+                    : studySearch
                 }
                 onChange={
                   activeTab === "tab1"
                     ? setPracticeSearch
                     : activeTab === "tab2"
-                      ? setTestSearch
-                      : setStudySearch
+                    ? setTestSearch
+                    : setStudySearch
                 }
                 placeholder={getSearchPlaceholder(
                   activeTab,
                   activeTab === "tab1"
                     ? practiceState.currentScreen
                     : activeTab === "tab2"
-                      ? testState.currentScreen
-                      : studyMaterialState.currentScreen
+                    ? testState.currentScreen
+                    : studyMaterialState.currentScreen
                 )}
               />
             )}
@@ -283,7 +288,6 @@ export default function Dashboard() {
       </div>
 
       {/* Content */}
-
       {isLoading ? (
         <CommonLoader />
       ) : (
@@ -345,7 +349,7 @@ export default function Dashboard() {
                 <TestChapter
                   selectedSubject={testState.selectedSubject}
                   selectedPortion={testState.selectedPortion}
-                  onChapterSelect={testState.handleChapterSelect}
+                  onChapterSelect={testState.handleTestChapterSelect}
                   onScreenSelection={testState.handleScreenSelection}
                   searchTerm={testSearch}
                 />
@@ -401,7 +405,7 @@ export default function Dashboard() {
       )}
 
       {/* Premium popup */}
-      {false && <PremiumPopup onClose={() => { }} />}
+      {false && <PremiumPopup onClose={() => {}} />}
     </div>
   );
 }
