@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const SelectedQuestionTypesContext = createContext();
 
@@ -6,7 +6,12 @@ export const SelectedQuestionTypesProvider = ({ children }) => {
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState([]);
   const [chapterId, setChapterId] = useState(null);
   const [subject, setSubject] = useState("");
-  const [subjectId, setSubjectId] = useState(null); // ✅ Add this
+  const [subjectId, setSubjectId] = useState(null);
+
+  // ✅ Reset question type selections when chapter or subject changes
+  useEffect(() => {
+    setSelectedQuestionTypes([]);
+  }, [chapterId, subjectId]);
 
   return (
     <SelectedQuestionTypesContext.Provider
@@ -18,7 +23,7 @@ export const SelectedQuestionTypesProvider = ({ children }) => {
         subject,
         setSubject,
         subjectId,
-        setSubjectId, // ✅ Add this
+        setSubjectId,
       }}
     >
       {children}
@@ -26,4 +31,5 @@ export const SelectedQuestionTypesProvider = ({ children }) => {
   );
 };
 
-export const useSelectedQuestionTypes = () => useContext(SelectedQuestionTypesContext);
+export const useSelectedQuestionTypes = () =>
+  useContext(SelectedQuestionTypesContext);

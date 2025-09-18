@@ -1,12 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchSubjects, fetchChapter } from "@/utils/api";
 import CommonLoader from "../commonLoader";
-export default function Subject({ onSubjectSelect, onScreenSelection }) {
+
+export default function Subject() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [loadingSubjectId, setLoadingSubjectId] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadSubjects = async () => {
@@ -16,7 +20,7 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
           throw new Error("Invalid data format received");
         }
 
-        // Fetch chapter counts for each subject
+        // Fetch chapter counts
         const subjectsWithChapters = await Promise.all(
           subjectsData.map(async (subject) => {
             try {
@@ -31,26 +35,22 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
           })
         );
 
-        // Sort subjects: 11th before 12th, and then Physics > Chemistry > Biology within each class
+        // Sort subjects (11th first, then Bio > Phy > Chem)
         const sortedSubjects = subjectsWithChapters.sort((a, b) => {
           const isA11th = a.name.includes("11th");
           const isB11th = b.name.includes("11th");
 
-          // If they're in different classes, sort by class (11th first)
-          if (isA11th !== isB11th) {
-            return isA11th ? -1 : 1;
-          }
+          if (isA11th !== isB11th) return isA11th ? -1 : 1;
 
-          // If they're in the same class, sort by subject
           const subjectOrder = { Biology: 1, Physics: 2, Chemistry: 3 };
-          const getSubjectRank = (name) => {
+          const getRank = (name) => {
             if (name.includes("Biology")) return subjectOrder.Biology;
             if (name.includes("Physics")) return subjectOrder.Physics;
             if (name.includes("Chemistry")) return subjectOrder.Chemistry;
-            return 4; // for any other subjects
+            return 4;
           };
 
-          return getSubjectRank(a.name) - getSubjectRank(b.name);
+          return getRank(a.name) - getRank(b.name);
         });
 
         setSubjects(sortedSubjects);
@@ -68,8 +68,8 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
   const handleSubjectClick = (subject) => {
     setLoadingSubjectId(subject.id);
     setTimeout(() => {
-      onSubjectSelect(subject);
-      onScreenSelection("chapter");
+      // 👇 navigate to chapters route
+      navigate(`/user/dashboard/practice/${subject.id}/chapters`);
       setLoadingSubjectId(null);
     }, 1000);
   };
@@ -123,15 +123,14 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
           {subjects.map((subject) => (
             <div
               key={subject.id}
-              className={`subject_card ${subjectStyles[subject.name]?.bgColor || "bg-gray-200"
-                }`}
+              className={`subject_card ${
+                subjectStyles[subject.name]?.bgColor || "bg-gray-200"
+              }`}
             >
               <div className="subject-card-inner">
                 <div>
                   <h2>{subject.name}</h2>
-                  <p className="text-sm text-white" style={{ color: "#fff" }}>
-                    {subject.chapterCount} Chapters
-                  </p>
+                  <p className="text-sm text-white" style={{color:'#fff'}}>{subject.chapterCount} Chapters</p>
                 </div>
                 <div>
                   <img
@@ -147,8 +146,9 @@ export default function Subject({ onSubjectSelect, onScreenSelection }) {
               <button
                 disabled={loadingSubjectId === subject.id}
                 onClick={() => handleSubjectClick(subject)}
-                className={`mt-4 px-4 py-4 rounded-full font-semibold bg-white ${subjectStyles[subject.name]?.buttonTextColor || "text-black"
-                  } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
+                className={`mt-4 px-4 py-4 rounded-full font-semibold bg-white ${
+                  subjectStyles[subject.name]?.buttonTextColor || "text-black"
+                } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
               >
                 {loadingSubjectId === subject.id ? (
                   <>

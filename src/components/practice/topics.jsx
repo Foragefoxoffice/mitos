@@ -1,5 +1,6 @@
+"use client";
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useOutletContext } from "react-router-dom";
 import { fetchTopics, fetchQuestionByTopic } from "../../utils/api";
 import { useSelectedTopics } from "../../contexts/SelectedTopicsContext";
 import axios from "axios";
@@ -24,9 +25,10 @@ const getSpecialRank = (name = "") => {
   return i === -1 ? -1 : i; // -1 means not special
 };
 
-export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
-  const [searchParams] = useSearchParams();
-  const chapterId = selectedChapter?.id || searchParams.get("chapterId");
+export default function TopicsPage() {
+  const { chapterId } = useParams(); // 👈 get chapterId from route
+  const { searchTerm } = useOutletContext(); // 👈 get search term from Dashboard
+  const navigate = useNavigate();
 
   const [topics, setTopics] = useState([]);
   const [filteredTopics, setFilteredTopics] = useState([]);
@@ -36,7 +38,6 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
   const [selectAll, setSelectAll] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
-  const navigate = useNavigate();
   const { selectedTopics, setSelectedTopics } = useSelectedTopics();
 
   const isGuestUser = () => {
@@ -60,9 +61,7 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
         const response = await fetchTopics(chapterId);
         const { data, chapterName } = response;
 
-        if (!Array.isArray(data)) {
-          throw new Error("Invalid data format received");
-        }
+        if (!Array.isArray(data)) throw new Error("Invalid data format received");
 
         setChapterName(chapterName);
 
@@ -83,10 +82,7 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
               if (axios.isAxiosError(error) && error.response?.status === 404) {
                 return { ...topic, questionCount: 0 };
               }
-              console.error(
-                `Error fetching questions for topic ${topic.id}:`,
-                error
-              );
+              console.error(`Error fetching questions for topic ${topic.id}:`, error);
               return { ...topic, questionCount: 0 };
             }
           })
@@ -94,12 +90,10 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
 
         setTopics(topicsWithQuestions);
 
-        const initialValid = topicsWithQuestions.filter(
-          (t) => t.questionCount > 0
-        );
-        setFilteredTopics(initialValid);
+        const valid = topicsWithQuestions.filter((t) => t.questionCount > 0);
+        setFilteredTopics(valid);
 
-        if (initialValid.length === 0) {
+        if (valid.length === 0) {
           setError("No topics with questions found in this chapter.");
         }
       } catch (err) {
@@ -110,27 +104,22 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
       }
     };
 
-    if (chapterId) {
-      loadTopics();
-    }
+    if (chapterId) loadTopics();
   }, [chapterId]);
 
   // 🔎 Filter list when searchTerm or topics change
   useEffect(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = searchTerm?.trim().toLowerCase() || "";
     const valid = topics.filter((t) => t.questionCount > 0);
+
     const bySearch = term
-      ? valid.filter((t) =>
-        String(t.name || "")
-          .toLowerCase()
-          .includes(term)
-      )
+      ? valid.filter((t) => String(t.name || "").toLowerCase().includes(term))
       : valid;
 
     setFilteredTopics(bySearch);
   }, [topics, searchTerm]);
 
-  // reset selection
+  // reset selection when filtered changes
   useEffect(() => {
     setSelectedTopics([]);
     setSelectAll(false);
@@ -173,7 +162,8 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
 
   const startTest = () => {
     if (selectedTopics.length > 0) {
-      navigate("/user/practice");
+      // 👇 use dashboard-based route
+      navigate(`/user/practice`);
     } else {
       alert("Please select at least one topic.");
     }
@@ -183,21 +173,19 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
     !loading &&
     !error &&
     filteredTopics.length === 0 &&
-    searchTerm.trim().length > 0;
+    searchTerm?.trim().length > 0;
 
   // ✅ order topics: keep DB order, push special to bottom
   const orderedTopics = [
-    ...filteredTopics.filter((t) => getSpecialRank(t.name) === -1), // normal DB order
+    ...filteredTopics.filter((t) => getSpecialRank(t.name) === -1),
     ...filteredTopics
       .filter((t) => getSpecialRank(t.name) !== -1)
-      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name)), // special bottom
+      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name)),
   ];
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold text-[#017bcd] pb-6">
-        Attempt by Topic
-      </h1>
+      <h1 className="text-xl font-bold text-[#017bcd] pb-6">Attempt by Topic</h1>
       {chapterName && <h2 className="text-lg mb-4">{chapterName}</h2>}
 
       {loading && <CommonLoader />}
@@ -205,14 +193,11 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
 
       {!loading && !error && (
         <>
-          {noMatches && (
-            <p className="text-center pt-10">No topics match your search.</p>
-          )}
+          {noMatches && <p className="text-center pt-10">No topics match your search.</p>}
 
           {!noMatches && (
             <>
               <div className="topic_cards space-y-3">
-                {/* ✅ Always show Full Chapter first (if topics exist) */}
                 {filteredTopics.length > 0 && !isGuestUser() && (
                   <div className="topic_card">
                     <input
@@ -230,15 +215,14 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
                   </div>
                 )}
 
-                {/* ✅ show ordered topics */}
                 {orderedTopics.map((topic) => {
                   const isLocked = isGuestUser() && topic.isPremium;
                   return (
                     <div
                       key={topic.id}
-                      style={{ margin: 0 }}
-                      className={`topic_card flex items-center space-x-2 ${isLocked ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                      className={`topic_card flex items-center space-x-2 ${
+                        isLocked ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                       onClick={() => {
                         if (isLocked) setShowPopup(true);
                       }}
@@ -270,7 +254,7 @@ export default function TopicsPage({ selectedChapter, searchTerm = "" }) {
 
               {filteredTopics.length > 0 && (
                 <button
-                  className="mx-auto cursor-pointer mt-14 btn bg-blue-600 text-white px-4 py-2 cursor-pointer rounded"
+                  className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
                   onClick={startTest}
                 >
                   Lets Practice

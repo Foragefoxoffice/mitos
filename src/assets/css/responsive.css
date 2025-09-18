@@ -3,6 +3,9 @@
     padding-right: 15px !important;
     padding-left: 15px !important;
   }
+  .tab {
+    padding: 10px 15px;
+  }
   .tabs {
     padding: 16px;
   }

@@ -1,15 +1,22 @@
+"use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ instead of next/navigation
-import { fetchQuestionType, fetchQuestionBychapter } from "../../utils/api"; // ✅ fixed alias
-import { useSelectedQuestionTypes } from "../../contexts/SelectedQuestionTypesContext"; // ✅ fixed alias
+import { useNavigate, useParams, useOutletContext } from "react-router-dom";
+import {
+  fetchQuestionType,
+  fetchQuestionBychapter,
+} from "../../utils/api";
+import { useSelectedQuestionTypes } from "../../contexts/SelectedQuestionTypesContext";
 import PremiumPopup from "../PremiumPopup";
-import CommonLoader from "../commonLoader"; // ✅ fixed alias
+import CommonLoader from "../commonLoader";
 
-export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
+export default function QuestiontypePage() {
+  const { chapterId } = useParams();            // 👈 get chapterId from URL
+  const { searchTerm } = useOutletContext();    // 👈 get searchTerm from Dashboard
+  const navigate = useNavigate();
+
   const {
     selectedQuestionTypes,
     setSelectedQuestionTypes,
-    chapterId,
     setChapterId,
   } = useSelectedQuestionTypes();
 
@@ -19,8 +26,6 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
   const [selectAll, setSelectAll] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
-
-  const navigate = useNavigate(); // ✅
 
   // ✅ Guest check
   const isGuestUser = () => {
@@ -39,18 +44,17 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
     setIsGuest(isGuestUser());
   }, []);
 
-  // clear selections on unmount
+  // clear selections when chapter changes
   useEffect(() => {
-    return () => setSelectedQuestionTypes([]);
-  }, [setSelectedQuestionTypes]);
-
-  // update chapter id from selectedChapter
-  useEffect(() => {
-    if (selectedChapter) setChapterId(selectedChapter.id);
-  }, [selectedChapter, setChapterId]);
+    setSelectedQuestionTypes([]);
+    setSelectAll(false);
+    if (chapterId) setChapterId(chapterId);
+  }, [chapterId, setSelectedQuestionTypes, setChapterId]);
 
   // load question types for chapter
   useEffect(() => {
+    if (!chapterId) return;
+
     const loadData = async () => {
       try {
         setLoading(true);
@@ -78,10 +82,13 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
 
         const sorted = isGuest
           ? [...chapterQuestionTypes].sort((a, b) => {
-            if (a.isPremium === b.isPremium) return 0;
-            return a.isPremium ? 1 : -1;
-          })
+              if (a.isPremium === b.isPremium) return 0;
+              return a.isPremium ? 1 : -1;
+            })
           : chapterQuestionTypes;
+
+        setSelectedQuestionTypes([]);
+        setSelectAll(false);
 
         setAvailableQuestionTypes(sorted);
       } catch (err) {
@@ -92,12 +99,12 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
       }
     };
 
-    if (chapterId) loadData();
-  }, [chapterId, isGuest]);
+    loadData();
+  }, [chapterId, isGuest, setSelectedQuestionTypes]);
 
-  // 🔎 derive filtered list by search term
+  // 🔎 filter by search term
   const filteredQuestionTypes = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = searchTerm?.trim().toLowerCase();
     if (!term) return availableQuestionTypes;
     return availableQuestionTypes.filter((t) =>
       String(t.name || "").toLowerCase().includes(term)
@@ -146,17 +153,15 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
 
   const startTest = () => {
     if (selectedQuestionTypes.length > 0) {
-      navigate("/user/practice"); // ✅ instead of router.push
+      // 👇 route updated to dashboard practice
+      navigate(`/user/practice`);
     } else {
       alert("Please select at least one question type.");
     }
   };
 
   const noMatches =
-    !loading &&
-    !error &&
-    filteredQuestionTypes.length === 0 &&
-    searchTerm.trim();
+    !loading && !error && filteredQuestionTypes.length === 0 && searchTerm?.trim();
 
   return (
     <div className="p-6">
@@ -183,16 +188,13 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
                       id="selectAll"
                       checked={selectAll}
                       onChange={handleSelectAll}
-                      className="
-                        appearance-none rounded-full border border-blue-600
-                        checked:bg-blue-600 checked:border-blue-600
-                        flex items-center justify-center relative cursor-pointer
-                        disabled:opacity-50
-                        after:content-['✓'] after:text-white after:text-xl after:font-bold
-                        after:absolute after:top-1/2 after:left-1/2
-                        after:-translate-x-1/2 after:-translate-y-[57%]
-                        after:hidden checked:after:block
-                      "
+                      className="appearance-none rounded-full border border-blue-600
+                                 checked:bg-blue-600 checked:border-blue-600
+                                 relative cursor-pointer
+                                 after:content-['✓'] after:text-white after:text-xl
+                                 after:absolute after:top-1/2 after:left-1/2
+                                 after:-translate-x-1/2 after:-translate-y-[57%]
+                                 after:hidden checked:after:block"
                     />
                     <label htmlFor="selectAll" className="cursor-pointer text-lg ml-2">
                       Select All ({filteredQuestionTypes.length} Types)
@@ -205,8 +207,9 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
                   return (
                     <div
                       key={type.id}
-                      className={`topic_card flex items-center space-x-2 ${isLocked ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                      className={`topic_card flex items-center space-x-2 ${
+                        isLocked ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                       onClick={() => {
                         if (isLocked) setShowPopup(true);
                       }}
@@ -224,16 +227,13 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
                             e.stopPropagation();
                             handleCheckboxChange(type);
                           }}
-                          className="
-                            appearance-none rounded-full border border-blue-600
-                            checked:bg-blue-600 checked:border-blue-600
-                            flex items-center justify-center relative cursor-pointer
-                            disabled:opacity-50
-                            after:content-['✓'] after:text-white after:text-xl after:font-bold
-                            after:absolute after:top-1/2 after:left-1/2
-                            after:-translate-x-1/2 after:-translate-y-[57%]
-                            after:hidden checked:after:block
-                          "
+                          className="appearance-none rounded-full border border-blue-600
+                                     checked:bg-blue-600 checked:border-blue-600
+                                     relative cursor-pointer
+                                     after:content-['✓'] after:text-white after:text-xl
+                                     after:absolute after:top-1/2 after:left-1/2
+                                     after:-translate-x-1/2 after:-translate-y-[57%]
+                                     after:hidden checked:after:block"
                         />
                       </label>
 
@@ -252,7 +252,7 @@ export default function QuestiontypePage({ selectedChapter, searchTerm = "" }) {
               </div>
 
               <button
-                className="mx-auto cursor-pointer mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
+                className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
                 onClick={startTest}
               >
                 Lets Practice

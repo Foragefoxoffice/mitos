@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useParams, useNavigate,useOutletContext } from "react-router-dom";
 import {
   fetchChapter,
   fetchChapterTopics,
@@ -9,30 +10,28 @@ import axios from "axios";
 import CommonLoader from "../commonLoader";
 import { FiInfo } from "react-icons/fi";
 
-export default function Chapter({
-  selectedSubject,
-  onChapterSelect,
-  onScreenSelection,
-  searchTerm = "",
-}) {
+export default function Chapter() {
+  const { searchTerm } = useOutletContext();
+  const { subjectId } = useParams(); // 👈 get subjectId from URL
+  const navigate = useNavigate();
+
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // keep chapter colors stable across filters
-  const colorCacheRef = useRef({}); // { [chapterId]: {rgb, r,g,b, buttonTextColor} }
+  const colorCacheRef = useRef({});
 
   useEffect(() => {
-    if (!selectedSubject?.id) return;
+    if (!subjectId) return;
 
     const loadChapters = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const data = await fetchChapter(selectedSubject.id);
-        if (!Array.isArray(data))
-          throw new Error("Invalid data format received");
+        const data = await fetchChapter(subjectId);
+        if (!Array.isArray(data)) throw new Error("Invalid data format received");
 
         const allChapters = await Promise.all(
           data.map(async (chapter) => {
@@ -42,25 +41,17 @@ export default function Chapter({
             try {
               const topics = await fetchChapterTopics(chapter.id);
               topicCount = Array.isArray(topics) ? topics.length : 0;
-            } catch (topicError) {
-              if (
-                axios.isAxiosError(topicError) &&
-                topicError.response?.status === 404
-              ) {
+            } catch (err) {
+              if (axios.isAxiosError(err) && err.response?.status === 404) {
                 topicCount = 0;
               } else {
-                console.error(
-                  `Error fetching topics for chapter ${chapter.id}:`,
-                  topicError
-                );
+                console.error(`Error fetching topics for ${chapter.id}:`, err);
                 topicCount = "N/A";
               }
             }
 
             try {
-              const questionsResponse = await fetchQuestionBychapter(
-                chapter.id
-              );
+              const questionsResponse = await fetchQuestionBychapter(chapter.id);
               if (Array.isArray(questionsResponse?.data)) {
                 questionCount = questionsResponse.data.length;
               } else if (Array.isArray(questionsResponse)) {
@@ -68,29 +59,18 @@ export default function Chapter({
               } else {
                 questionCount = 0;
               }
-            } catch (questionError) {
-              if (
-                axios.isAxiosError(questionError) &&
-                questionError.response?.status === 404
-              ) {
+            } catch (err) {
+              if (axios.isAxiosError(err) && err.response?.status === 404) {
                 questionCount = 0;
               } else {
-                console.error(
-                  `Error fetching questions for chapter ${chapter.id}:`,
-                  questionError
-                );
+                console.error(`Error fetching questions for ${chapter.id}:`, err);
                 questionCount = "N/A";
               }
             }
 
-            // stable color per chapter
             if (!colorCacheRef.current[chapter.id]) {
               const darkColor = getRandomDarkColor();
-              const contrastColor = getContrastColor(
-                darkColor.r,
-                darkColor.g,
-                darkColor.b
-              );
+              const contrastColor = getContrastColor(darkColor.r, darkColor.g, darkColor.b);
               colorCacheRef.current[chapter.id] = {
                 randomBgColor: darkColor.rgb,
                 buttonTextColor: contrastColor,
@@ -117,36 +97,31 @@ export default function Chapter({
         }
       } catch (err) {
         console.error("Failed to fetch chapters:", err);
-        setError(
-          "There are no chapters added in this subject yet. Please try again later."
-        );
+        setError("There are no chapters added in this subject yet. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
     loadChapters();
-  }, [selectedSubject]);
+  }, [subjectId]);
 
-  // filter by searchTerm (name only, case-insensitive)
+  // search filter
   const filteredChapters = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return chapters;
-    return chapters.filter((c) =>
-      String(c.name || "")
-        .toLowerCase()
-        .includes(term)
-    );
-  }, [chapters, searchTerm]);
+  const term = searchTerm?.trim().toLowerCase();
+  if (!term) return chapters;
+  return chapters.filter((c) =>
+    String(c.name || "").toLowerCase().includes(term)
+  );
+}, [chapters, searchTerm]);
 
+  // 👇 Navigation handlers
   const handleTopicClick = (chapter) => {
-    onChapterSelect(chapter);
-    onScreenSelection("topic");
+    navigate(`/user/dashboard/practice/${chapter.id}/topics`);
   };
 
   const handleQuestionTypeClick = (chapter) => {
-    onChapterSelect(chapter);
-    onScreenSelection("questiontype");
+    navigate(`/user/dashboard/practice/${chapter.id}/questiontypes`);
   };
 
   const getRandomDarkColor = () => {
@@ -413,28 +388,23 @@ export default function Chapter({
 
   return (
     <div className="p-4 inside_practice">
-
       <div className="mb-4">
         <div className="flex items-center gap-3 rounded-xl border border-purple-200 bg-purple-50 p-3 md:p-4">
-          {/* Icon */}
           <div className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-full bg-purple-600">
             <FiInfo className="h-5 w-5 text-white" />
           </div>
-
-          {/* Text */}
           <p className="text-sm md:text-base text-purple-900">
             <span className="font-semibold">Key Info:</span> Each information in
-            NCERT is framed in{" "}
-            <span className="font-semibold">10+ different question types</span>.
+            NCERT is framed in <span className="font-semibold">10+ different question types</span>.
           </p>
         </div>
       </div>
+
       {loading && <CommonLoader />}
       {error && <p className="text-center pt-10">{error}</p>}
 
       {!loading && !error && (
         <>
-          {/* When search is active but nothing matches */}
           {filteredChapters.length === 0 ? (
             <p className="text-center pt-10">No chapters match your search.</p>
           ) : (
@@ -449,11 +419,9 @@ export default function Chapter({
                     <div>
                       <h2>{chapter.name}</h2>
                       <div className="text-sm gap-2 text-white">
-                        <span className="text-white mr-1">
-                          {chapter.topicCount} Topics
-                        </span>{" "}&amp;<span className="text-white ml-1">
-                          {chapter.questionCount} Questions
-                        </span>
+                        <span className="text-white mr-1">{chapter.topicCount} Topics</span>
+                        &amp;
+                        <span className="text-white ml-1">{chapter.questionCount} Questions</span>
                       </div>
                     </div>
                     <div>

@@ -1,15 +1,16 @@
+"use client";
 import React, { useState, useEffect, useMemo, useContext } from "react";
 import {
   fetchSubjectsByPortions,
   fetchChaptersBySubject,
-} from "../../utils/api"; // ✅ fix alias
+} from "../../utils/api";
 import { TestContext } from "../../contexts/TestContext";
-import { useNavigate } from "react-router-dom"; // ✅ instead of useRouter
+import { useNavigate, useParams, useOutletContext } from "react-router-dom"; 
 import { FaAngleDown } from "react-icons/fa6";
-import CommonLoader from "../commonLoader"; // ✅ fix alias
+import CommonLoader from "../commonLoader";
 import { FiInfo } from "react-icons/fi";
 
-export default function TestSubject({ selectedPortion, searchTerm = "" }) {
+export default function TestSubject() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,17 +20,20 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
   const [questionLimit, setQuestionLimit] = useState(60);
 
   const { setTestData } = useContext(TestContext);
-  const navigate = useNavigate(); // ✅
+  const { portionId } = useParams(); // ✅ portion from URL
+  const { searchTerm } = useOutletContext(); // ✅ search from Dashboard
+  const navigate = useNavigate();
 
+  // 🔄 Load subjects + chapters for portion
   useEffect(() => {
     const loadSubjects = async () => {
-      if (!selectedPortion) return;
+      if (!portionId) return;
 
       try {
         setLoading(true);
         setError(null);
 
-        const subjectsData = await fetchSubjectsByPortions(selectedPortion.id);
+        const subjectsData = await fetchSubjectsByPortions(portionId);
         const subjectsWithDetails = await Promise.all(
           subjectsData.map(async (subject) => {
             const details = await fetchChaptersBySubject(subject.id);
@@ -56,11 +60,13 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
       }
     };
     loadSubjects();
-  }, [selectedPortion]);
+  }, [portionId]);
 
+  // 📌 Expand/Collapse Subject
   const toggleSubject = (id) =>
     setExpandedSubjectId((prev) => (prev === id ? null : id));
 
+  // 📌 Toggle chapter
   const toggleChapter = (subjectId, chapterId, chapterName) => {
     setSelectedChapters((prev) => {
       const subjectChapters = prev[subjectId] || {};
@@ -71,15 +77,16 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
     });
   };
 
+  // 📌 Select/Deselect all visible chapters
   const toggleSelectAllVisible = (subjectId, visibleChapters) => {
     setSelectedChapters((prev) => {
       const allSelected = visibleChapters.every((c) => prev[subjectId]?.[c.id]);
       const updated = allSelected
         ? { ...(prev[subjectId] || {}) }
         : {
-          ...(prev[subjectId] || {}),
-          ...Object.fromEntries(visibleChapters.map((c) => [c.id, c.name])),
-        };
+            ...(prev[subjectId] || {}),
+            ...Object.fromEntries(visibleChapters.map((c) => [c.id, c.name])),
+          };
 
       if (allSelected) {
         for (const c of visibleChapters) {
@@ -90,8 +97,9 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
     });
   };
 
+  // 🔎 Search filter (subjects + chapters)
   const filteredSubjects = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = searchTerm?.trim().toLowerCase();
     if (!term) return subjects;
 
     return subjects
@@ -102,9 +110,7 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
         if (subjectMatches) return s;
 
         const filteredChapters = (s.chapters || []).filter((c) =>
-          String(c.name || "")
-            .toLowerCase()
-            .includes(term)
+          String(c.name || "").toLowerCase().includes(term)
         );
         if (filteredChapters.length > 0) {
           return { ...s, chapters: filteredChapters };
@@ -114,6 +120,7 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
       .filter(Boolean);
   }, [subjects, searchTerm]);
 
+  // 📌 Keep expanded subject valid after search filter
   useEffect(() => {
     if (!filteredSubjects.length) {
       setExpandedSubjectId(null);
@@ -130,6 +137,7 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
     }
   }, [filteredSubjects, expandedSubjectId]);
 
+  // 📌 Start Test
   const handleStart = () => {
     const selectedIds = Object.values(selectedChapters).flatMap((chapters) =>
       Object.keys(chapters).filter((id) => chapters[id])
@@ -144,11 +152,11 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
     );
     setTestData({
       testname: "custom-test",
-      portionId: selectedPortion.id,
+      portionId,
       chapterIds: selectedIds,
       questionLimit,
     });
-    navigate("/user/test"); // ✅ instead of router.push
+    navigate("/user/test"); // ✅ go to start page
   };
 
   const bgColors = {
@@ -161,7 +169,7 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
     !loading &&
     !error &&
     filteredSubjects.length === 0 &&
-    searchTerm.trim().length > 0;
+    searchTerm?.trim().length > 0;
 
   return (
     <div className="py-6 relative">
@@ -195,30 +203,25 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
                 const visibleChapters = subject.chapters || [];
                 const allSelectedVisible = visibleChapters.length
                   ? visibleChapters.every(
-                    (ch) => selectedChapters[subject.id]?.[ch.id]
-                  )
+                      (ch) => selectedChapters[subject.id]?.[ch.id]
+                    )
                   : false;
 
                 return (
                   <div key={subject.id} className="rounded-lg overflow-hidden">
                     <div
-                      className={`flex justify-between items-center px-4 py-6 text-white cursor-pointer ${bgColors[subject.name.split(" ")[1]] || "bg-gray-400"
-                        }`}
+                      className={`flex justify-between items-center px-4 py-6 text-white cursor-pointer ${
+                        bgColors[subject.name.split(" ")[1]] || "bg-gray-400"
+                      }`}
                       onClick={() => toggleSubject(subject.id)}
                     >
                       <h3 className="font-bold text-lg">
                         {subject.name} | {visibleChapters.length} Chapters
                       </h3>
                       <div
-                        className={`transition-transform duration-300 w-7 h-7 rounded-full flex items-center justify-center ${isExpanded ? "rotate-180" : ""
-                          }`}
-                        style={{
-                          backgroundColor:
-                            bgColors[subject.name.split(" ")[1]]?.replace(
-                              "bg-",
-                              "#"
-                            ) || "#888",
-                        }}
+                        className={`transition-transform duration-300 w-7 h-7 rounded-full flex items-center justify-center ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
                       >
                         <FaAngleDown className="text-white text-sm" />
                       </div>
@@ -232,34 +235,34 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
                             Object.keys(chaps).filter((k) => chaps[k]).length >
                             0
                         ) && (
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {Object.entries(selectedChapters).flatMap(
-                                ([subjId, chaps]) =>
-                                  Object.entries(chaps)
-                                    .filter(([, name]) => !!name)
-                                    .map(([chapterId, chapterName]) => (
-                                      <div
-                                        key={chapterId}
-                                        className="flex items-center bg-[#DFF4FF] text-[#007ACC] px-3 py-1 rounded-full text-sm font-medium shadow-sm"
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {Object.entries(selectedChapters).flatMap(
+                              ([subjId, chaps]) =>
+                                Object.entries(chaps)
+                                  .filter(([, name]) => !!name)
+                                  .map(([chapterId, chapterName]) => (
+                                    <div
+                                      key={chapterId}
+                                      className="flex items-center bg-[#DFF4FF] text-[#007ACC] px-3 py-1 rounded-full text-sm font-medium shadow-sm"
+                                    >
+                                      {chapterName}
+                                      <button
+                                        onClick={() =>
+                                          toggleChapter(
+                                            subjId,
+                                            chapterId,
+                                            chapterName
+                                          )
+                                        }
+                                        className="ml-2 h-5 w-5 bg-[#007ACC] rounded-full text-[#fff]"
                                       >
-                                        {chapterName}
-                                        <button
-                                          onClick={() =>
-                                            toggleChapter(
-                                              subjId,
-                                              chapterId,
-                                              chapterName
-                                            )
-                                          }
-                                          className="ml-2 h-5 w-5 bg-[#007ACC] rounded-full text-[#fff]"
-                                        >
-                                          &times;
-                                        </button>
-                                      </div>
-                                    ))
-                              )}
-                            </div>
-                          )}
+                                        &times;
+                                      </button>
+                                    </div>
+                                  ))
+                            )}
+                          </div>
+                        )}
 
                         {/* Select All */}
                         <div className="flex w-40 items-center mb-4 bg-[#DFF4FF] rounded-full px-4 py-2">
@@ -339,17 +342,19 @@ export default function TestSubject({ selectedPortion, searchTerm = "" }) {
                       <div
                         key={val}
                         onClick={() => setQuestionLimit(val)}
-                        className={`flex bg-[#F0F8FF] items-center px-6 py-6 rounded-lg cursor-pointer border transition-all ${isSelected
-                          ? "border-[#007ACC] text-[#000] bg-blue-50 shadow-sm"
-                          : "border-gray-200 text-gray-700 hover:bg-gray-50"
-                          }`}
+                        className={`flex bg-[#F0F8FF] items-center px-6 py-6 rounded-lg cursor-pointer border transition-all ${
+                          isSelected
+                            ? "border-[#007ACC] text-[#000] bg-blue-50 shadow-sm"
+                            : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                        }`}
                       >
                         <div className="flex items-center space-x-3">
                           <div
-                            className={`w-5 h-5 flex items-center justify-center rounded border ${isSelected
-                              ? "bg-blue-600 border-blue-600"
-                              : "border-gray-300"
-                              }`}
+                            className={`w-5 h-5 flex items-center justify-center rounded border ${
+                              isSelected
+                                ? "bg-blue-600 border-blue-600"
+                                : "border-gray-300"
+                            }`}
                           >
                             {isSelected && (
                               <svg

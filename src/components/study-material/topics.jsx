@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom"; 
-import { fetchTopicsWithPDF } from "../../utils/api"; 
+import { useNavigate, useParams } from "react-router-dom"; 
+import { fetchTopicsWithPDF } from "../../utils/api";
 import PremiumPopup from "../PremiumPopup";
 import CommonLoader from "../commonLoader";
 
 export default function MeterialsTopicsPage({
   selectedChapter,
-  onTopicSelect, // (still passed down if you use it)
+  onTopicSelect,
   searchTerm = "",
 }) {
-  const [searchParams] = useSearchParams();
-  const chapterId = selectedChapter?.id || searchParams.get("chapterId");
+  const { chapterId } = useParams(); // ✅ get from /chapters/:chapterId/topics
 
   const [topics, setTopics] = useState([]);
   const [chapterName, setChapterName] = useState(selectedChapter?.name || "");
@@ -18,8 +17,9 @@ export default function MeterialsTopicsPage({
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
-  const navigate = useNavigate(); // ✅ instead of next/router
+  const navigate = useNavigate();
 
+  // ✅ guest check
   const isGuestUser = () => {
     if (typeof window !== "undefined") {
       const roleFromLocal = localStorage.getItem("role");
@@ -32,13 +32,14 @@ export default function MeterialsTopicsPage({
     return false;
   };
 
-  // ✅ Check if any PDF inside topic is premium
+  // ✅ check if topic or any PDF inside is premium
   const topicHasPremiumPdf = (topic) =>
     Array.isArray(topic?.pdf) && topic.pdf.some((p) => !!p?.isPremium);
 
   const isLockedForGuest = (topic) =>
     isGuestUser() && (topic?.isPremium || topicHasPremiumPdf(topic));
 
+  // ✅ fetch topics for this chapter
   useEffect(() => {
     const loadTopicsWithPDFs = async () => {
       try {
@@ -64,11 +65,7 @@ export default function MeterialsTopicsPage({
         }
       } catch (err) {
         console.error("Failed to fetch topics with PDFs:", err);
-        const msg =
-          err?.response?.status === 404
-            ? "No topics with PDFs found in this chapter."
-            : "Unable to load topics. Please try again later.";
-        setError(msg);
+        setError("Unable to load topics. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -77,7 +74,7 @@ export default function MeterialsTopicsPage({
     loadTopicsWithPDFs();
   }, [chapterId, selectedChapter?.name]);
 
-  // 🔎 Filter by topic name
+  // 🔎 search filter
   const filteredTopics = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return topics;
@@ -86,13 +83,17 @@ export default function MeterialsTopicsPage({
     );
   }, [topics, searchTerm]);
 
-  // ✅ Handle navigation or lock
+  // ✅ handle navigation
   const handleGoToMaterials = (topic) => {
     if (isLockedForGuest(topic)) {
       setShowPopup(true);
       return;
     }
-    navigate(`/user/study-materials?topicId=${topic.id}`);
+
+    // 🔗 go deeper: /user/dashboard/study/topics/:topicId
+    navigate(`/user/study/topics/${topic.id}/materials`);
+
+    if (onTopicSelect) onTopicSelect(topic);
   };
 
   const noMatches =
@@ -100,7 +101,9 @@ export default function MeterialsTopicsPage({
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-1 text-[#017bcd] ">Study Materials</h1>
+      <h1 className="text-xl font-bold mb-1 text-[#017bcd]">
+        Study Materials {chapterName && `- ${chapterName}`}
+      </h1>
 
       {loading && <CommonLoader />}
       {error && <p className="text-center pt-10 text-red-500">{error}</p>}
@@ -112,7 +115,6 @@ export default function MeterialsTopicsPage({
           ) : (
             <div className="grid mt-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
               {[...filteredTopics]
-                // push locked items to bottom for guests
                 .sort((a, b) => {
                   const aLocked = isLockedForGuest(a);
                   const bLocked = isLockedForGuest(b);
@@ -125,18 +127,14 @@ export default function MeterialsTopicsPage({
                   return (
                     <div
                       key={topic.id}
-                      className="rounded-xl bg-transparent p-6 text-black border border-[#ccc] shadow-sm place-content-center"
+                      className="rounded-xl bg-transparent p-6 text-black border border-[#ccc] shadow-sm"
                     >
-                      <div className="min-w-0">
-                        <p className="text-2xl font-semibold leading-tight text-black whitespace-normal break-words">
-                          {topic.name}
-                          {locked && (
-                            <span className="ml-2 align-middle text-[#b45309]">
-                              🔒
-                            </span>
-                          )}
-                        </p>
-                      </div>
+                      <p className="text-2xl font-semibold leading-tight text-black break-words">
+                        {topic.name}
+                        {locked && (
+                          <span className="ml-2 align-middle text-[#b45309]">🔒</span>
+                        )}
+                      </p>
 
                       <div className="mt-6 flex justify-center">
                         <button
@@ -145,8 +143,8 @@ export default function MeterialsTopicsPage({
                           className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-sm transition
                             ${
                               locked
-                                ? "bg-white/70 text-[#5C222A]/60 hover:bg-white/80"
-                                : "bg-[#5C222A] text-white hover:bg-white/90 hover:text-[#5C222A]"
+                                ? "bg-white/70 text-[#5C222A]/60 cursor-not-allowed"
+                                : "bg-[#5C222A] text-white hover:bg-white hover:text-[#5C222A]"
                             }`}
                           title={
                             locked ? "Premium content (login/upgrade)" : "Start Studying"

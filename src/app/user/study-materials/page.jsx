@@ -6,11 +6,11 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { HiViewBoards, HiViewList } from "react-icons/hi";
 import { useMediaQuery } from "react-responsive";
-import { useSelectedTopics } from "../../../contexts/SelectedTopicsContext"; // adjust path if needed
-import { fetchQuestionByTopic } from "../../../utils/api"; // adjust path if needed
+import { useSelectedTopics } from "../../../contexts/SelectedTopicsContext";
+import { fetchQuestionByTopic } from "../../../utils/api";
 
 import * as pdfjsLib from "pdfjs-dist";
 import PdfWorker from "pdfjs-dist/build/pdf.worker.min?worker";
@@ -39,8 +39,7 @@ const PdfViewerComponent = () => {
   const [questionCount, setQuestionCount] = useState(null);
 
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-  const [searchParams] = useSearchParams();
-  const topicId = searchParams.get("topicId");
+  const { topicId } = useParams(); // ✅ from /chapters/:chapterId/topics/:topicId
   const containerRef = useRef(null);
   const animationFrameRef = useRef(null);
   const touchStartX = useRef(0);
@@ -59,6 +58,7 @@ const PdfViewerComponent = () => {
     }
   };
 
+  // 📄 Fetch PDF
   useEffect(() => {
     if (!topicId) {
       setError("No topicId provided in URL");
@@ -105,6 +105,7 @@ const PdfViewerComponent = () => {
     };
   }, [topicId]);
 
+  // 🔢 Fetch Question Count
   useEffect(() => {
     if (!topicId) {
       setQuestionCount(0);
@@ -132,6 +133,7 @@ const PdfViewerComponent = () => {
       cancelled = true;
     };
   }, [topicId]);
+
 
   const getContainerInnerWidth = () => {
     const el = containerRef.current;
@@ -174,15 +176,15 @@ const PdfViewerComponent = () => {
           const cached = canvasCache.get(cacheKey);
           canvas.width = cached.width;
           canvas.height = cached.height;
-          canvas.style.width = `${Math.floor(viewport.width)}px`;
-          canvas.style.height = `${Math.floor(viewport.height)}px`;
+          canvas.style.width = `100%`;
+          canvas.style.height = `auto`;
           canvas.getContext("2d").drawImage(cached, 0, 0);
           return;
         }
 
         const ctx = canvas.getContext("2d");
-        canvas.style.width = `${Math.floor(viewport.width)}px`;
-        canvas.style.height = `${Math.floor(viewport.height)}px`;
+        canvas.style.width = `100%`;
+        canvas.style.height = `auto`;
         canvas.width = Math.floor(viewport.width * outputScale);
         canvas.height = Math.floor(viewport.height * outputScale);
 
@@ -385,14 +387,14 @@ const PdfViewerComponent = () => {
     <div
       className={`w-full ${
         isFullscreen
-          ? "fixed inset-0 bg-black z-50 overflow-y-scroll"
+          ? "fixed inset-0 bg-black z-100 overflow-y-scroll"
           : "min-h-screen bg-gray-100"
       }`}
     >
       {/* Header */}
       <div className="bg-white shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="container mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="flex items-center space-x-4 w-full md:w-auto">
             {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
@@ -410,41 +412,43 @@ const PdfViewerComponent = () => {
             </span>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="hidden md:flex items-center space-x-2">
-              {questionCount > 1 && (
-                <button
-                  onClick={handlePracticeNavigation}
-                  className="bg-[#35095e] text-white py-2 px-6 rounded-full shadow-lg"
-                >
-                  Practice This Topic
-                </button>
-              )}
+          {/* Controls */}
+          <div className="flex flex-row md:flex-row items-center gap-2 w-full md:w-auto">
+            {questionCount > 1 && (
+              <button
+                onClick={handlePracticeNavigation}
+                className="bg-[#35095e] text-white py-2 px-4 md:px-6 rounded-full shadow-lg w-full md:w-auto"
+              >
+                Practice This Topic
+              </button>
+            )}
+
+            <div className=" items-center space-x-2 hidden sm:flex">
               <button
                 onClick={() => goToPage(1)}
                 disabled={currentPage === 1}
-                className="px-2 py-1 text-sm rounded bg-[#007acc] disabled:opacity-50"
+                className="px-2 py-1 text-sm rounded bg-[#007acc] text-white disabled:opacity-50"
               >
                 First
               </button>
               <button
                 onClick={goToPrevPage}
                 disabled={currentPage === 1}
-                className="p-1 rounded-full bg-[#007acc] disabled:opacity-50"
+                className="p-1 rounded-full bg-[#007acc] text-white disabled:opacity-50"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={goToNextPage}
                 disabled={currentPage >= numPages}
-                className="p-1 rounded-full bg-[#007acc] disabled:opacity-50"
+                className="p-1 rounded-full bg-[#007acc] text-white disabled:opacity-50"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
               <button
                 onClick={() => goToPage(numPages)}
                 disabled={currentPage === numPages}
-                className="px-2 py-1 bg-[#007acc] text-sm rounded disabled:opacity-50"
+                className="px-2 py-1 bg-[#007acc] text-white text-sm rounded disabled:opacity-50"
               >
                 Last
               </button>
@@ -491,7 +495,7 @@ const PdfViewerComponent = () => {
               </div>
             )}
 
-            <button onClick={toggleFullscreen} className="p-2 rounded-full">
+            <button onClick={toggleFullscreen} className="p-2 rounded-full text-black">
               {isFullscreen ? (
                 <Minimize className="w-5 h-5" />
               ) : (
@@ -520,11 +524,11 @@ const PdfViewerComponent = () => {
           } bg-gray-200`}
         >
           <div className={`relative ${isMobile ? "w-full h-full" : "flex-1"}`}>
-            <canvas id="page1" className="block" />
+            <canvas id="page1" className="w-full h-auto block" />
           </div>
           {pagesPerView === 2 && currentPage < numPages && (
             <div className="flex-1 relative">
-              <canvas id="page2" className="block" />
+              <canvas id="page2" className="w-full h-auto block" />
             </div>
           )}
           {isMobile && (

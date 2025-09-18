@@ -6,7 +6,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ replaces next/navigation
+import { useNavigate } from "react-router-dom"; 
 import {
   fetchFullTestQuestion,
   fetchFullTestByPortion,
@@ -42,7 +42,7 @@ export default function TestPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [subjectFilter, setSubjectFilter] = useState(null);
 
-  const navigate = useNavigate(); // ✅ replaces useRouter()
+  const navigate = useNavigate();
   const { testData } = useContext(TestContext);
   const portionId = testData?.portionId;
   const chapterIds = testData?.chapterIds;
@@ -595,8 +595,9 @@ export default function TestPage() {
         return;
       }
 
-      const finalReason = `${selectedOptions.join(", ")}${additionalMessage ? ` | Details: ${additionalMessage}` : ""
-        }`;
+      const finalReason = `${selectedOptions.join(", ")}${
+        additionalMessage ? ` | Details: ${additionalMessage}` : ""
+      }`;
 
       await reportWrongQuestion(questionId, finalReason);
 
@@ -777,22 +778,39 @@ export default function TestPage() {
         );
 
         const formattedQuestions = deduplicatedQuestions.map((question) => {
+          // Subject
+          const subjectName =
+            question.subject?.name?.trim?.() ||
+            (typeof question.subject === "string"
+              ? question.subject.trim()
+              : "") ||
+            (question.subjectId ? `Subject ${question.subjectId}` : null);
+
+          // Chapter
           const chapterName =
-            question.chapter?.name?.trim() ||
+            question.chapter?.name?.trim?.() ||
             (typeof question.chapter === "string"
               ? question.chapter.trim()
               : "") ||
-            (question.chapterId
-              ? `Chapter ${question.chapterId}`
-              : "General Chapter");
+            (question.chapterId ? `Chapter ${question.chapterId}` : null);
 
+          // Type
           let typeName;
           if (testData?.testname === "custom-test") {
-            typeName = chapterName;
-          } else {
+            // ✅ For custom-test you wanted "type" = chapter
+            typeName = chapterName || "Custom Test";
+          } else if (testData?.testname === "portion-full-test") {
+            // ✅ Portion-full-test: fallback to chapter name if no questionType
             typeName =
-              question.questionType?.name?.trim() ||
-              question.type?.name?.trim() ||
+              question.questionType?.name?.trim?.() ||
+              question.type?.name?.trim?.() ||
+              chapterName ||
+              "General";
+          } else {
+            // ✅ Full-portion: keep real type if available
+            typeName =
+              question.questionType?.name?.trim?.() ||
+              question.type?.name?.trim?.() ||
               (typeof question.questionType === "string"
                 ? question.questionType.trim()
                 : "") ||
@@ -813,15 +831,11 @@ export default function TestPage() {
             correctOption: question.correctOption || "N/A",
             hint: question.hint || "No hint available",
             typeId: question.questionTypeId || question.typeId || "general",
-            type: typeName,
-            subject:
-              question.subject?.name ||
-              (question.subjectId
-                ? `Subject ${question.subjectId}`
-                : "General Subject"),
-            subjectId: question.subjectId,
-            chapter: chapterName,
-            chapterId: question.chapterId,
+            type: typeName || "General", // ✅ fallback only if API gives nothing
+            subject: subjectName || "General", // ✅ fallback only if API gives nothing
+            subjectId: question.subjectId || "general",
+            chapter: chapterName || "General", // ✅ fallback only if API gives nothing
+            chapterId: question.chapterId || "general",
           };
         });
 
@@ -930,10 +944,11 @@ export default function TestPage() {
               {REPORT_OPTIONS.map((option) => (
                 <label
                   key={option}
-                  className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${reportModal.selectedOptions?.includes(option)
-                    ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
-                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
-                    }`}
+                  className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${
+                    reportModal.selectedOptions?.includes(option)
+                      ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
+                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                  }`}
                 >
                   <input
                     type="checkbox"
@@ -942,8 +957,8 @@ export default function TestPage() {
                       const updatedOptions = e.target.checked
                         ? [...(reportModal.selectedOptions || []), option]
                         : (reportModal.selectedOptions || []).filter(
-                          (o) => o !== option
-                        );
+                            (o) => o !== option
+                          );
 
                       setReportModal((prev) => ({
                         ...prev,
@@ -1040,20 +1055,22 @@ export default function TestPage() {
           Back
         </button>
       )}
+      {showAnswer === false && (
+        <button
+          onClick={() => navigate("/user/dashboard", { replace: true })}
+          className="flex items-center mt-1 px-3 py-1.5 rounded-md 
+             bg-[#007ACC] border border-[#007ACC] 
+             text-[#fff] font-medium shadow-sm 
+             transition-all duration-200 cursor-pointer "
+        >
+          ← Back
+        </button>
+      )}
       {Array.isArray(questions) &&
         questions.length > 0 &&
         !showInstructionPopup && (
           <div className="test_containers">
             <div className="test_container1 relative">
-              <button
-                onClick={() => navigate("/user/dashboard", { replace: true })}
-                className="flex items-center px-3 py-1.5 rounded-md 
-             bg-[#007ACC] border border-[#007ACC] 
-             text-[#fff] font-medium shadow-sm 
-             transition-all duration-200 cursor-pointer absolute top-0 left-0"
-              >
-                ← Back
-              </button>
               <TestTimer
                 timeLeft={timeLeft}
                 totalTime={totalTime}

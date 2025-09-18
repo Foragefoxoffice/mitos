@@ -108,7 +108,7 @@ const Menu = () => {
       {/* Mobile menu button */}
       {isMobile && (
         <div
-          className={`md:hidden fixed left-4 z-50 ${
+          className={`md:hidden fixed left-4 z-80 ${
             isMobileMenuOpen ? "top-2 left-[15rem]" : "relative"
           }`}
         >
@@ -124,7 +124,7 @@ const Menu = () => {
       {/* Sidebar */}
       <div
         className={`
-          ${isMobile ? "fixed inset-y-0 left-0 z-40 transform" : "relative"}
+          ${isMobile ? "fixed inset-y-0 left-0 z-70 transform" : "relative"}
           ${
             isMobileMenuOpen
               ? "translate-x-0 w-[80%] sidebar"
@@ -213,7 +213,7 @@ const Menu = () => {
       {/* Overlay for mobile */}
       {isMobile && isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-60 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

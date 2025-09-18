@@ -1,56 +1,24 @@
-import React, { useState, useEffect } from "react";
+// src/pages/ResultPage.jsx
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchResultByUser } from "@/utils/api";
 import { format } from "date-fns";
 import ResultsByMonth from "@/components/ResultsByMonth";
 import ChartResultsByWeek from "@/components/ChartByMonth";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import CommonLoader from "@/components/commonLoader";
 
-// Custom Arrows
-const NextArrow = ({ onClick }) => (
-  <div
-    className="absolute right-[-15px] top-1/2 z-10 transform -translate-y-1/2 cursor-pointer"
-    onClick={onClick}
-  >
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      className="w-6 h-6 text-[#35095e]"
-    >
-      <path
-        d="M9 18l6-6-6-6"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  </div>
-);
+// Swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
-const PrevArrow = ({ onClick }) => (
-  <div
-    className="absolute left-[-15px] top-1/2 z-10 transform -translate-y-1/2 cursor-pointer"
-    onClick={onClick}
-  >
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      className="w-6 h-6 text-[#35095e]"
-    >
-      <path
-        d="M15 18l-6-6 6-6"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  </div>
-);
+/**
+ * ResultPage using Swiper instead of react-slick
+ * - Fractional slides supported
+ * - Responsive breakpoints
+ * - Custom nav buttons (hidden on small screens)
+ */
 
 export default function ResultPage() {
   const [weeklyResults, setWeeklyResults] = useState([]);
@@ -61,37 +29,36 @@ export default function ResultPage() {
 
   const navigate = useNavigate();
 
-  const sliderSettings = {
-    dots: false,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    arrows: true,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2.2,
-          arrows: true,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1.2,
-          arrows: false,
-        },
-      },
-    ],
-  };
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+  const swiperRef = useRef(null);
+
+  // inject minimal CSS tweaks (ensures slides behave correctly)
+  useEffect(() => {
+    const css = `
+      .swiper-slide { display: block !important; }
+      .swiper-wrapper { align-items: stretch; }
+      .result-nav-btn { background: rgba(255,255,255,0.95); border-radius: 9999px; padding: 6px; display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 20px rgba(0,0,0,0.08); cursor:pointer; }
+      .result-nav-btn svg { width: 22px; height: 22px; color: #35095e; }
+      @media (max-width: 768px) {
+        .result-nav-btn { display: none; }
+      }
+    `;
+    const styleEl = document.createElement("style");
+    styleEl.id = "result-page-swiper-fixes";
+    styleEl.innerHTML = css;
+    document.head.appendChild(styleEl);
+    return () => {
+      const existing = document.getElementById("result-page-swiper-fixes");
+      if (existing) existing.remove();
+    };
+  }, []);
 
   // Get userId
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
+      // keep same behavior as before (parseInt)
       setUserId(parseInt(storedUserId, 10));
     } else {
       setHasFetched(true);
@@ -137,7 +104,7 @@ export default function ResultPage() {
         <img
           src="/images/progress.png"
           alt="No Results"
-            referrerPolicy="no-referrer"
+          referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover filter blur-sm opacity-70"
         />
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center">
@@ -158,7 +125,6 @@ export default function ResultPage() {
     );
   }
 
-  // Main UI
   return (
     <div className="container px-2 mx-auto">
       <div className="mt-2 md:mt-12">
@@ -169,64 +135,127 @@ export default function ResultPage() {
         <ResultsByMonth results={results} />
       </div>
 
-      <div className="relative my-12">
-        <Slider {...sliderSettings}>
-          {weeklyResults.map((week, index) => (
-            <div key={index} className="px-2 outline-none">
-              <div className="bg-white p-4 rounded-3xl border border-[#007ACC40] transition duration-300">
-                <div className="bg-[#F7941D] py-3 mb-4 rounded-xl text-center">
-                  <h2 className="text-xl font-extrabold text-[#fff]">
-                    {week.weekLabel}
-                  </h2>
-                </div>
+      <div className="relative py-6 sm:py-12">
+        {/* Left nav */}
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 -translate-x-3">
+          <button
+            ref={prevRef}
+            className="result-nav-btn hidden md:inline-flex"
+            aria-label="Previous"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M15 18l-6-6 6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
 
-                <div className="grid gap-3 text-sm">
-                  <StatRow label="Answered" value={`${week.totalAnswered} Qus`} />
-                  <StatRow
-                    label="Correct"
-                    value={`${week.totalCorrect} Ans`}
-                    icon="/images/menuicon/up.png"
-                  />
-                  <StatRow
-                    label="Wrong"
-                    value={`${week.totalWrong} Ans`}
-                    icon="/images/menuicon/down.png"
-                  />
-                  <StatRow
-                    label="Unanswered"
-                    value={`${week.totalUnanswered} Ans`}
-                  />
-                  <StatRow label="Total Score" value={week.totalScore} />
-                  <StatRow
-                    label="Accuracy"
-                    value={
-                      week.totalAnswered > 0
-                        ? `${((week.totalCorrect / week.totalAnswered) * 100).toFixed(2)}%`
-                        : "0%"
-                    }
-                  />
+        {/* Right nav */}
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 translate-x-3">
+          <button
+            ref={nextRef}
+            className="result-nav-btn hidden md:inline-flex"
+            aria-label="Next"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M9 18l6-6-6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <Swiper
+          modules={[Navigation]}
+          onBeforeInit={(swiper) => {
+            // link navigation with our refs
+            if (typeof swiper.params !== "undefined") {
+              swiper.params.navigation.prevEl = prevRef.current;
+              swiper.params.navigation.nextEl = nextRef.current;
+            }
+          }}
+          onSwiper={(s) => {
+            swiperRef.current = s;
+            // init nav once swiper & refs are present
+            setTimeout(() => {
+              if (s && s.navigation) {
+                s.navigation.init();
+                s.navigation.update();
+              }
+            }, 0);
+          }}
+          spaceBetween={16}
+          slidesPerView={4} // default for larger screens
+          breakpoints={{
+            1280: { slidesPerView: 4, spaceBetween: 20 },
+            1024: { slidesPerView: 3, spaceBetween: 16 },
+            768: { slidesPerView: 2.2, spaceBetween: 12 },
+            0: { slidesPerView: 1.2, spaceBetween: 8 },
+          }}
+          grabCursor={true}
+        >
+          {weeklyResults.map((week, index) => (
+            <SwiperSlide key={index}>
+              <div className="px-2 outline-none">
+                <div className="bg-white p-4 rounded-3xl border border-[#007ACC40] transition duration-300 h-full flex flex-col">
+                  <div className="bg-[#F7941D] py-3 mb-4 rounded-xl text-center">
+                    <h2 className="text-xl font-extrabold text-white">
+                      {week.weekLabel}
+                    </h2>
+                  </div>
+
+                  <div className="grid gap-3 text-sm mt-auto">
+                    <StatRow label="Answered" value={`${week.totalAnswered} Qus`} />
+                    <StatRow
+                      label="Correct"
+                      value={`${week.totalCorrect} Ans`}
+                      icon="/images/menuicon/up.png"
+                    />
+                    <StatRow
+                      label="Wrong"
+                      value={`${week.totalWrong} Ans`}
+                      icon="/images/menuicon/down.png"
+                    />
+                    <StatRow
+                      label="Unanswered"
+                      value={`${week.totalUnanswered} Ans`}
+                    />
+                    <StatRow label="Total Score" value={week.totalScore} />
+                    <StatRow
+                      label="Accuracy"
+                      value={
+                        week.totalAnswered > 0
+                          ? `${((week.totalCorrect / week.totalAnswered) * 100).toFixed(2)}%`
+                          : "0%"
+                      }
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </SwiperSlide>
           ))}
-        </Slider>
+        </Swiper>
       </div>
     </div>
   );
 }
 
+/* Small presentational row */
 const StatRow = ({ label, value, icon }) => (
   <div className="flex justify-between items-center">
     <p className="font-semibold w-[60%] text-[#282c35]">{label}</p>
     <p className="text-lg w-[40%] flex justify-end items-center gap-2 text-[#282c35]">
       {icon && (
-        <img className="w-5 h-5 ml-[-20px]" referrerPolicy="no-referrer" src={icon} alt={`${label} icon`} />
+        <img
+          className="w-5 h-5 ml-[-20px]"
+          referrerPolicy="no-referrer"
+          src={icon}
+          alt={`${label} icon`}
+        />
       )}
       {value}
     </p>
   </div>
 );
 
+/* Group results by week (keeps your original logic) */
 const groupResultsByWeek = (results) => {
   const weeksMap = new Map();
 

@@ -7,29 +7,27 @@ import {
 } from "@/utils/api";
 import axios from "axios";
 import CommonLoader from "../commonLoader";
+import { useNavigate, useParams, useOutletContext } from "react-router-dom";
 
-export default function MeterialsChapter({
-  selectedSubject,
-  onChapterSelect,
-  onScreenSelection,
-  searchTerm = "", // ⬅️ from nav.js
-}) {
+export default function MeterialsChapter() {
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // keep colors stable across filter/search
-  const colorCacheRef = useRef({}); // { [chapterId]: { randomBgColor, buttonTextColor } }
+  const colorCacheRef = useRef({});
+  const navigate = useNavigate();
+  const { subjectId } = useParams(); // ✅ subject from route
+  const { searchTerm } = useOutletContext(); // ✅ from Dashboard
 
   useEffect(() => {
-    if (!selectedSubject?.id) return;
+    if (!subjectId) return;
 
     const loadChapters = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const data = await fetchChapter(selectedSubject.id);
+        const data = await fetchChapter(subjectId);
         if (!Array.isArray(data))
           throw new Error("Invalid data format received");
 
@@ -48,10 +46,6 @@ export default function MeterialsChapter({
               ) {
                 topicCount = 0;
               } else {
-                console.error(
-                  `Error fetching topics for chapter ${chapter.id}:`,
-                  topicError
-                );
                 topicCount = "N/A";
               }
             }
@@ -67,22 +61,10 @@ export default function MeterialsChapter({
               } else {
                 questionCount = 0;
               }
-            } catch (questionError) {
-              if (
-                axios.isAxiosError(questionError) &&
-                questionError.response?.status === 404
-              ) {
-                questionCount = 0;
-              } else {
-                console.error(
-                  `Error fetching questions for chapter ${chapter.id}:`,
-                  questionError
-                );
-                questionCount = "N/A";
-              }
+            } catch {
+              questionCount = "N/A";
             }
 
-            // assign stable color once per chapter
             if (!colorCacheRef.current[chapter.id]) {
               const darkColor = getRandomDarkColor();
               const contrastColor = getContrastColor(
@@ -105,42 +87,45 @@ export default function MeterialsChapter({
           })
         );
 
-        const chaptersWithQuestions = allChapters.filter(
+        const validChapters = allChapters.filter(
           (c) => c.questionCount > 0 && c.questionCount !== "N/A"
         );
 
-        setChapters(chaptersWithQuestions);
+        setChapters(validChapters);
 
-        if (chaptersWithQuestions.length === 0) {
+        if (validChapters.length === 0) {
           setError("No chapters with questions found in this subject.");
         }
       } catch (err) {
         console.error("Failed to fetch chapters:", err);
-        setError(
-          "There are no chapters added in this subject yet. Please try again later."
-        );
+        setError("Unable to load chapters. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
     loadChapters();
-  }, [selectedSubject]);
+  }, [subjectId]);
 
-  // 🔎 apply search filter by chapter name
+  // 🔎 filter search
+    // 🔎 filter search
   const filteredChapters = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = searchTerm?.trim().toLowerCase();
     if (!term) return chapters;
     return chapters.filter((c) =>
-      String(c.name || "")
-        .toLowerCase()
-        .includes(term)
+      String(c.name || "").toLowerCase().includes(term)
     );
   }, [chapters, searchTerm]);
 
+  // 🚀 FIX: declare noMatches here
+  const noMatches =
+    !loading &&
+    !error &&
+    filteredChapters.length === 0 &&
+    searchTerm?.trim().length > 0;
+
   const handleTopicClick = (chapter) => {
-    onChapterSelect(chapter);
-    onScreenSelection("topic");
+    navigate(`/user/dashboard/study/chapters/${chapter.id}/topics`);
   };
 
   const getRandomDarkColor = () => {
@@ -155,14 +140,7 @@ export default function MeterialsChapter({
     return luminance > 128 ? "#000000" : "#FFFFFF";
   };
 
-  const noMatches =
-    !loading &&
-    !error &&
-    filteredChapters.length === 0 &&
-    searchTerm.trim().length > 0;
-
-
-      const chapterImage = {
+    const chapterImage = {
     // bilogy
     "The Living World": {
       image: "/images/chapterImg/B11.1-Living-World.svg",
@@ -412,6 +390,7 @@ export default function MeterialsChapter({
     },
   };
 
+
   return (
     <div className="p-4 inside_practice">
       {loading && <CommonLoader />}
@@ -432,12 +411,9 @@ export default function MeterialsChapter({
                   <div className="chapter-card-inner">
                     <div>
                       <h2>{chapter.name}</h2>
-                      <div className="text-sm md:block gap-2 text-white">
-                        <span className="text-white mr-1">
-                          {chapter.topicCount} Topics
-                        </span>{" "}&<span className="ml-1 text-white">
-                          {chapter.questionCount} Questions
-                        </span>
+                      <div className="text-sm text-white">
+                        <span>{chapter.topicCount} Topics</span> &nbsp;|&nbsp;
+                        <span>{chapter.questionCount} Questions</span>
                       </div>
                     </div>
                     <div>
@@ -456,7 +432,7 @@ export default function MeterialsChapter({
                       className="mt-4 px-4 py-2 rounded-full font-semibold bg-white transition-transform duration-100 ease-in-out hover:-translate-y-[1px]"
                       style={{ color: chapter.randomBgColor }}
                     >
-                      Attempt by Topics
+                      Learn by Topics
                     </button>
                   </div>
                 </div>

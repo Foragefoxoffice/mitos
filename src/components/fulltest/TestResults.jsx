@@ -201,7 +201,7 @@ export const TestResults = ({
             View Answers
           </button>
           <button
-            onClick={() => navigate("/user/dashboard")}
+            onClick={() => navigate("/user/dashboard/test/portions")}
             className="bg-[#31CA31] text-white rounded-full py-4 px-4 font-semibold shadow hover:bg-[#009044] cursor-pointer"
           >
             Go Back to Another Test

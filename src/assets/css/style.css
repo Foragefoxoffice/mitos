@@ -381,7 +381,6 @@
   place-items: flex-start;
   place-content: center;
   gap: 20px;
-  align-items: end;
 }
 
 .topic_card {
@@ -608,16 +607,15 @@ input[type="checkbox"] {
   background: var(--primery);
 }
 .answer_label {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 20px;
   align-items: center;
-  justify-content: space-between;
-  padding: 0px 30px 15px;
+  justify-content: start;
+  padding: 0px 10px 15px;
 }
 .answer_label li {
-  font-family: 20px;
+    padding-left: 10px;
   font-weight: 500;
   position: relative;
 }
@@ -627,8 +625,8 @@ input[type="checkbox"] {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  top: 5.5px;
-  left: -17px;
+     top: 6px;
+    left: -5px;
 }
 
 .rounded_navs {
@@ -1006,6 +1004,14 @@ tr {
   padding-left: 20px;
   display: none;
 }
+
+.slick-slide {
+  display: block !important;
+}
+.slick-track {
+  display: flex !important;
+}
+
 
 @media (max-width: 768px) {
   .scroll-indicator {

@@ -1,20 +1,23 @@
+"use client";
 import React, { useState, useEffect, useContext } from "react";
-import { fetchPortions, fetchSubjectsByPortions } from "../../utils/api"; // ✅ fixed alias
-import { TestContext } from "../../contexts/TestContext"; // ✅ fixed alias
-import { useNavigate } from "react-router-dom"; // ✅ instead of useRouter
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { fetchPortions, fetchSubjectsByPortions } from "../../utils/api";
+import { TestContext } from "../../contexts/TestContext";
 import PremiumPopup from "../PremiumPopup";
-import CommonLoader from "../commonLoader"; // ✅ fixed alias
+import CommonLoader from "../commonLoader";
 
-export default function Portion({ onPortionSelect, onScreenSelection }) {
+export default function Portion() {
   const [portions, setPortions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showPremiumPopup, setShowPremiumPopup] = useState(false);
-  const { setTestData } = useContext(TestContext);
-  const navigate = useNavigate(); // ✅ React Router
   const [fullPortionLoading, setFullPortionLoading] = useState(false);
 
-  // ✅ Check if user is guest
+  const { setTestData } = useContext(TestContext);
+  const { searchTerm } = useOutletContext();   // ✅ searchTerm from Dashboard
+  const navigate = useNavigate();
+
+  // ✅ Guest check
   const isGuestUser = () => {
     if (typeof window !== "undefined") {
       const userRole =
@@ -62,40 +65,30 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
     loadPortions();
   }, []);
 
+  // 🔎 search filter (case-insensitive)
+  const filteredPortions = portions.filter((portion) =>
+    portion.name.toLowerCase().includes(searchTerm?.toLowerCase() || "")
+  );
+
   const handlePortionClick = (portion) => {
-    if (isGuestUser()) {
-      setShowPremiumPopup(true);
-      return;
-    }
-    const fullPortionTestData = {
-      testname: "portion-full-test",
-      portionId: portion.id,
-    };
-    setTestData(fullPortionTestData);
-    navigate("/user/test"); // ✅
+    if (isGuestUser()) return setShowPremiumPopup(true);
+
+    setTestData({ testname: "portion-full-test", portionId: portion.id });
+    navigate("/user/test"); // ✅ new start page
   };
 
   const handleFullPortionTestClick = () => {
-    if (isGuestUser()) {
-      setShowPremiumPopup(true);
-      return;
-    }
+    if (isGuestUser()) return setShowPremiumPopup(true);
 
     setFullPortionLoading(true);
-
-    const fullPortionTestData = { testname: "full-portion" };
-    setTestData(fullPortionTestData);
-    navigate("/user/test"); // ✅
+    setTestData({ testname: "full-portion" });
+    navigate("/user/test"); // ✅ new start page
   };
 
   const handleCustomPortionClick = (portion) => {
-    if (isGuestUser()) {
-      setShowPremiumPopup(true);
-      return;
-    }
+    if (isGuestUser()) return setShowPremiumPopup(true);
 
-    onPortionSelect(portion);
-    onScreenSelection("test-subject");
+    navigate(`/user/dashboard/test/${portion.id}/subjects`); // ✅ nested route
   };
 
   return (
@@ -109,15 +102,10 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
           <div className="bg-[#00A86B] text-white rounded-xl p-6 relative shadow-md flex flex-col justify-between">
             <div className="portion-card-inner">
               <div>
-                <h2 className="md:text-lg text-3xl font-semibold mb-1">
+                <h2 className="md:text-2xl text-2xl font-semibold mb-1">
                   Full Portion
                 </h2>
-                <p
-                  className="text-md text-white mb-6"
-                  style={{ color: "white" }}
-                >
-                  11th & 12th
-                </p>
+                <p className="text-md text-white mb-6" style={{color:'#fff'}}>11th & 12th</p>
               </div>
               <div>
                 <img
@@ -130,7 +118,7 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
 
             <button
               onClick={handleFullPortionTestClick}
-              className={`w-full hover:translate-y-[-1px] cursor-pointer transition-all py-3 rounded-full bg-white text-green-700 font-semibold text-md ${
+              className={`w-full py-3 rounded-full bg-white text-green-700 font-semibold text-md transition-all hover:translate-y-[-1px] ${
                 isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={fullPortionLoading}
@@ -149,12 +137,12 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
                     r="10"
                     stroke="currentColor"
                     strokeWidth="4"
-                  ></circle>
+                  />
                   <path
                     className="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  ></path>
+                  />
                 </svg>
               ) : (
                 "Full Portion Test"
@@ -163,7 +151,7 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
           </div>
 
           {/* Portion Cards */}
-          {portions.map((portion) => {
+          {filteredPortions.map((portion) => {
             const bgColor =
               portion.name === "11th"
                 ? "bg-[#B57170]"
@@ -185,13 +173,10 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
               >
                 <div className="portion-card-inner flex justify-between">
                   <div>
-                    <h2 className="md:text-lg text-3xl font-semibold mb-1">
+                    <h2 className="md:text-2xl text-xl font-semibold mb-1">
                       {portion.name} Portion
                     </h2>
-                    <p
-                      className="text-md text-white mb-6"
-                      style={{ color: "white" }}
-                    >
+                    <p className="text-md text-white mb-6"  style={{color:'#fff'}}>
                       {portion.detailCount} Subjects
                     </p>
                   </div>
@@ -207,7 +192,7 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
                 <div className="space-y-3">
                   <button
                     onClick={() => handleCustomPortionClick(portion)}
-                    className={`w-full hover:translate-y-[-1px] cursor-pointer transition-all md:mt-2 mt-14 py-3 rounded-full bg-white ${btnText} font-semibold text-md ${
+                    className={`w-full py-3 rounded-full bg-white ${btnText} font-semibold text-md transition-all hover:translate-y-[-1px] ${
                       isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
@@ -215,7 +200,7 @@ export default function Portion({ onPortionSelect, onScreenSelection }) {
                   </button>
                   <button
                     onClick={() => handlePortionClick(portion)}
-                    className={`w-full py-3 hover:translate-y-[-1px] cursor-pointer transition-all rounded-full bg-white ${btnText} font-semibold text-md ${
+                    className={`w-full py-3 rounded-full bg-white ${btnText} font-semibold text-md transition-all hover:translate-y-[-1px] ${
                       isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >

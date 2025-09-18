@@ -7,7 +7,7 @@ export default function PremiumPopup({ onClose }) {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center z-100">
       <motion.div
         className="bg-gradient-to-br from-blue-400 to-purple-500 p-6 rounded-3xl max-w-md w-full mx-4 border-4 border-yellow-300 shadow-xl"
         initial={{ scale: 0.9, opacity: 0 }}

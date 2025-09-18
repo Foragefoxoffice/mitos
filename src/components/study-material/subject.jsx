@@ -1,16 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { fetchSubjects, fetchChapter } from "@/utils/api";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import CommonLoader from "../commonLoader";
 
-export default function MeterialsSubject({
-  onSubjectSelect,
-  onScreenSelection,
-}) {
+export default function MeterialsSubject() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [loadingSubjectId, setLoadingSubjectId] = useState(null);
+
+  const { searchTerm } = useOutletContext(); // ✅ search input from Dashboard
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadSubjects = async () => {
@@ -28,26 +29,28 @@ export default function MeterialsSubject({
                 chapterCount: Array.isArray(chapters) ? chapters.length : 0,
               };
             } catch {
-              return { ...subject, chapterCount: "0" };
+              return { ...subject, chapterCount: 0 };
             }
           })
         );
 
+        // ✅ Sort: 11th before 12th, and within each → Bio > Phy > Chem
         const sortedSubjects = subjectsWithChapters.sort((a, b) => {
           const isA11th = a.name.includes("11th");
           const isB11th = b.name.includes("11th");
-
           if (isA11th !== isB11th) return isA11th ? -1 : 1;
 
-          const subjectOrder = { Biology: 1, Physics: 2, Chemistry: 3 };
-          const getRank = (name) => {
-            if (name.includes("Biology")) return subjectOrder.Biology;
-            if (name.includes("Physics")) return subjectOrder.Physics;
-            if (name.includes("Chemistry")) return subjectOrder.Chemistry;
-            return 4;
-          };
+          const order = { Biology: 1, Physics: 2, Chemistry: 3 };
+          const rank = (name) =>
+            name.includes("Biology")
+              ? order.Biology
+              : name.includes("Physics")
+              ? order.Physics
+              : name.includes("Chemistry")
+              ? order.Chemistry
+              : 4;
 
-          return getRank(a.name) - getRank(b.name);
+          return rank(a.name) - rank(b.name);
         });
 
         setSubjects(sortedSubjects);
@@ -62,13 +65,17 @@ export default function MeterialsSubject({
     loadSubjects();
   }, []);
 
+  // 🔎 Filter by dashboard search
+  const filteredSubjects = subjects.filter((s) =>
+    String(s.name || "").toLowerCase().includes(searchTerm?.trim().toLowerCase())
+  );
+
   const handleSubjectClick = (subject) => {
     setLoadingSubjectId(subject.id);
     setTimeout(() => {
-      onSubjectSelect(subject);
-      onScreenSelection("chapter");
+      navigate(`/user/dashboard/study/subjects/${subject.id}/chapters`);
       setLoadingSubjectId(null);
-    }, 1000);
+    }, 800);
   };
 
   const subjectStyles = {
@@ -116,72 +123,82 @@ export default function MeterialsSubject({
       {error && <p className="text-red-500 text-center">{error}</p>}
 
       {!loading && !error && (
-        <div className="subject_cards">
-          {subjects.map((subject) => (
-            <div
-              key={subject.id}
-              className={`subject_card ${subjectStyles[subject.name]?.bgColor || "bg-gray-200"
-                }`}
-            >
-              <div className="subject-card-inner study-material-card">
-                <div>
-                  <h2>{subject.name}</h2>
-                  <p className="text-sm text-white" style={{ color: "#fff" }}>
-                    {subject.chapterCount} Chapters
-                  </p>
-                </div>
-                <div>
-                  <img
-                    src={
-                      subjectStyles[subject.name]?.image ||
-                      "/images/practice/default.png"
-                    }
-                    alt={subject.name}
-                  />
-                </div>
-              </div>
+        <>
+          {filteredSubjects.length === 0 ? (
+            <p className="text-center pt-10">
+              No subjects match your search.
+            </p>
+          ) : (
+            <div className="subject_cards">
+              {filteredSubjects.map((subject) => (
+                <div
+                  key={subject.id}
+                  className={`subject_card ${
+                    subjectStyles[subject.name]?.bgColor || "bg-gray-200"
+                  }`}
+                >
+                  <div className="subject-card-inner study-material-card">
+                    <div>
+                      <h2>{subject.name}</h2>
+                      <p className="text-sm text-white"  style={{color:'#fff'}}>
+                        {subject.chapterCount} Chapters
+                      </p>
+                    </div>
+                    <div>
+                      <img
+                        src={
+                          subjectStyles[subject.name]?.image ||
+                          "/images/practice/default.png"
+                        }
+                        alt={subject.name}
+                      />
+                    </div>
+                  </div>
 
-              <button
-                disabled={loadingSubjectId === subject.id}
-                onClick={() => handleSubjectClick(subject)}
-                className={`mt-4 px-4 py-2 rounded-full font-semibold bg-white ${subjectStyles[subject.name]?.buttonTextColor || "text-black"
-                  } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
-              >
-                {loadingSubjectId === subject.id ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5 inline-block mr-2"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke={
-                          subjectStyles[subject.name]?.spinnerColor || "#000"
-                        }
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill={
-                          subjectStyles[subject.name]?.spinnerColor || "#000"
-                        }
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Loading...
-                  </>
-                ) : (
-                  "Learn by Chapter"
-                )}
-              </button>
+                  <button
+                    disabled={loadingSubjectId === subject.id}
+                    onClick={() => handleSubjectClick(subject)}
+                    className={`mt-4 px-4 py-2 rounded-full font-semibold bg-white ${
+                      subjectStyles[subject.name]?.buttonTextColor || "text-black"
+                    } transition-transform duration-100 ease-in-out hover:-translate-y-[2px]`}
+                  >
+                    {loadingSubjectId === subject.id ? (
+                      <>
+                        <svg
+                          className="animate-spin h-5 w-5 inline-block mr-2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke={
+                              subjectStyles[subject.name]?.spinnerColor || "#000"
+                            }
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill={
+                              subjectStyles[subject.name]?.spinnerColor || "#000"
+                            }
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                          />
+                        </svg>
+                        Loading...
+                      </>
+                    ) : (
+                      "Learn by Chapter"
+                    )}
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
