@@ -794,49 +794,49 @@ export default function TestPage() {
               : "") ||
             (question.chapterId ? `Chapter ${question.chapterId}` : null);
 
-          // Type
-          let typeName;
-          if (testData?.testname === "custom-test") {
-            // ✅ For custom-test you wanted "type" = chapter
-            typeName = chapterName || "Custom Test";
-          } else if (testData?.testname === "portion-full-test") {
-            // ✅ Portion-full-test: fallback to chapter name if no questionType
-            typeName =
-              question.questionType?.name?.trim?.() ||
-              question.type?.name?.trim?.() ||
-              chapterName ||
-              "General";
-          } else {
-            // ✅ Full-portion: keep real type if available
-            typeName =
-              question.questionType?.name?.trim?.() ||
-              question.type?.name?.trim?.() ||
-              (typeof question.questionType === "string"
-                ? question.questionType.trim()
-                : "") ||
-              (typeof question.type === "string" ? question.type.trim() : "") ||
-              "General";
-          }
+        // ✅ Type (always keep separate from chapter)
+let typeName =
+  question.questionType?.name?.trim?.() ||
+  question.type?.name?.trim?.() ||
+  (typeof question.questionType === "string"
+    ? question.questionType.trim()
+    : "") ||
+  (typeof question.type === "string" ? question.type.trim() : "") ||
+  null;
+
+// ✅ Fallbacks based on test type
+if (!typeName) {
+  if (testData?.testname === "custom-test") {
+    typeName = "Custom Test";
+  } else if (testData?.testname === "portion-full-test") {
+    typeName = "Portion Test";
+  } else {
+    typeName = "General";
+  }
+}
 
           return {
-            id: question.id || "N/A",
-            question: question.question || "No question text available",
-            image: question.image || null,
-            options: [
-              question.optionA || "Option A",
-              question.optionB || "Option B",
-              question.optionC || "Option C",
-              question.optionD || "Option D",
-            ],
-            correctOption: question.correctOption || "N/A",
-            hint: question.hint || "No hint available",
-            typeId: question.questionTypeId || question.typeId || "general",
-            type: typeName || "General", // ✅ fallback only if API gives nothing
-            subject: subjectName || "General", // ✅ fallback only if API gives nothing
-            subjectId: question.subjectId || "general",
-            chapter: chapterName || "General", // ✅ fallback only if API gives nothing
-            chapterId: question.chapterId || "general",
-          };
+  id: question.id || "N/A",
+  question: question.question || "No question text available",
+  image: question.image || null,
+  options: [
+    question.optionA || "Option A",
+    question.optionB || "Option B",
+    question.optionC || "Option C",
+    question.optionD || "Option D",
+  ],
+  correctOption: question.correctOption || "N/A",
+  hint: question.hint || "No hint available",
+
+  // ✅ Keep them cleanly separated
+  typeId: question.questionTypeId || question.typeId || "general",
+  type: typeName, // <-- Correctly stored now
+  subject: subjectName || "General",
+  subjectId: question.subjectId || "general",
+  chapter: chapterName || "General",
+  chapterId: question.chapterId || "general",
+};
+
         });
 
         setQuestions(formattedQuestions);

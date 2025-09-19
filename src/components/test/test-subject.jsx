@@ -23,7 +23,7 @@ export default function TestSubject() {
   const { portionId } = useParams(); // ✅ portion from URL
   const { searchTerm } = useOutletContext(); // ✅ search from Dashboard
   const navigate = useNavigate();
-
+  
   // 🔄 Load subjects + chapters for portion
   useEffect(() => {
     const loadSubjects = async () => {
@@ -44,9 +44,15 @@ export default function TestSubject() {
           })
         );
 
-        const sorted = subjectsWithDetails.sort(
-          (a, b) => b.chapters.length - a.chapters.length
-        );
+       // NEW - order: Physics, Chemistry, Biology
+const subjectOrder = { Physics: 1, Chemistry: 2, Biology: 3 };
+
+const sorted = subjectsWithDetails.sort((a, b) => {
+  const aKey = subjectOrder[a.name] ?? 999;
+  const bKey = subjectOrder[b.name] ?? 999;
+  return aKey - bKey;
+});
+
         setSubjects(sorted);
 
         const defaultExpanded = sorted.find((s) => s.chapters.length > 0);

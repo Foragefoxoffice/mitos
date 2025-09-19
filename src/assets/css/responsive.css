@@ -6,6 +6,18 @@
   .tab {
     padding: 10px 15px;
   }
+  .nav_btns {
+    display: grid
+;
+    justify-content: center;
+    gap: 0px;
+}
+.subbtn{
+  padding: 6px 15px !important;
+}
+.question_option * {
+    font-size: 16px !important;
+}
   .tabs {
     padding: 16px;
   }
@@ -36,6 +48,7 @@
   .test_containers {
     display: flex;
     flex-direction: column-reverse;
+        margin-top: 20px;
   }
   .test_container2 {
     width: 100%;

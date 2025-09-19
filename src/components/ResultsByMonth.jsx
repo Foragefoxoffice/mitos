@@ -245,6 +245,36 @@ const groupResultsByMonth = (results) => {
     .sort((a, b) => new Date(b.monthKey) - new Date(a.monthKey));
 };
 
+// 🔄 Subject sorting helpers
+const subjectOrder = { Physics: 1, Chemistry: 2, Biology: 3 };
+
+const getBaseSubject = (subjectKey) => {
+  const clean = String(subjectKey).replace(/^\d+\s*/, "").toLowerCase();
+  if (clean.includes("phys")) return "Physics";
+  if (clean.includes("chem")) return "Chemistry";
+  if (clean.includes("bio") || clean.includes("bot") || clean.includes("zoo"))
+    return "Biology";
+  return subjectKey;
+};
+
+const orderSubjects = (subjects) => {
+  if (!subjects) return {};
+  const ordered = {};
+  Object.keys(subjects)
+    .sort((a, b) => {
+      const aBase = getBaseSubject(a);
+      const bBase = getBaseSubject(b);
+      const aOrder = subjectOrder[aBase] ?? 999;
+      const bOrder = subjectOrder[bBase] ?? 999;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      return a.localeCompare(b); // keeps 11 Physics before 12 Physics
+    })
+    .forEach((key) => {
+      ordered[key] = subjects[key];
+    });
+  return ordered;
+};
+
 const ResultsByMonth = ({ results, selectedSubject }) => {
   // Ensure results is an array
   const validResults = Array.isArray(results) ? results : [];
@@ -307,6 +337,10 @@ const ResultsByMonth = ({ results, selectedSubject }) => {
   // Group subjects by grade
   const groupedTypeSubjects = groupSubjectsByGrade(typeSubjects);
   const groupedChapterSubjects = groupSubjectsByGrade(chapterSubjects);
+
+  // ✅ Apply ordering to both groups
+  const groupedTypeSubjectsOrdered = orderSubjects(groupedTypeSubjects);
+  const groupedChapterSubjectsOrdered = orderSubjects(groupedChapterSubjects);
 
   // Enhanced MonthSelector component
   const MonthSelector = () => {
@@ -406,7 +440,7 @@ const ResultsByMonth = ({ results, selectedSubject }) => {
               monthData={selectedMonthData}
               section="resultsByChapter"
               selectedSubject={selectedSubject}
-              groupedSubjects={groupedChapterSubjects}
+              groupedSubjects={groupedChapterSubjectsOrdered}
             />
           </div>
 
@@ -419,7 +453,7 @@ const ResultsByMonth = ({ results, selectedSubject }) => {
               monthData={selectedMonthData}
               section="resultsByType"
               selectedSubject={selectedSubject}
-              groupedSubjects={groupedTypeSubjects}
+              groupedSubjects={groupedTypeSubjectsOrdered}
             />
           </div>
         </div>

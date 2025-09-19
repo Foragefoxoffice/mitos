@@ -500,8 +500,6 @@ input[type="checkbox"] {
 }
 .test_container1 p,
 .test_container1 div {
-  /* color: var(--text); */
-  font-size: 20px !important;
   font-weight: 500;
 }
 
