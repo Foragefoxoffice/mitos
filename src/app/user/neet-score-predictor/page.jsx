@@ -296,7 +296,7 @@ export default function NeetScorePredictorPage() {
             Please take the test to see your results.
           </p>
           <a
-            href="/user/dashboard"
+            href="/user/dashboard/test/portions"
             className="mt-6 px-6 py-2 bg-[#35095e] text-white font-medium rounded-lg hover:bg-[#35095e]/80 transition"
           >
             Take the Test

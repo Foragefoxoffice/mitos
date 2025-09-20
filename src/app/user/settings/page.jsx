@@ -124,59 +124,80 @@ export default function UserSettings() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setTouched({
-      name: true,
-      phoneNumber: true,
-      age: true,
-      gender: true,
-      password: true,
-    });
-    if (!isValid) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setTouched({
+    name: true,
+    phoneNumber: true,
+    age: true,
+    gender: true,
+    password: true,
+  });
+  if (!isValid) return;
 
-    try {
-      setIsSubmitting(true);
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Authentication required. Please log in.");
+  try {
+    setIsSubmitting(true);
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-      const fd = new FormData();
-      fd.append("name", formData.name.trim());
-      fd.append("phoneNumber", formData.phoneNumber.trim());
-      fd.append("age", formData.age || "");
-      fd.append("gender", formData.gender || "");
-      if (formData.password) fd.append("password", formData.password);
-      if (profileImage) fd.append("profile", profileImage);
+    const fd = new FormData();
+    fd.append("name", formData.name.trim());
 
-      const res = await fetch(
-        `https://mitoslearning.in/api/users/update-profile/${user?.id}`,
-        {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-          body: fd,
-        }
-      );
+    // ✅ Normalize phone (only 10 digits)
+    const cleanPhone = formData.phoneNumber.replace(/\D/g, "").slice(-10);
+    fd.append("phoneNumber", cleanPhone);
 
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json?.message || "Profile update failed");
+    // ✅ Ensure age is number, skip if empty
+    if (formData.age) fd.append("age", String(Number(formData.age)));
 
-      const updated = json.user || json;
-      setUser(updated);
-      if (updated?.profile) {
-        setProfilePreview(
-          updated.profile.startsWith("http")
-            ? updated.profile
-            : `https://mitoslearning.in${updated.profile}`
-        );
-      }
-      setFormData((prev) => ({ ...prev, password: "" }));
-      alert("Profile updated successfully!");
-    } catch (e) {
-      alert(e.message || "Failed to update profile");
-    } finally {
-      setIsSubmitting(false);
+    // ✅ Normalize gender to backend values
+    const genderMap = {
+      male: "MALE",
+      female: "FEMALE",
+      other: "OTHER",
+      "prefer-not-to-say": "PREFER_NOT_TO_SAY",
+    };
+    if (formData.gender) {
+      fd.append("gender", genderMap[formData.gender] || formData.gender);
     }
-  };
+
+    if (formData.password) fd.append("password", formData.password);
+    if (profileImage) fd.append("profile", profileImage);
+
+    const res = await fetch(
+      `https://mitoslearning.in/api/users/update-profile/${user?.id}`,
+      {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      }
+    );
+
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json?.message || "Profile update failed");
+
+    // ✅ Correctly extract updated user
+    const updated =
+      json.updatedUser || json.user || json.data || json; // flexible parsing
+    setUser(updated);
+
+    if (updated?.profile) {
+      setProfilePreview(
+        updated.profile.startsWith("http")
+          ? updated.profile
+          : `https://mitoslearning.in${updated.profile}`
+      );
+    }
+
+    setFormData((prev) => ({ ...prev, password: "" }));
+    alert("Profile updated successfully!");
+  } catch (e) {
+    alert(e.message || "Failed to update profile");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
