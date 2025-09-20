@@ -32,7 +32,7 @@ const HtmlWithMath = ({ html }) => {
 
 export default function PracticePage() {
   const { selectedTopics } = useSelectedTopics();
-  const { selectedQuestionTypes, chapterId, subjectId } =
+  const { selectedQuestionTypes, selectedQuestionTypeId, chapterId, subjectId } =
     useSelectedQuestionTypes();
 
   const [questions, setQuestions] = useState([]);
@@ -118,7 +118,7 @@ export default function PracticePage() {
         if (subjectId && selectedQuestionTypes.length > 0) {
           const res = await getQuestionsBySubjectAndQuestionId(
             subjectId,
-            selectedQuestionTypes
+            selectedQuestionTypeId
           );
           questionsBySubjectAndType = res?.data || [];
         }

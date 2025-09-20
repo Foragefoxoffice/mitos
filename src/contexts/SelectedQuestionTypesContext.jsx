@@ -1,23 +1,24 @@
-import { createContext, useContext, useState, useEffect } from "react";
+// contexts/SelectedQuestionTypesContext.js
+"use client";
+
+import { createContext, useContext, useState } from "react";
 
 const SelectedQuestionTypesContext = createContext();
 
 export const SelectedQuestionTypesProvider = ({ children }) => {
-  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState([]);
+  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState([]); // multiple
+  const [selectedQuestionTypeId, setSelectedQuestionTypeId] = useState(null); // ✅ single
   const [chapterId, setChapterId] = useState(null);
-  const [subject, setSubject] = useState("");
+  const [subject, setSubject] = useState(null);
   const [subjectId, setSubjectId] = useState(null);
-
-  // ✅ Reset question type selections when chapter or subject changes
-  useEffect(() => {
-    setSelectedQuestionTypes([]);
-  }, [chapterId, subjectId]);
 
   return (
     <SelectedQuestionTypesContext.Provider
       value={{
         selectedQuestionTypes,
         setSelectedQuestionTypes,
+        selectedQuestionTypeId,        // ✅ expose single ID
+        setSelectedQuestionTypeId,     // ✅ expose setter
         chapterId,
         setChapterId,
         subject,

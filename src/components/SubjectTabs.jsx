@@ -13,6 +13,7 @@ const SubjectTabs = ({ monthData = {}, section = "", orderedSubjects = [], group
   const navigate = useNavigate();
   const {
     setSelectedQuestionTypes,
+    setSelectedQuestionTypeId,
     setChapterId,
     setSubject,
     setSubjectId,
@@ -105,22 +106,23 @@ subjectKeys.sort((a, b) => {
     }
   }, [subjectsArray, activeSubjectKey]);
 
-  const handlePracticeNavigation = (chapterName, chapterData) => {
-    const subjectStats = chapterData.subjects[activeSubjectKey];
-    const selectedSubjectId = subjectStats?.subjectId;
+ const handlePracticeNavigation = (chapterName, chapterData) => {
+  const subjectStats = chapterData.subjects[activeSubjectKey];
+  const selectedSubjectId = subjectStats?.subjectId;
 
-    setSubject(activeSubjectKey); // keep full subject name with grade
-    setSubjectId(selectedSubjectId);
+  setSubject(activeSubjectKey);
+  setSubjectId(selectedSubjectId);
 
-    if (section === "resultsByType") {
-      setSelectedQuestionTypes([chapterData.typeId]);
-    } else if (section === "resultsByChapter") {
-      setChapterId(chapterData.chapterId);
-    }
+  if (section === "resultsByType") {
+    // set both single and array
+    setSelectedQuestionTypes([chapterData.typeId]);
+    setSelectedQuestionTypeId(chapterData.typeId);  // ✅ single ID
+  } else if (section === "resultsByChapter") {
+    setChapterId(chapterData.chapterId);
+  }
 
-    navigate("/user/practice");
-  };
-
+  navigate("/user/practice");
+};
   const mergedChapterData = useMemo(() => {
     if (section !== "resultsByChapter") return monthData?.resultsByType || {};
     return monthData?.resultsByChapter || {};
