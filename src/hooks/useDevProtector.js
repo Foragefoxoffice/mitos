@@ -6,12 +6,10 @@ export default function useDevProtector() {
 
     let protectionEnabled = true;
 
-    // Disable right click
     const handleContextMenu = (e) => {
       if (protectionEnabled) e.preventDefault();
     };
 
-    // Disable F12, Ctrl+Shift+I, Ctrl+U
     const handleKeyDown = (e) => {
       if (
         protectionEnabled &&
@@ -25,6 +23,11 @@ export default function useDevProtector() {
       // Secret unlock: Ctrl + Alt + D
       if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "d") {
         protectionEnabled = false;
+
+        // 🟢 remove blockers completely
+        document.removeEventListener("contextmenu", handleContextMenu);
+        document.removeEventListener("keydown", handleKeyDown);
+
         alert("✅ Dev mode enabled: protections disabled.");
       }
     };
