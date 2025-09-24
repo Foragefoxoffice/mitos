@@ -1,10 +1,14 @@
-import { Routes, Route, Outlet } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { SelectedTopicsProvider } from "./contexts/SelectedTopicsContext";
 import { SelectedQuestionTypesProvider } from "./contexts/SelectedQuestionTypesContext";
 import { TestProvider } from "./contexts/TestContext";
 import RouteGuard from "./components/RouteGuard";
 import Layout from "./components/user/Layout";
 import Dashboard from "./app/user/dashboard/page";
+
+// Import the hook
+import useDevProtector from "./hooks/useDevProtector";
+
 // Public pages
 import LandingPage from "./app/home/page";
 import LoginPage from "./app/login/page";
@@ -46,6 +50,9 @@ import MeterialsChapter from "@/components/study-material/chapter";
 import MeterialsTopicsPage from "@/components/study-material/topics";
 
 function App() {
+  // ✅ Activate protection
+  useDevProtector();
+
   return (
     <TestProvider>
       <SelectedTopicsProvider>
@@ -63,13 +70,13 @@ function App() {
               {/* Flow entry routes */}
               <Route path="/user/practice" element={<PracticePage />} />
               <Route path="/user/test" element={<TestPage />} />
-              {/* User routes (all inside /user/) */}
-              <Route path="/user" element={<Layout />}>
-                 <Route path="study/topics/:topicId/materials" element={<StudyMaterialsPage />} />
 
-                {/* -------- DASHBOARD FLOW -------- */}
+              {/* User routes */}
+              <Route path="/user" element={<Layout />}>
+                <Route path="study/topics/:topicId/materials" element={<StudyMaterialsPage />} />
+
+                {/* Dashboard flow */}
                 <Route path="dashboard" element={<Dashboard />}>
-                  {/* Default page when visiting /user/dashboard */}
                   <Route index element={<Subject />} />
 
                   {/* Practice flow */}
@@ -89,10 +96,9 @@ function App() {
                   <Route path="study/subjects" element={<MeterialsSubject />} />
                   <Route path="study/subjects/:subjectId/chapters" element={<MeterialsChapter />} />
                   <Route path="study/chapters/:chapterId/topics" element={<MeterialsTopicsPage />} />
-                 
                 </Route>
 
-                {/* -------- OTHER USER PAGES -------- */}
+                {/* Other user pages */}
                 <Route path="progress" element={<ResultPage />} />
                 <Route path="neet-score-predictor" element={<NeetScorePredictorPage />} />
                 <Route path="leaderboard" element={<Leaderboard />} />

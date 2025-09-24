@@ -37,7 +37,12 @@ body {
   font-family: "Satoshi", sans-serif;
   overflow-x: hidden;
   overflow-y: auto !important;
+  user-select: none;   /* modern browsers */
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
 }
+
 .navbutton {
   background: #007acc;
 }
