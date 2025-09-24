@@ -80,13 +80,13 @@ export default function ChartComparison({
         <div className="flex justify-center">
           <div className="inline-block py-3 px-4 rounded-xl mb-5 bg-[#FEF8FF] border border-[#B886C1]">
             <div className="flex items-center gap-2">
-              <FaCircleDot color="#22c55e" />
+              <FaCircleDot color="#6366f1" />
               <span className="text-sm md:text-base font-semibold text-[#2D2D2D]">
                 You with Mitos (1% → 100%)
               </span>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <FaCircleDot color="#6366f1" />
+              <FaCircleDot color="orange" />
               <span className="text-sm md:text-base font-semibold text-[#2D2D2D]">
                 Without Mitos
               </span>
@@ -121,8 +121,8 @@ export default function ChartComparison({
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.28} />
-                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0.04} />
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.28} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.04} />
                   </linearGradient>
                   <linearGradient
                     id={`withoutFill-${uid}`}
@@ -131,8 +131,8 @@ export default function ChartComparison({
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.28} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.04} />
+                    <stop offset="5%" stopColor="orange" stopOpacity={0.28} />
+                    <stop offset="95%" stopColor="orange" stopOpacity={0.04} />
                   </linearGradient>
                 </defs>
 
@@ -167,7 +167,7 @@ export default function ChartComparison({
                   type="monotone"
                   dataKey="withoutMitos"
                   name="Without Mitos"
-                  stroke="#6366f1"
+                  stroke="orange"
                   fill={`url(#withoutFill-${uid})`}
                   strokeWidth={2.5}
                   dot={false}
@@ -179,7 +179,7 @@ export default function ChartComparison({
                   type="monotone"
                   dataKey="withMitos"
                   name="With Mitos"
-                  stroke="#22c55e"
+                  stroke="#6366f1"
                   fill={`url(#withFill-${uid})`}
                   strokeWidth={2.5}
                   dot={false}
