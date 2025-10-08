@@ -1,15 +1,33 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom"; 
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchTopicsWithPDF } from "../../utils/api";
 import PremiumPopup from "../PremiumPopup";
 import CommonLoader from "../commonLoader";
+
+// ✅ Special topics that must always appear LAST
+const SPECIAL_BOTTOM_ORDER = [
+  "Previous Year Questions",
+  "Previous Year Questions-Part 1",
+  "Previous Year Questions-Part 2",
+  "Assertion & Reason Questions",
+  "Picture Based Questions",
+  "Match Questions",
+  "NCERT Exemplar Questions",
+];
+
+const getSpecialRank = (name = "") => {
+  const i = SPECIAL_BOTTOM_ORDER.findIndex(
+    (t) => t.toLowerCase() === String(name).toLowerCase().trim()
+  );
+  return i === -1 ? -1 : i;
+};
 
 export default function MeterialsTopicsPage({
   selectedChapter,
   onTopicSelect,
   searchTerm = "",
 }) {
-  const { chapterId } = useParams(); // ✅ get from /chapters/:chapterId/topics
+  const { chapterId } = useParams();
 
   const [topics, setTopics] = useState([]);
   const [chapterName, setChapterName] = useState(selectedChapter?.name || "");
@@ -39,7 +57,7 @@ export default function MeterialsTopicsPage({
   const isLockedForGuest = (topic) =>
     isGuestUser() && (topic?.isPremium || topicHasPremiumPdf(topic));
 
-  // ✅ fetch topics for this chapter
+  // ✅ fetch topics (keep from API)
   useEffect(() => {
     const loadTopicsWithPDFs = async () => {
       try {
@@ -79,25 +97,41 @@ export default function MeterialsTopicsPage({
     const term = searchTerm.trim().toLowerCase();
     if (!term) return topics;
     return topics.filter((t) =>
-      String(t.name || "").toLowerCase().includes(term)
+      String(t.name || "")
+        .toLowerCase()
+        .includes(term)
     );
   }, [topics, searchTerm]);
 
-  // ✅ handle navigation
+  // ✅ order logic: lower ID first, special topics always last
+  const orderedTopics = useMemo(() => {
+    const normal = filteredTopics
+      .filter((t) => getSpecialRank(t.name) === -1)
+      .sort((a, b) => a.id - b.id); // sort by lower ID first
+
+    const special = filteredTopics
+      .filter((t) => getSpecialRank(t.name) !== -1)
+      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name));
+
+    return [...normal, ...special];
+  }, [filteredTopics]);
+
+  // ✅ navigation
   const handleGoToMaterials = (topic) => {
     if (isLockedForGuest(topic)) {
       setShowPopup(true);
       return;
     }
 
-    // 🔗 go deeper: /user/dashboard/study/topics/:topicId
     navigate(`/user/study/topics/${topic.id}/materials`);
-
     if (onTopicSelect) onTopicSelect(topic);
   };
 
   const noMatches =
-    !loading && !error && filteredTopics.length === 0 && searchTerm.trim().length > 0;
+    !loading &&
+    !error &&
+    filteredTopics.length === 0 &&
+    searchTerm.trim().length > 0;
 
   return (
     <div className="p-4">
@@ -114,48 +148,45 @@ export default function MeterialsTopicsPage({
             <p className="text-center pt-10">No topics match your search.</p>
           ) : (
             <div className="grid mt-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
-              {[...filteredTopics]
-                .sort((a, b) => {
-                  const aLocked = isLockedForGuest(a);
-                  const bLocked = isLockedForGuest(b);
-                  if (aLocked !== bLocked) return aLocked - bLocked;
-                  return a.name.localeCompare(b.name);
-                })
-                .map((topic) => {
-                  const locked = isLockedForGuest(topic);
+              {orderedTopics.map((topic) => {
+                const locked = isLockedForGuest(topic);
 
-                  return (
-                    <div
-                      key={topic.id}
-                      className="rounded-xl bg-transparent p-6 text-black border border-[#ccc] shadow-sm"
-                    >
-                      <p className="text-2xl font-semibold leading-tight text-black break-words">
-                        {topic.name}
-                        {locked && (
-                          <span className="ml-2 align-middle text-[#b45309]">🔒</span>
-                        )}
-                      </p>
+                return (
+                  <div
+                    key={topic.id}
+                    className="rounded-xl bg-transparent p-6 text-black border border-[#ccc] shadow-sm"
+                  >
+                    <p className="text-2xl font-semibold leading-tight text-black break-words">
+                      {topic.name}
+                      {locked && (
+                        <span className="ml-2 align-middle text-[#b45309]">
+                          🔒
+                        </span>
+                      )}
+                    </p>
 
-                      <div className="mt-6 flex justify-center">
-                        <button
-                          aria-disabled={locked}
-                          onClick={() => handleGoToMaterials(topic)}
-                          className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-sm transition
-                            ${
-                              locked
-                                ? "bg-white/70 text-[#5C222A]/60 cursor-not-allowed"
-                                : "bg-[#5C222A] text-white hover:bg-white hover:text-[#5C222A]"
-                            }`}
-                          title={
-                            locked ? "Premium content (login/upgrade)" : "Start Studying"
-                          }
-                        >
-                          Start Studying
-                        </button>
-                      </div>
+                    <div className="mt-6 flex justify-center">
+                      <button
+                        aria-disabled={locked}
+                        onClick={() => handleGoToMaterials(topic)}
+                        className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-sm transition
+                          ${
+                            locked
+                              ? "bg-white/70 text-[#5C222A]/60 cursor-not-allowed"
+                              : "bg-[#5C222A] text-white hover:bg-white hover:text-[#5C222A]"
+                          }`}
+                        title={
+                          locked
+                            ? "Premium content (login/upgrade)"
+                            : "Start Studying"
+                        }
+                      >
+                        Start Studying
+                      </button>
                     </div>
-                  );
-                })}
+                  </div>
+                );
+              })}
             </div>
           )}
         </>

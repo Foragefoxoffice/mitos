@@ -61,7 +61,8 @@ export default function TopicsPage() {
         const response = await fetchTopics(chapterId);
         const { data, chapterName } = response;
 
-        if (!Array.isArray(data)) throw new Error("Invalid data format received");
+        if (!Array.isArray(data))
+          throw new Error("Invalid data format received");
 
         setChapterName(chapterName);
 
@@ -82,7 +83,10 @@ export default function TopicsPage() {
               if (axios.isAxiosError(error) && error.response?.status === 404) {
                 return { ...topic, questionCount: 0 };
               }
-              console.error(`Error fetching questions for topic ${topic.id}:`, error);
+              console.error(
+                `Error fetching questions for topic ${topic.id}:`,
+                error
+              );
               return { ...topic, questionCount: 0 };
             }
           })
@@ -113,7 +117,11 @@ export default function TopicsPage() {
     const valid = topics.filter((t) => t.questionCount > 0);
 
     const bySearch = term
-      ? valid.filter((t) => String(t.name || "").toLowerCase().includes(term))
+      ? valid.filter((t) =>
+          String(t.name || "")
+            .toLowerCase()
+            .includes(term)
+        )
       : valid;
 
     setFilteredTopics(bySearch);
@@ -185,7 +193,9 @@ export default function TopicsPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold text-[#017bcd] pb-6">Attempt by Topic</h1>
+      <h1 className="text-xl font-bold text-[#017bcd] pb-6">
+        Attempt by Topic
+      </h1>
       {chapterName && <h2 className="text-lg mb-4">{chapterName}</h2>}
 
       {loading && <CommonLoader />}
@@ -193,7 +203,9 @@ export default function TopicsPage() {
 
       {!loading && !error && (
         <>
-          {noMatches && <p className="text-center pt-10">No topics match your search.</p>}
+          {noMatches && (
+            <p className="text-center pt-10">No topics match your search.</p>
+          )}
 
           {!noMatches && (
             <>
