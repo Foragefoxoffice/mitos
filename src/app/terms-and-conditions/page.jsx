@@ -3,178 +3,228 @@ import { motion } from "framer-motion";
 
 const termsSections = [
   {
-    title: "Eligibility & Accounts",
+    title: "Definitions",
     content: (
       <ul className="list-disc pl-5 space-y-2">
-        <li>You must be at least 14 years old to use the Platform.</li>
         <li>
-          You agree to provide accurate information during registration (Google
-          Sign-In, phone number, class).
+          <strong>Platform</strong>: The Mitos Learning website and related
+          services.
         </li>
         <li>
-          You are responsible for maintaining the confidentiality of your
-          account credentials.
+          <strong>Services</strong>: NEET practice tests, learning content, and
+          analytics provided via the website.
+        </li>
+        <li>
+          <strong>Subscription</strong>: Paid access plan to premium content.
+        </li>
+        <li>
+          <strong>Razorpay</strong>: Third-party payment gateway used by Mitos
+          Learning.
+        </li>
+        <li>
+          <strong>User Data</strong>: Personal and transactional data collected
+          during registration or purchase.
         </li>
       </ul>
     ),
   },
+
   {
-    title: "Services",
+    title: "Eligibility & Registration",
     content: (
-      <p>
-        We provide NEET preparation practice tests, study materials, and
-        analytics. Our services are currently free and require only login.
-      </p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li>You must be at least 14 years old to use the Website.</li>
+        <li>Registration occurs via WhatsApp or Gmail OTP verification.</li>
+        <li>You must provide true and accurate information.</li>
+        <li>
+          You are responsible for safeguarding your OTP verification and account
+          activity.
+        </li>
+        <li>
+          The Company reserves the right to suspend accounts providing false
+          information or violating Terms.
+        </li>
+      </ul>
     ),
   },
+
   {
-    title: "Intellectual Property",
+    title: "Services & Access",
     content: (
-      <p>
-        All Platform content (questions, solutions, explanations, UI, logos,
-        trademarks) is owned by{" "}
-        <span className="font-semibold">Mitos Learning (OPC) Private Limited</span>. We grant you a limited,
-        non-transferable, revocable license to use the Platform for personal
-        learning purposes.
-      </p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li>
+          Access includes question banks, analytics, video lessons, and other
+          learning tools.
+        </li>
+        <li>
+          Some features are accessible only through an active subscription.
+        </li>
+        <li>
+          The Company may modify or discontinue services without prior notice.
+        </li>
+      </ul>
     ),
   },
+
+  {
+    title: "Subscriptions & Payments",
+    content: (
+      <div className="space-y-2">
+        <p>• Subscription durations: 1 year and 2 years.</p>
+        <p>• A 14-day free trial is available for new users.</p>
+        <p>
+          • Payments are processed securely through{" "}
+          <strong>Razorpay (PCI-DSS compliant)</strong>.
+        </p>
+        <p>• Mitos Learning does not store card/UPI details.</p>
+        <p>• Taxes are shown at checkout.</p>
+        <p>
+          • Upon successful payment, confirmation is sent via WhatsApp or Gmail.
+        </p>
+      </div>
+    ),
+  },
+
+  {
+    title: "Refund Policy",
+    content: (
+      <ul className="list-disc pl-5 space-y-2">
+        <li>
+          Refund eligible only if requested within <strong>15 days</strong> of
+          subscription activation.
+        </li>
+        <li>
+          Request must come from registered WhatsApp/Gmail to{" "}
+          <a href="mailto:support@mitoslearning.in" className="text-blue-600">
+            support@mitoslearning.in
+          </a>
+        </li>
+        <li>
+          Refunds (after verification) will be processed in{" "}
+          <strong>7–10 business days</strong>.
+        </li>
+        <li>No partial or late usage refunds after 15 days.</li>
+      </ul>
+    ),
+  },
+
   {
     title: "User Conduct",
     content: (
       <ul className="list-disc pl-5 space-y-2">
-        <li>Sharing or redistributing our content without permission is prohibited.</li>
-        <li>Do not cheat, misuse, or interfere with the Platform’s operation.</li>
-        <li>
-          Do not introduce viruses, reverse engineer, or harm our systems.
-        </li>
+        <li>Do not copy or share content without authorization.</li>
+        <li>Do not reverse engineer or tamper with the Website.</li>
+        <li>Do not upload malware or attempt unauthorized access.</li>
+        <li>Do not share your access credentials.</li>
       </ul>
     ),
   },
+
   {
-    title: "Cookies & Analytics",
+    title: "Intellectual Property Rights",
     content: (
-      <ul className="list-disc pl-5 space-y-2">
-        <li>
-          We use cookies and similar technologies (including Google Analytics)
-          to operate the Platform, maintain login sessions, and analyze usage to
-          improve features.
-        </li>
-        <li>Essential cookies are required for the Platform to function.</li>
-        <li>
-          By using the Platform, you consent to our use of cookies and analytics
-          as described here and in the Privacy Policy.
-        </li>
-        <li>
-          You may disable non-essential cookies via your browser, but some
-          features may not work.
-        </li>
-      </ul>
+      <p>
+        All Website content, including questions, designs, text, analytics,
+        trademarks, and software, is owned by{" "}
+        <strong>Mitos Learning (OPC) Private Limited</strong>. You are granted a
+        personal, limited, revocable license for learning use only. Commercial
+        use or redistribution is strictly prohibited.
+      </p>
     ),
   },
+
+  {
+    title: "Communications",
+    content: (
+      <p>
+        By registering, you agree to receive OTPs, confirmations, service
+        updates, and promotional messages via WhatsApp, Gmail, or SMS. You may
+        opt out of promotional messages but not essential notifications.
+      </p>
+    ),
+  },
+
   {
     title: "Privacy & Data Handling",
     content: (
       <ul className="list-disc pl-5 space-y-2">
         <li>
-          We collect and process personal information including name, email
-          (from Google Sign-In), contact number, class, and usage data to
-          provide and improve services.
+          All data is handled as per our Privacy Policy and IT Security Rules
+          2011.
         </li>
-        <li>We do not currently collect payment information.</li>
-        <li>
-          Full details are in our{" "}
-          <span className="font-semibold text-blue-600">
-            Privacy Policy
-          </span>{" "}
-          (incorporated into these Terms).
-        </li>
-        <li>
-          We may send you promotional emails/SMS; you may opt out anytime.
-        </li>
+        <li>User data is stored securely on Mitos Learning’s servers.</li>
+        <li>We use industry-standard encryption and restricted access.</li>
       </ul>
     ),
   },
-  {
-    title: "Data Deletion Requests",
-    content: (
-      <p>
-        You may request deletion of your Mitos Learning account and associated
-        personal data by emailing{" "}
-        <a
-          href="mailto:support@mitoslearning.in"
-          className="text-blue-600 underline"
-        >
-          support@mitoslearning.in
-        </a>{" "}
-        with subject line “Delete My Data.” We will acknowledge within 24 hours
-        and complete deletion within 15 days as per Indian law.
-      </p>
-    ),
-  },
-  {
-    title: "Communications",
-    content: (
-      <p>
-        You consent to receive service-related messages (OTP, notices, updates)
-        and promotional communications. You can opt out of promotional
-        communications but not essential service messages.
-      </p>
-    ),
-  },
-  {
-    title: "Payments & Refunds",
-    content: (
-      <p>
-        Currently, the Platform is free. If we introduce paid plans, a separate
-        payment and refund policy will be published.
-      </p>
-    ),
-  },
+
   {
     title: "Disclaimers",
     content: (
       <p>
-        We strive for accurate and helpful content but do not guarantee exam
-        outcomes. The Platform is provided <em>“as is”</em> without warranties of
-        any kind.
+        The Platform is provided <em>“as is”</em>. We do not guarantee
+        uninterrupted access or exam performance outcomes.
       </p>
     ),
   },
+
   {
     title: "Limitation of Liability",
     content: (
       <p>
-        To the maximum extent permitted by law, Mitos Learning is not liable for
-        indirect or consequential damages arising from your use of the Platform.
-        Our total liability shall not exceed the amount you paid to us in the
-        last six months (currently zero as the service is free).
+        Mitos Learning is not liable for indirect or consequential damages
+        including data loss. Total liability will not exceed the subscription
+        amount paid in the last 6 months.
       </p>
     ),
   },
+
+  {
+    title: "Termination & Account Deletion",
+    content: (
+      <ul className="list-disc pl-5 space-y-2">
+        <li>
+          Users may request account deletion by emailing{" "}
+          <a href="mailto:support@mitoslearning.in" className="text-blue-600">
+            support@mitoslearning.in
+          </a>
+        </li>
+        <li>Data deletion will be completed within 15 days of verification.</li>
+        <li>
+          The Company may suspend accounts violating these Terms at its
+          discretion.
+        </li>
+      </ul>
+    ),
+  },
+
   {
     title: "Governing Law & Jurisdiction",
     content: (
       <p>
-        These Terms are governed by the laws of India. The courts of Tamil Nadu,
-        India have exclusive jurisdiction over disputes.
+        These Terms are governed by the laws of India. All disputes fall under
+        the exclusive jurisdiction of courts in Tamil Nadu, India.
       </p>
     ),
   },
+
   {
-    title: "Changes to Terms",
+    title: "Modification of Terms",
     content: (
       <p>
-        We may modify these Terms at any time. Continued use of the Platform
-        after changes means you accept the revised Terms.
+        Mitos Learning may update these Terms at any time. Continued use means
+        you accept the revised Terms.
       </p>
     ),
   },
+
   {
-    title: "Contact & Grievance Officer",
+    title: "Contact & Grievance Redressal",
     content: (
       <div className="space-y-2">
-        <p>Mitos Learning (OPC) Private Limited</p>
+        <p>
+          <strong>Mitos Learning (OPC) Private Limited</strong>
+        </p>
         <p>13/1-116, Mettur, Salem, Tamil Nadu – 636403</p>
         <p>
           Email:{" "}
@@ -187,27 +237,27 @@ const termsSections = [
         </p>
         <p>
           Phone:{" "}
-          <a href="tel:9360370336" className="text-blue-600 underline">
-            9360370336
+          <a href="tel:9344201653" className="text-blue-600 underline">
+            9344201653
           </a>
         </p>
         <p className="text-sm text-gray-500 italic">
-          We will acknowledge grievances within 24 hours and aim to resolve them
-          within 15 days.
+          We acknowledge grievances within 24 hours and aim to resolve them
+          within 15 days (as per IT Rules, 2021).
         </p>
       </div>
     ),
   },
 ];
 
+// -----------------------------------------------------
+
 export default function TermsAndConditions() {
   return (
     <div className="min-h-screen relative font-sans bg-gradient-to-b from-blue-50 via-white to-blue-50">
-      {/* Background blobs for depth */}
       <div className="absolute top-0 left-0 w-80 h-80 bg-blue-200/40 rounded-full blur-3xl -z-10"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl -z-10"></div>
 
-      {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -218,13 +268,12 @@ export default function TermsAndConditions() {
           Terms & Conditions
         </h1>
         <p className="mt-4 text-gray-600 max-w-3xl mx-auto">
-          Please read these Terms carefully. By accessing or using{" "}
+          Please read these Terms carefully. By using{" "}
           <span className="font-semibold text-blue-700">Mitos Learning</span>,
           you agree to be bound by them.
         </p>
       </motion.div>
 
-      {/* Sections */}
       <div className="max-w-5xl mx-auto px-6 md:px-12 pb-20">
         {termsSections.map((section, idx) => (
           <motion.div

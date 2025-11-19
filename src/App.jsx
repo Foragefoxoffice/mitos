@@ -16,6 +16,10 @@ import RegisterPage from "./app/register/page";
 import PrivacyPolicy from "./app/privacy-policy/page";
 import TermsAndConditions from "./app/terms-and-conditions/page";
 import About from "./app/about/page";
+import PlaystoreTerms from "./app/playstore-terms/page";
+import ApplestoreTerms from "./app/applestore-terms/page";
+import ApplestorePrivacy from "./app/applestore-privacy/page";
+import PlaystorePrivacy from "./app/playstore-privacy/page";
 
 // User dashboard pages
 import ResultPage from "./app/user/progress/page";
@@ -66,6 +70,10 @@ function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               <Route path="/about" element={<About />} />
+              <Route path="/playstore-terms" element={<PlaystoreTerms />} />
+              <Route path="/applestore-terms" element={<ApplestoreTerms />} />
+              <Route path="/applestore-privacy" element={<ApplestorePrivacy />} />
+              <Route path="/playstore-privacy" element={<PlaystorePrivacy />} />
 
               {/* Flow entry routes */}
               <Route path="/user/practice" element={<PracticePage />} />

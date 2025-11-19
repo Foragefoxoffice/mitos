@@ -591,7 +591,8 @@ export default function LandingPage() {
                   className="md:w-[60%] w-[50%]"
                 />
               </div>
-              <div className="flex gap-6">
+              <div className="flex md:flex-row flex-col md:gap-16 gap-6 max-md:w-100 max-md:px-3">
+                <div className="flex items-start flex-col gap-6">
                  <a href="/about" className="hover:text-white">
                   About
                 </a>
@@ -599,9 +600,27 @@ export default function LandingPage() {
                   Privacy Policy
                 </a>
                 <a href="/terms-and-conditions" className="hover:text-white">
-                  Terms and Conditions
+                  Terms & Conditions
                 </a>
-               
+                               
+              </div>
+              <div className="flex items-start flex-col gap-6">
+                <a href="/playstore-terms" className="hover:text-white">
+                  Playstore Terms & Conditions
+                </a>
+                <a href="/applestore-terms" className="hover:text-white">
+                  Appstore Terms & Conditions
+                </a>
+                <a href="/applestore-privacy" className="hover:text-white">
+                  Appstore Privacy Policy
+                </a>
+                
+              </div>
+              <div className="flex items-start flex-col gap-6">
+                <a href="/playstore-privacy" className="hover:text-white">
+                  Playstore Privacy Policy
+                </a>                
+              </div>
               </div>
               
             </div>

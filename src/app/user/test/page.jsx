@@ -663,6 +663,7 @@ export default function TestPage() {
       };
 
       await saveTestResult(resultData);
+      console.log("test result", resultData)
       setShowResults(true);
     } catch (error) {
       console.error("Failed to save test result:", error);
