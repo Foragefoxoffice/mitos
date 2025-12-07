@@ -153,10 +153,15 @@ const ProfileCompletionModal = ({
   );
 };
 
+import { useSubscription } from "../../../contexts/SubscriptionContext";
+import PremiumPopup from "../../../components/PremiumPopup";
+
 /* ----------------------- main dashboard ----------------------- */
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isPremium, subscriptionStatus } = useSubscription();
+  const [openPremiumPopup, setOpenPremiumPopup] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // profile state
@@ -319,21 +324,36 @@ export default function Dashboard() {
             </button>
           </div>
           <div className="flex space-x-2 md:space-x-4">
-            {Object.keys(tabDetails).map((tabKey) => (
-              <button
-                key={tabKey}
-                className={`px-4 py-2 rounded-3xl font-semibold transform transition-all duration-200 
-                  ${
-                    activeTab === tabKey
+            {Object.keys(tabDetails).map((tabKey) => {
+              const isRegistered = subscriptionStatus === 'REGISTERED' && !isPremium;
+              // Lock Practice and Test for Registered users
+              const isLocked = isRegistered && (tabKey === 'practice' || tabKey === 'test');
+
+              return (
+                <button
+                  key={tabKey}
+                  disabled={isLocked && false} // Don't actually disable, we want onClick to fire popup
+                  className={`px-4 py-2 rounded-3xl font-semibold transform transition-all duration-200 
+                    ${activeTab === tabKey
                       ? "bg-[#007ACC] text-white shadow-md scale-105"
                       : "bg-[#dff4ff] text-[#00497A] hover:bg-[#bfe7ff] hover:scale-105 active:scale-95"
-                  }`}
-                onClick={() => navigate(tabDetails[tabKey].path)}
-              >
-                {tabDetails[tabKey].icon}
-                {tabDetails[tabKey].label}
-              </button>
-            ))}
+                    }
+                    ${isLocked ? "opacity-60 cursor-pointer" : ""}
+                  `}
+                  onClick={() => {
+                    if (isLocked) {
+                      setOpenPremiumPopup(true);
+                    } else {
+                      navigate(tabDetails[tabKey].path);
+                    }
+                  }}
+                >
+                  {tabDetails[tabKey].icon}
+                  {tabDetails[tabKey].label}
+                  {isLocked && <span className="ml-1 text-xs">🔒</span>}
+                </button>
+              );
+            })}
           </div>
           <div className="hidden sm:flex items-center space-x-4">
             <SearchBar
@@ -349,6 +369,10 @@ export default function Dashboard() {
       <div className={showProfileModal ? "opacity-40 pointer-events-none mt-6" : "mt-6"}>
         <Outlet context={{ searchTerm }} />
       </div>
+
+      {openPremiumPopup && (
+        <PremiumPopup onClose={() => setOpenPremiumPopup(false)} />
+      )}
     </div>
   );
 }

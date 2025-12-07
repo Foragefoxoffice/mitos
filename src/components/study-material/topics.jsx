@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchTopicsWithPDF } from "../../utils/api";
 import PremiumPopup from "../PremiumPopup";
+import { useSubscription } from "../../contexts/SubscriptionContext";
 import CommonLoader from "../commonLoader";
 
 // ✅ Special topics that must always appear LAST
@@ -54,8 +55,15 @@ export default function MeterialsTopicsPage({
   const topicHasPremiumPdf = (topic) =>
     Array.isArray(topic?.pdf) && topic.pdf.some((p) => !!p?.isPremium);
 
-  const isLockedForGuest = (topic) =>
-    isGuestUser() && (topic?.isPremium || topicHasPremiumPdf(topic));
+  const { isPremium } = useSubscription();
+
+  const isLocked = (topic) => {
+    // If user has active premium/trial, everything is unlocked
+    if (isPremium) return false;
+
+    // Otherwise (Guest or Registered), check if topic is premium
+    return topic?.isPremium || topicHasPremiumPdf(topic);
+  }
 
   // ✅ fetch topics (keep from API)
   useEffect(() => {
@@ -118,7 +126,7 @@ export default function MeterialsTopicsPage({
 
   // ✅ navigation
   const handleGoToMaterials = (topic) => {
-    if (isLockedForGuest(topic)) {
+    if (isLocked(topic)) {
       setShowPopup(true);
       return;
     }
@@ -149,7 +157,7 @@ export default function MeterialsTopicsPage({
           ) : (
             <div className="grid mt-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
               {orderedTopics.map((topic) => {
-                const locked = isLockedForGuest(topic);
+                const locked = isLocked(topic);
 
                 return (
                   <div
@@ -170,10 +178,9 @@ export default function MeterialsTopicsPage({
                         aria-disabled={locked}
                         onClick={() => handleGoToMaterials(topic)}
                         className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-sm transition
-                          ${
-                            locked
-                              ? "bg-white/70 text-[#5C222A]/60 cursor-not-allowed"
-                              : "bg-[#5C222A] text-white hover:bg-white hover:text-[#5C222A]"
+                          ${locked
+                            ? "bg-white/70 text-[#5C222A]/60 cursor-not-allowed"
+                            : "bg-[#5C222A] text-white hover:bg-white hover:text-[#5C222A]"
                           }`}
                         title={
                           locked

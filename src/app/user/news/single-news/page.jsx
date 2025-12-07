@@ -87,7 +87,7 @@ export default function NewsDetailPage() {
             <img
               src={news.image}
               alt={news.title}
-                referrerPolicy="no-referrer"
+              referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-top"
               onError={(e) => {
                 e.target.src =

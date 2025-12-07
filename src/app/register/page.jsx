@@ -81,11 +81,11 @@ export default function AdminRegister() {
           <div className="w-[40%] hidden md:flex">
             <div className="login">
               <div className="login_img">
-                <img src="/images/login/login_img.png"   referrerPolicy="no-referrer" alt="Login Illustration" />
+                <img src="/images/login/login_img.png" referrerPolicy="no-referrer" alt="Login Illustration" />
               </div>
               <div className="flying_logo">
-                <img src="/images/login/pop1.png"   referrerPolicy="no-referrer" alt="pop1" />
-                <img src="/images/login/pop2.png"   referrerPolicy="no-referrer" alt="pop2" />
+                <img src="/images/login/pop1.png" referrerPolicy="no-referrer" alt="pop1" />
+                <img src="/images/login/pop2.png" referrerPolicy="no-referrer" alt="pop2" />
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@ export default function AdminRegister() {
           <div className="md:w-[60%] w-full">
             <div className="login_content">
               <div className="logo">
-                <img src="/images/logo/logo.png"   referrerPolicy="no-referrer" alt="Logo" />
+                <img src="/images/logo/logo.png" referrerPolicy="no-referrer" alt="Logo" />
               </div>
 
               <h1 className="font-bold text-5xl text-center text-[#35095e] pt-6">Create Account</h1>

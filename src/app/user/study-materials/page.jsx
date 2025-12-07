@@ -385,11 +385,10 @@ const PdfViewerComponent = () => {
 
   return (
     <div
-      className={`w-full ${
-        isFullscreen
-          ? "fixed inset-0 bg-black z-100 overflow-y-scroll"
-          : "min-h-screen bg-gray-100"
-      }`}
+      className={`w-full ${isFullscreen
+        ? "fixed inset-0 bg-black z-100 overflow-y-scroll"
+        : "min-h-screen bg-gray-100"
+        }`}
     >
       {/* Header */}
       <div className="bg-white shadow-md sticky top-0 z-50">
@@ -460,34 +459,29 @@ const PdfViewerComponent = () => {
                 className="relative inline-flex items-center cursor-pointer bg-[#35095e] p-1 rounded-full w-32 shadow-md"
               >
                 <span
-                  className={`absolute top-1 left-1 h-5 w-14 rounded-full bg-white shadow transform transition-transform ${
-                    pagesPerView === 2 ? "translate-x-16" : ""
-                  }`}
+                  className={`absolute top-1 left-1 h-5 w-14 rounded-full bg-white shadow transform transition-transform ${pagesPerView === 2 ? "translate-x-16" : ""
+                    }`}
                 ></span>
                 <div className="z-10 w-1/2 flex items-center justify-center">
                   <HiViewList
-                    className={`${
-                      pagesPerView === 1 ? "text-[#35095e]" : "text-white"
-                    }`}
+                    className={`${pagesPerView === 1 ? "text-[#35095e]" : "text-white"
+                      }`}
                   />
                   <span
-                    className={`text-sm font-medium ${
-                      pagesPerView === 1 ? "text-[#35095e]" : "text-white"
-                    }`}
+                    className={`text-sm font-medium ${pagesPerView === 1 ? "text-[#35095e]" : "text-white"
+                      }`}
                   >
                     1
                   </span>
                 </div>
                 <div className="z-10 w-1/2 flex items-center justify-center">
                   <HiViewBoards
-                    className={`${
-                      pagesPerView === 2 ? "text-[#35095e]" : "text-white"
-                    }`}
+                    className={`${pagesPerView === 2 ? "text-[#35095e]" : "text-white"
+                      }`}
                   />
                   <span
-                    className={`text-sm font-medium ${
-                      pagesPerView === 2 ? "text-[#35095e]" : "text-white"
-                    }`}
+                    className={`text-sm font-medium ${pagesPerView === 2 ? "text-[#35095e]" : "text-white"
+                      }`}
                   >
                     2
                   </span>
@@ -509,19 +503,16 @@ const PdfViewerComponent = () => {
       {/* PDF container */}
       <div
         ref={containerRef}
-        className={`pdf-container w-full ${
-          isFullscreen ? "mt-14" : ""
-        } flex items-center justify-center p-4 ${
-          isMobile ? "overflow-hidden" : "overflow-auto"
-        }`}
+        className={`pdf-container w-full ${isFullscreen ? "mt-14" : ""
+          } flex items-center justify-center p-4 ${isMobile ? "overflow-hidden" : "overflow-auto"
+          }`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className={`relative ${
-            isMobile ? "w-full h-full" : "flex gap-4"
-          } bg-gray-200`}
+          className={`relative ${isMobile ? "w-full h-full" : "flex gap-4"
+            } bg-gray-200`}
         >
           <div className={`relative ${isMobile ? "w-full h-full" : "flex-1"}`}>
             <canvas id="page1" className="w-full h-auto block" />

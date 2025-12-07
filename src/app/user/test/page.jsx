@@ -6,7 +6,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import {
   fetchFullTestQuestion,
   fetchFullTestByPortion,
@@ -595,9 +595,8 @@ export default function TestPage() {
         return;
       }
 
-      const finalReason = `${selectedOptions.join(", ")}${
-        additionalMessage ? ` | Details: ${additionalMessage}` : ""
-      }`;
+      const finalReason = `${selectedOptions.join(", ")}${additionalMessage ? ` | Details: ${additionalMessage}` : ""
+        }`;
 
       await reportWrongQuestion(questionId, finalReason);
 
@@ -795,48 +794,48 @@ export default function TestPage() {
               : "") ||
             (question.chapterId ? `Chapter ${question.chapterId}` : null);
 
-        // ✅ Type (always keep separate from chapter)
-let typeName =
-  question.questionType?.name?.trim?.() ||
-  question.type?.name?.trim?.() ||
-  (typeof question.questionType === "string"
-    ? question.questionType.trim()
-    : "") ||
-  (typeof question.type === "string" ? question.type.trim() : "") ||
-  null;
+          // ✅ Type (always keep separate from chapter)
+          let typeName =
+            question.questionType?.name?.trim?.() ||
+            question.type?.name?.trim?.() ||
+            (typeof question.questionType === "string"
+              ? question.questionType.trim()
+              : "") ||
+            (typeof question.type === "string" ? question.type.trim() : "") ||
+            null;
 
-// ✅ Fallbacks based on test type
-if (!typeName) {
-  if (testData?.testname === "custom-test") {
-    typeName = "Custom Test";
-  } else if (testData?.testname === "portion-full-test") {
-    typeName = "Portion Test";
-  } else {
-    typeName = "General";
-  }
-}
+          // ✅ Fallbacks based on test type
+          if (!typeName) {
+            if (testData?.testname === "custom-test") {
+              typeName = "Custom Test";
+            } else if (testData?.testname === "portion-full-test") {
+              typeName = "Portion Test";
+            } else {
+              typeName = "General";
+            }
+          }
 
           return {
-  id: question.id || "N/A",
-  question: question.question || "No question text available",
-  image: question.image || null,
-  options: [
-    question.optionA || "Option A",
-    question.optionB || "Option B",
-    question.optionC || "Option C",
-    question.optionD || "Option D",
-  ],
-  correctOption: question.correctOption || "N/A",
-  hint: question.hint || "No hint available",
+            id: question.id || "N/A",
+            question: question.question || "No question text available",
+            image: question.image || null,
+            options: [
+              question.optionA || "Option A",
+              question.optionB || "Option B",
+              question.optionC || "Option C",
+              question.optionD || "Option D",
+            ],
+            correctOption: question.correctOption || "N/A",
+            hint: question.hint || "No hint available",
 
-  // ✅ Keep them cleanly separated
-  typeId: question.questionTypeId || question.typeId || "general",
-  type: typeName, // <-- Correctly stored now
-  subject: subjectName || "General",
-  subjectId: question.subjectId || "general",
-  chapter: chapterName || "General",
-  chapterId: question.chapterId || "general",
-};
+            // ✅ Keep them cleanly separated
+            typeId: question.questionTypeId || question.typeId || "general",
+            type: typeName, // <-- Correctly stored now
+            subject: subjectName || "General",
+            subjectId: question.subjectId || "general",
+            chapter: chapterName || "General",
+            chapterId: question.chapterId || "general",
+          };
 
         });
 
@@ -945,11 +944,10 @@ if (!typeName) {
               {REPORT_OPTIONS.map((option) => (
                 <label
                   key={option}
-                  className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${
-                    reportModal.selectedOptions?.includes(option)
-                      ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
-                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
-                  }`}
+                  className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium cursor-pointer transition duration-150 hover:shadow-md ${reportModal.selectedOptions?.includes(option)
+                    ? "bg-purple-100 border-purple-500 dark:bg-purple-800/30"
+                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                    }`}
                 >
                   <input
                     type="checkbox"
@@ -958,8 +956,8 @@ if (!typeName) {
                       const updatedOptions = e.target.checked
                         ? [...(reportModal.selectedOptions || []), option]
                         : (reportModal.selectedOptions || []).filter(
-                            (o) => o !== option
-                          );
+                          (o) => o !== option
+                        );
 
                       setReportModal((prev) => ({
                         ...prev,

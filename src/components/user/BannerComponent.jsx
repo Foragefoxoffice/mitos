@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
- const BannerComponent = () => {
+const BannerComponent = () => {
   const [banners, setBanners] = useState([]);
   const [loadingBanners, setLoadingBanners] = useState(true);
 
@@ -27,7 +27,7 @@ import "slick-carousel/slick/slick-theme.css";
     const fetchBanners = async () => {
       try {
         const response = await fetch("https://mitoslearning.in/api/banners");
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch banners");
         }
@@ -53,16 +53,16 @@ import "slick-carousel/slick/slick-theme.css";
         <Slider {...sliderSettings}>
           {banners.map((banner) => (
             <div key={banner.id}>
-              <a 
-                href={banner.redirectUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
+              <a
+                href={banner.redirectUrl}
+                target="_blank"
+                rel="noopener noreferrer bg-transparent"
               >
-                <img 
+                <img
                   referrerPolicy="no-referrer"
-                  className="w-full h-auto max-h-80 object-cover"
+                  className="w-full h-auto max-h-80 object-cover bg-transparent rounded-[50px]"
                   src={`https://mitoslearning.in${banner.imageUrl} `}
-                  alt={banner.title} 
+                  alt={banner.title}
                 />
               </a>
             </div>

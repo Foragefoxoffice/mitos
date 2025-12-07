@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import CommonLoader from "../../../components/commonLoader";
+import { useSubscription } from "../../../contexts/SubscriptionContext";
 
 const PHONE_REGEX = /^(?:\+?91[-\s]?)?[6-9]\d{9}$/; // Indian 10-digit, optional +91
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=]{8,}$/;
 
 export default function UserSettings() {
+  const { subscriptionStatus, premiumExpiry } = useSubscription();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -124,79 +127,79 @@ export default function UserSettings() {
     reader.readAsDataURL(file);
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setTouched({
-    name: true,
-    phoneNumber: true,
-    age: true,
-    gender: true,
-    password: true,
-  });
-  if (!isValid) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setTouched({
+      name: true,
+      phoneNumber: true,
+      age: true,
+      gender: true,
+      password: true,
+    });
+    if (!isValid) return;
 
-  try {
-    setIsSubmitting(true);
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Authentication required. Please log in.");
+    try {
+      setIsSubmitting(true);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Authentication required. Please log in.");
 
-    const fd = new FormData();
-    fd.append("name", formData.name.trim());
+      const fd = new FormData();
+      fd.append("name", formData.name.trim());
 
-    // ✅ Normalize phone (only 10 digits)
-    const cleanPhone = formData.phoneNumber.replace(/\D/g, "").slice(-10);
-    fd.append("phoneNumber", cleanPhone);
+      // ✅ Normalize phone (only 10 digits)
+      const cleanPhone = formData.phoneNumber.replace(/\D/g, "").slice(-10);
+      fd.append("phoneNumber", cleanPhone);
 
-    // ✅ Ensure age is number, skip if empty
-    if (formData.age) fd.append("age", String(Number(formData.age)));
+      // ✅ Ensure age is number, skip if empty
+      if (formData.age) fd.append("age", String(Number(formData.age)));
 
-    // ✅ Normalize gender to backend values
-    const genderMap = {
-      male: "MALE",
-      female: "FEMALE",
-      other: "OTHER",
-      "prefer-not-to-say": "PREFER_NOT_TO_SAY",
-    };
-    if (formData.gender) {
-      fd.append("gender", genderMap[formData.gender] || formData.gender);
-    }
-
-    if (formData.password) fd.append("password", formData.password);
-    if (profileImage) fd.append("profile", profileImage);
-
-    const res = await fetch(
-      `https://mitoslearning.in/api/users/update-profile/${user?.id}`,
-      {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
+      // ✅ Normalize gender to backend values
+      const genderMap = {
+        male: "MALE",
+        female: "FEMALE",
+        other: "OTHER",
+        "prefer-not-to-say": "PREFER_NOT_TO_SAY",
+      };
+      if (formData.gender) {
+        fd.append("gender", genderMap[formData.gender] || formData.gender);
       }
-    );
 
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(json?.message || "Profile update failed");
+      if (formData.password) fd.append("password", formData.password);
+      if (profileImage) fd.append("profile", profileImage);
 
-    // ✅ Correctly extract updated user
-    const updated =
-      json.updatedUser || json.user || json.data || json; // flexible parsing
-    setUser(updated);
-
-    if (updated?.profile) {
-      setProfilePreview(
-        updated.profile.startsWith("http")
-          ? updated.profile
-          : `https://mitoslearning.in${updated.profile}`
+      const res = await fetch(
+        `https://mitoslearning.in/api/users/update-profile/${user?.id}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: fd,
+        }
       );
-    }
 
-    setFormData((prev) => ({ ...prev, password: "" }));
-    alert("Profile updated successfully!");
-  } catch (e) {
-    alert(e.message || "Failed to update profile");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.message || "Profile update failed");
+
+      // ✅ Correctly extract updated user
+      const updated =
+        json.updatedUser || json.user || json.data || json; // flexible parsing
+      setUser(updated);
+
+      if (updated?.profile) {
+        setProfilePreview(
+          updated.profile.startsWith("http")
+            ? updated.profile
+            : `https://mitoslearning.in${updated.profile}`
+        );
+      }
+
+      setFormData((prev) => ({ ...prev, password: "" }));
+      alert("Profile updated successfully!");
+    } catch (e) {
+      alert(e.message || "Failed to update profile");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
 
   const handleLogout = () => {
@@ -239,8 +242,8 @@ export default function UserSettings() {
         ? "Strong"
         : "Weak"
       : formData.password
-      ? "Too short"
-      : "";
+        ? "Too short"
+        : "";
 
   return (
     <div className="mx-auto p-5 md:p-8">
@@ -254,7 +257,7 @@ export default function UserSettings() {
                   <img
                     src={profilePreview}
                     alt="Profile"
-                      referrerPolicy="no-referrer"
+                    referrerPolicy="no-referrer"
                     className="object-cover w-full h-full"
                     onError={(e) => {
                       e.currentTarget.src = "/images/user/default.png";
@@ -292,6 +295,11 @@ export default function UserSettings() {
             <div>
               <h2 className="text-2xl font-bold text-gray-800">{user?.name || "User"}</h2>
               <p className="text-sm text-gray-500">{user?.email || ""}</p>
+              {subscriptionStatus === 'PREMIUM' && premiumExpiry && (
+                <p className="text-sm text-indigo-600 font-medium mt-1">
+                  Premium Plan • Expires on {new Date(premiumExpiry).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              )}
             </div>
           </div>
 
@@ -323,9 +331,8 @@ export default function UserSettings() {
               onChange={handleChange}
               onBlur={() => markTouched("name")}
               placeholder="Your full name"
-              className={`w-full p-3 rounded-lg border ${
-                touched.name && errors.name ? "border-red-500" : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
+              className={`w-full p-3 rounded-lg border ${touched.name && errors.name ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
             />
             {fieldHint("This name will be shown on your profile.")}
             {fieldError("name")}
@@ -342,11 +349,10 @@ export default function UserSettings() {
               onBlur={() => markTouched("phoneNumber")}
               inputMode="tel"
               placeholder="+91XXXXXXXXXX or 9XXXXXXXXX"
-              className={`w-full p-3 rounded-lg border ${
-                touched.phoneNumber && errors.phoneNumber
-                  ? "border-red-500"
-                  : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
+              className={`w-full p-3 rounded-lg border ${touched.phoneNumber && errors.phoneNumber
+                ? "border-red-500"
+                : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
             />
             {fieldHint("10-digit Indian mobile. +91 prefix optional.")}
             {fieldError("phoneNumber")}
@@ -363,9 +369,8 @@ export default function UserSettings() {
               onChange={handleChange}
               onBlur={() => markTouched("age")}
               placeholder="e.g., 18"
-              className={`w-full p-3 rounded-lg border ${
-                touched.age && errors.age ? "border-red-500" : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
+              className={`w-full p-3 rounded-lg border ${touched.age && errors.age ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
             />
             {fieldHint("Optional. If provided, must be between 13 and 120.")}
             {fieldError("age")}
@@ -400,21 +405,19 @@ export default function UserSettings() {
             onChange={handleChange}
             onBlur={() => markTouched("password")}
             placeholder="Leave blank to keep current"
-            className={`w-full p-3 rounded-lg border ${
-              touched.password && errors.password ? "border-red-500" : "border-gray-300"
-            } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
+            className={`w-full p-3 rounded-lg border ${touched.password && errors.password ? "border-red-500" : "border-gray-300"
+              } focus:outline-none focus:ring-2 focus:ring-[#35095E]`}
           />
           <div className="mt-1 flex items-center justify-between">
             {fieldHint("Min 8 characters, must include at least 1 letter & 1 number.")}
             {formData.password && (
               <span
-                className={`text-xs px-2 py-0.5 rounded-full ${
-                  passwordStrength === "Strong"
-                    ? "bg-green-100 text-green-700"
-                    : passwordStrength === "Too short"
+                className={`text-xs px-2 py-0.5 rounded-full ${passwordStrength === "Strong"
+                  ? "bg-green-100 text-green-700"
+                  : passwordStrength === "Too short"
                     ? "bg-yellow-100 text-yellow-700"
                     : "bg-red-100 text-red-700"
-                }`}
+                  }`}
               >
                 {passwordStrength}
               </span>
@@ -426,11 +429,10 @@ export default function UserSettings() {
         <button
           type="submit"
           disabled={isSubmitting || !isValid}
-          className={`w-full mt-6 rounded-xl py-3 font-semibold text-white transition ${
-            isSubmitting || !isValid
-              ? "bg-[#35095E]/50 cursor-not-allowed"
-              : "bg-[#35095E] hover:bg-[#4b1492]"
-          }`}
+          className={`w-full mt-6 rounded-xl py-3 font-semibold text-white transition ${isSubmitting || !isValid
+            ? "bg-[#35095E]/50 cursor-not-allowed"
+            : "bg-[#35095E] hover:bg-[#4b1492]"
+            }`}
         >
           {isSubmitting ? "Saving..." : "Save Changes"}
         </button>

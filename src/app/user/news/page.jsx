@@ -121,7 +121,7 @@ export default function NewsListPage() {
                   <div className="h-48 overflow-hidden">
                     <img
                       src={news.image}
-                        referrerPolicy="no-referrer"
+                      referrerPolicy="no-referrer"
                       alt={news.title || "News image"}
                       className="w-full h-full object-cover object-top"
                       onError={(e) => {
@@ -143,7 +143,7 @@ export default function NewsListPage() {
                     dangerouslySetInnerHTML={{
                       __html: news.content
                         ? news.content.substring(0, 100) +
-                          (news.content.length > 100 ? "..." : "")
+                        (news.content.length > 100 ? "..." : "")
                         : "No content available",
                     }}
                   />
@@ -174,11 +174,10 @@ export default function NewsListPage() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-1 rounded-md border ${
-                        currentPage === page
-                          ? "bg-blue-500 text-white border-blue-500"
-                          : "border-gray-300 hover:bg-gray-100"
-                      }`}
+                      className={`px-3 py-1 rounded-md border ${currentPage === page
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "border-gray-300 hover:bg-gray-100"
+                        }`}
                     >
                       {page}
                     </button>

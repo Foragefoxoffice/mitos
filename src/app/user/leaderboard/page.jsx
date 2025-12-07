@@ -111,10 +111,10 @@ const Leaderboard = () => {
         const list = Array.isArray(data)
           ? data
           : Array.isArray(data?.data)
-          ? data.data
-          : data?.data
-          ? [data.data]
-          : [data];
+            ? data.data
+            : data?.data
+              ? [data.data]
+              : [data];
 
         setNewsItems(list.slice(0, 5));
       } catch (err) {
@@ -298,11 +298,10 @@ const Leaderboard = () => {
           <div
             key={String(user.userId)}
             ref={isCurrentUser ? currentUserRef : null}
-            className={`grid grid-cols-12 mb-5 items-center px-2 py-2 md:px-6 md:py-4 text-sm rounded-xl ${
-              isCurrentUser
-                ? "bg-[#FFFDF2] border-2 border-yellow-400"
-                : "bg-[#F2FAFF] border border-[#007ACC40]"
-            }`}
+            className={`grid grid-cols-12 mb-5 items-center px-2 py-2 md:px-6 md:py-4 text-sm rounded-xl ${isCurrentUser
+              ? "bg-[#FFFDF2] border-2 border-yellow-400"
+              : "bg-[#F2FAFF] border border-[#007ACC40]"
+              }`}
           >
             <div className="md:col-span-2 col-span-3 flex items-center text-black text-sm md:text-lg font-semibold">
               #{trueRank}
@@ -326,11 +325,10 @@ const Leaderboard = () => {
             </div>
             <div className="md:col-span-2 col-span-3 flex justify-end">
               <span
-                className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                  totalScore > 0
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-200 text-gray-600"
-                }`}
+                className={`text-xs px-3 py-1 rounded-full font-semibold ${totalScore > 0
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-gray-200 text-gray-600"
+                  }`}
               >
                 {(totalScore || 0).toLocaleString()} pts
               </span>

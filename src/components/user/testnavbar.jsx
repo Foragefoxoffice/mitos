@@ -47,7 +47,7 @@ const TestNavbar = () => {
             src="/images/logo/logo.png"
             className="hidden md:block"
             alt="logo"
-              referrerPolicy="no-referrer"
+            referrerPolicy="no-referrer"
             width={150}
             height={80}
           />
