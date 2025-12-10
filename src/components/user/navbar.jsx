@@ -2,22 +2,47 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UserDropdown from "../UserDropdown";
-import { set } from "date-fns";
-
+import { useSubscription } from "../../contexts/SubscriptionContext";
+import { getMe } from "../../utils/api";
 import { FiBell } from "react-icons/fi";
 
 const UserComponent = () => {
-  const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  
+  // ✅ Use centralized user data from context
+  const { userData } = useSubscription();
+  const [user, setUser] = useState(userData);
 
   useEffect(() => {
     setRole(localStorage.getItem("role"));
   }, []);
 
-  // Fetch user info and notifications
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setUser(null);
+        localStorage.removeItem("user");
+        return null;
+      }
+
+      const response = await getMe();
+      const data = response.data;
+
+      // Cache user data in state and localStorage
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
+
+      return data;
+    };
+
+    fetchUserData();
+  }, []);
+  // Fetch notifications only (user data comes from context)
+  useEffect(() => {
+    const fetchNotifications = async () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -26,16 +51,6 @@ const UserComponent = () => {
       }
 
       try {
-        // Fetch User
-        const userRes = await fetch("https://mitoslearning.in/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setUser(userData);
-        }
-
         // Fetch Notifications
         const notifyRes = await fetch("https://mitoslearning.in/api/notifications/my", {
           headers: { Authorization: `Bearer ${token}` },
@@ -44,23 +59,22 @@ const UserComponent = () => {
         if (notifyRes.ok) {
           const notifyData = await notifyRes.json();
           const list = Array.isArray(notifyData) ? notifyData : (notifyData.notifications || []);
-          // Count unread (using 'read' property as fixed previously)
           const count = list.filter(n => !n.read).length;
           setUnreadCount(count);
         }
 
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching notifications:", error);
       }
     };
 
-    fetchData();
+    fetchNotifications();
   }, []);
 
   // ... (getStatusBadge remains same) ...
   const getStatusBadge = () => {
-    // Use user status from DB fetch
-    const status = user?.status ? user.status.toUpperCase() : null;
+    // Use user status from context
+    const status = userData?.status ? userData.status.toUpperCase() : null;
     if (!status) return null;
 
     let colorClass = "bg-gray-100 text-gray-800"; // default REGISTERED
@@ -84,7 +98,7 @@ const UserComponent = () => {
     );
   };
 
-  const status = user?.status ? user.status.toUpperCase() : 'REGISTERED';
+  const status = userData?.status ? userData.status.toUpperCase() : 'REGISTERED';
 
   return (
     <div className="flex justify-between items-center w-full px-4">
@@ -121,7 +135,7 @@ const UserComponent = () => {
             Login
           </a>
         ) : (
-          <UserDropdown user={user} />
+          <UserDropdown user={userData} />
         )}
       </div>
     </div>

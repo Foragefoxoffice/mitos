@@ -9,9 +9,79 @@ import { useSelectedQuestionTypes } from "../../contexts/SelectedQuestionTypesCo
 import PremiumPopup from "../PremiumPopup";
 import CommonLoader from "../commonLoader";
 
+// Special question types that should appear at the end
+const SPECIAL_BOTTOM_ORDER = [
+  "Previous Year Questions",
+  "Previous Year Questions-Part 1",
+  "Previous Year Questions-Part 2",
+  "Assertion & Reason Questions",
+  "Picture Based Questions",
+  "Match Questions",
+  "NCERT Exemplar Questions",
+];
+
+const getSpecialRank = (name = "") => {
+  const i = SPECIAL_BOTTOM_ORDER.findIndex(
+    (t) => t.toLowerCase() === name.toLowerCase().trim()
+  );
+  return i === -1 ? -1 : i;
+};
+
+/* ---------------------------------------------------
+   🔐 ACCESS LOGIC
+   Guest → restricted
+   Registered → restricted
+   Trial (active) → unrestricted
+   Premium (active) → unrestricted
+--------------------------------------------------- */
+const isRestrictedUser = () => {
+  if (typeof window === "undefined") return true;
+
+  // 1️⃣ Check if user is a guest (no token)
+  const token = localStorage.getItem("token");
+  if (!token) return true;
+
+  const role = (localStorage.getItem("role") || "").toUpperCase();
+  if (role === "GUEST") return true;
+
+  // 2️⃣ Get user data from localStorage
+  const stored = localStorage.getItem("user");
+  if (!stored) return true;
+
+  let user;
+  try {
+    user = JSON.parse(stored);
+  } catch {
+    return true;
+  }
+
+  const status = (user.status || "").toUpperCase();
+  const now = new Date();
+
+  // 3️⃣ Check PREMIUM status with active expiry
+  if (status === "PREMIUM") {
+    const premiumExpiry = user.premiumExpiry ? new Date(user.premiumExpiry) : null;
+    if (premiumExpiry && premiumExpiry > now) return false;
+    return true;
+  }
+
+  // 4️⃣ Check TRIALED status with active trial
+  if (status === "TRIALED") {
+    const trialEndsAt = user.trialEndsAt ? new Date(user.trialEndsAt) : null;
+    if (trialEndsAt && trialEndsAt > now) return false;
+    return true;
+  }
+
+  // 5️⃣ REGISTERED (no premium/trial) → restricted
+  if (status === "REGISTERED") return true;
+
+  // 6️⃣ Default: restrict unknown statuses
+  return true;
+};
+
 export default function QuestiontypePage() {
-  const { chapterId } = useParams();            // 👈 get chapterId from URL
-  const { searchTerm } = useOutletContext();    // 👈 get searchTerm from Dashboard
+  const { chapterId } = useParams();
+  const { searchTerm } = useOutletContext();
   const navigate = useNavigate();
 
   const {
@@ -25,24 +95,6 @@ export default function QuestiontypePage() {
   const [error, setError] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
-
-  // ✅ Guest check
-  const isGuestUser = () => {
-    if (typeof window !== "undefined") {
-      const roleFromLocal = localStorage.getItem("role");
-      const roleFromCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("role="))
-        ?.split("=")[1];
-      return (roleFromLocal || roleFromCookie) === "guest";
-    }
-    return false;
-  };
-
-  useEffect(() => {
-    setIsGuest(isGuestUser());
-  }, []);
 
   // clear selections when chapter changes
   useEffect(() => {
@@ -80,12 +132,44 @@ export default function QuestiontypePage() {
           questionTypeIdsInChapter.includes(type.id)
         );
 
-        const sorted = isGuest
-          ? [...chapterQuestionTypes].sort((a, b) => {
-              if (a.isPremium === b.isPremium) return 0;
-              return a.isPremium ? 1 : -1;
-            })
-          : chapterQuestionTypes;
+        // Apply smart sorting based on user restriction status
+        const restricted = isRestrictedUser();
+        let sorted;
+
+        if (restricted) {
+          // Free regular types
+          const freeRegular = chapterQuestionTypes.filter(
+            (t) => !t.isPremium && getSpecialRank(t.name) === -1
+          );
+
+          // Free special types
+          const freeSpecial = chapterQuestionTypes
+            .filter((t) => !t.isPremium && getSpecialRank(t.name) !== -1)
+            .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name));
+
+          // Premium regular types
+          const premiumRegular = chapterQuestionTypes.filter(
+            (t) => t.isPremium && getSpecialRank(t.name) === -1
+          );
+
+          // Premium special types
+          const premiumSpecial = chapterQuestionTypes
+            .filter((t) => t.isPremium && getSpecialRank(t.name) !== -1)
+            .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name));
+
+          sorted = [...freeRegular, ...freeSpecial, ...premiumRegular, ...premiumSpecial];
+        } else {
+          // Premium users: normal then special
+          const normalTypes = chapterQuestionTypes.filter(
+            (t) => getSpecialRank(t.name) === -1
+          );
+
+          const specialTypes = chapterQuestionTypes
+            .filter((t) => getSpecialRank(t.name) !== -1)
+            .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name));
+
+          sorted = [...normalTypes, ...specialTypes];
+        }
 
         setSelectedQuestionTypes([]);
         setSelectAll(false);
@@ -100,7 +184,7 @@ export default function QuestiontypePage() {
     };
 
     loadData();
-  }, [chapterId, isGuest, setSelectedQuestionTypes]);
+  }, [chapterId, setSelectedQuestionTypes]);
 
   // 🔎 filter by search term
   const filteredQuestionTypes = useMemo(() => {
@@ -118,7 +202,8 @@ export default function QuestiontypePage() {
   }, [filteredQuestionTypes, setSelectedQuestionTypes]);
 
   const handleCheckboxChange = (questionType) => {
-    const isLocked = isGuest && questionType.isPremium;
+    const restricted = isRestrictedUser();
+    const isLocked = restricted && questionType.isPremium;
     if (isLocked) {
       setShowPopup(true);
       return;
@@ -133,7 +218,7 @@ export default function QuestiontypePage() {
       setSelectedQuestionTypes(updated);
 
       const allowedCount = filteredQuestionTypes.filter(
-        (t) => !isGuest || !t.isPremium
+        (t) => !restricted || !t.isPremium
       ).length;
       if (updated.length === allowedCount) setSelectAll(true);
     }
@@ -143,8 +228,9 @@ export default function QuestiontypePage() {
     if (selectAll) {
       setSelectedQuestionTypes([]);
     } else {
+      const restricted = isRestrictedUser();
       const allowed = filteredQuestionTypes.filter(
-        (type) => !isGuest || !type.isPremium
+        (type) => !restricted || !type.isPremium
       );
       setSelectedQuestionTypes(allowed.map((type) => type.id));
     }
@@ -181,7 +267,7 @@ export default function QuestiontypePage() {
           ) : filteredQuestionTypes.length > 0 ? (
             <>
               <div className="topic_cards space-y-3">
-                {!isGuest && (
+                {!isRestrictedUser() && (
                   <div className="topic_card attemtpt-checkbox">
                     <input
                       type="checkbox"
@@ -203,13 +289,13 @@ export default function QuestiontypePage() {
                 )}
 
                 {filteredQuestionTypes.map((type) => {
-                  const isLocked = isGuest && type.isPremium;
+                  const restricted = isRestrictedUser();
+                  const isLocked = restricted && type.isPremium;
                   return (
                     <div
                       key={type.id}
-                      className={`topic_card flex items-center space-x-2 ${
-                        isLocked ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                      className={`topic_card flex items-center space-x-2 ${isLocked ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                       onClick={() => {
                         if (isLocked) setShowPopup(true);
                       }}
@@ -242,7 +328,7 @@ export default function QuestiontypePage() {
                         className="cursor-pointer text-lg"
                       >
                         {type.name}
-                        {type.isPremium && isGuest && (
+                        {isLocked && (
                           <span className="text-red-500 ml-2">🔒 Locked</span>
                         )}
                       </label>
@@ -252,7 +338,7 @@ export default function QuestiontypePage() {
               </div>
 
               <button
-                className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
+                className="mx-auto mt-14 btn bg-green-500 text-white px-4 py-2 rounded"
                 onClick={startTest}
               >
                 Lets Practice

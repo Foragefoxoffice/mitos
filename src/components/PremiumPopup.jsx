@@ -2,13 +2,20 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useSubscription } from "../contexts/SubscriptionContext";
+import { getUserRole } from "../utils/auth";
 
 export default function PremiumPopup({ onClose, timeExpired = false }) {
   const [isBouncing, setIsBouncing] = useState(false);
   const navigate = useNavigate();
   const { subscriptionStatus } = useSubscription();
 
-  const isRegistered = subscriptionStatus === 'REGISTERED';
+  // Check if user is a guest (no token/not logged in)
+  const userRole = getUserRole();
+  const token = localStorage.getItem('token');
+  const isGuest = userRole === 'guest' || !token;
+
+  // All logged-in users (REGISTERED, TRIALED, PREMIUM) should go to subscription
+  const isLoggedIn = !isGuest && token;
 
   return (
     <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center" style={{ zIndex: 9999 }}>
@@ -22,8 +29,8 @@ export default function PremiumPopup({ onClose, timeExpired = false }) {
           <h3 className="text-3xl font-bold text-white font-comic drop-shadow-md">
             {timeExpired ? (
               <span className="text-yellow-300">Time's Up! ⏳</span>
-            ) : isRegistered ? (
-              // Title for registered users
+            ) : isLoggedIn ? (
+              // Title for logged-in users (REGISTERED, TRIALED, PREMIUM)
               <>
                 <span className="text-yellow-300">Unlock</span> Premium!
               </>
@@ -53,7 +60,7 @@ export default function PremiumPopup({ onClose, timeExpired = false }) {
           <p className="text-lg text-gray-800 font-medium pl-6">
             {timeExpired
               ? "Your guest access has expired. Login to continue learning with these benefits:"
-              : isRegistered
+              : isLoggedIn
                 ? "You need a Premium plan to access this content. Upgrade now to unlock:"
                 : "You're just one step away from leveling up your learning! Unlock these awesome student features:"}
           </p>
@@ -80,7 +87,8 @@ export default function PremiumPopup({ onClose, timeExpired = false }) {
         <div className="flex flex-col space-y-4">
 
           {/* Conditional Buttons */}
-          {isRegistered ? (
+          {isLoggedIn ? (
+            // Button for all logged-in users (REGISTERED, TRIALED, PREMIUM)
             <motion.div>
               <Link
                 to="/user/subscription"
@@ -94,7 +102,7 @@ export default function PremiumPopup({ onClose, timeExpired = false }) {
               </Link>
             </motion.div>
           ) : (
-            // Default Buttons for Guests
+            // Button for Guests only
             <>
               <motion.div>
                 <Link
@@ -108,17 +116,6 @@ export default function PremiumPopup({ onClose, timeExpired = false }) {
                   {timeExpired ? "🔐 Login to Continue" : "🚀 Start Practicing Now"}
                 </Link>
               </motion.div>
-
-              <Link
-                to="/user/subscription"
-                className="block bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 px-6 rounded-xl text-center text-lg shadow-md transform transition-all hover:scale-105"
-                onClick={() => {
-                  onClose();
-                  navigate("/user/subscription");
-                }}
-              >
-                🎓 Create My Free Student Account
-              </Link>
             </>
           )}
 

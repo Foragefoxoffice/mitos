@@ -17,18 +17,62 @@ export default function Portion() {
   const { searchTerm } = useOutletContext();   // ✅ searchTerm from Dashboard
   const navigate = useNavigate();
 
-  // ✅ Guest check
-  const isGuestUser = () => {
-    if (typeof window !== "undefined") {
-      const userRole =
-        localStorage.getItem("role") ||
-        document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("role="))
-          ?.split("=")[1];
-      return userRole === "guest";
+  /* ---------------------------------------------------
+     🔐 ACCESS LOGIC for Test Options
+     Guest → restricted
+     Registered → restricted
+     Trial (active) → unrestricted
+     Premium (active) → unrestricted
+  --------------------------------------------------- */
+  const isRestrictedUser = () => {
+    if (typeof window === "undefined") return true;
+
+    // 1️⃣ Check if user is a guest (no token)
+    const token = localStorage.getItem("token");
+    if (!token) return true;
+
+    const role = (localStorage.getItem("role") || "").toUpperCase();
+    if (role === "GUEST") return true;
+
+    // 2️⃣ Get user data from localStorage
+    const stored = localStorage.getItem("user");
+    if (!stored) return true;
+
+    let user;
+    try {
+      user = JSON.parse(stored);
+    } catch {
+      return true;
     }
-    return false;
+
+    const status = (user.status || "").toUpperCase();
+    const now = new Date();
+
+    // 3️⃣ Check PREMIUM status with active expiry
+    if (status === "PREMIUM") {
+      const premiumExpiry = user.premiumExpiry ? new Date(user.premiumExpiry) : null;
+
+      // If no expiry date, treat as unlimited premium access
+      if (!premiumExpiry) {
+        return false; // Unrestricted
+      }
+
+      if (premiumExpiry && premiumExpiry > now) return false;
+      return true;
+    }
+
+    // 4️⃣ Check TRIALED status with active trial
+    if (status === "TRIALED") {
+      const trialEndsAt = user.trialEndsAt ? new Date(user.trialEndsAt) : null;
+      if (trialEndsAt && trialEndsAt > now) return false;
+      return true;
+    }
+
+    // 5️⃣ REGISTERED (no premium/trial) → restricted
+    if (status === "REGISTERED") return true;
+
+    // 6️⃣ Default: restrict unknown statuses
+    return true;
   };
 
   useEffect(() => {
@@ -71,14 +115,14 @@ export default function Portion() {
   );
 
   const handlePortionClick = (portion) => {
-    if (isGuestUser()) return setShowPremiumPopup(true);
+    if (isRestrictedUser()) return setShowPremiumPopup(true);
 
     setTestData({ testname: "portion-full-test", portionId: portion.id });
     navigate("/user/test"); // ✅ new start page
   };
 
   const handleFullPortionTestClick = () => {
-    if (isGuestUser()) return setShowPremiumPopup(true);
+    if (isRestrictedUser()) return setShowPremiumPopup(true);
 
     setFullPortionLoading(true);
     setTestData({ testname: "full-portion" });
@@ -86,7 +130,7 @@ export default function Portion() {
   };
 
   const handleCustomPortionClick = (portion) => {
-    if (isGuestUser()) return setShowPremiumPopup(true);
+    if (isRestrictedUser()) return setShowPremiumPopup(true);
 
     navigate(`/user/dashboard/test/${portion.id}/subjects`); // ✅ nested route
   };
@@ -105,7 +149,7 @@ export default function Portion() {
                 <h2 className="md:text-2xl text-2xl font-semibold mb-1">
                   Full Portion
                 </h2>
-                <p className="text-md text-white mb-6" style={{color:'#fff'}}>11th & 12th</p>
+                <p className="text-md text-white mb-6" style={{ color: '#fff' }}>11th & 12th</p>
               </div>
               <div>
                 <img
@@ -118,9 +162,8 @@ export default function Portion() {
 
             <button
               onClick={handleFullPortionTestClick}
-              className={`w-full py-3 rounded-full bg-white text-green-700 font-semibold text-md transition-all hover:translate-y-[-1px] ${
-                isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`w-full py-3 rounded-full bg-white text-green-700 font-semibold text-md transition-all hover:translate-y-[-1px] ${isRestrictedUser() ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               disabled={fullPortionLoading}
             >
               {fullPortionLoading ? (
@@ -156,15 +199,15 @@ export default function Portion() {
               portion.name === "11th"
                 ? "bg-[#B57170]"
                 : portion.name === "12th"
-                ? "bg-[#CDC50A]"
-                : "bg-[#CDC50A]";
+                  ? "bg-[#CDC50A]"
+                  : "bg-[#CDC50A]";
 
             const btnText =
               portion.name === "11th"
                 ? "text-[#B57170]"
                 : portion.name === "12th"
-                ? "text-[#CDC50A]"
-                : "text-[#CDC50A]";
+                  ? "text-[#CDC50A]"
+                  : "text-[#CDC50A]";
 
             return (
               <div
@@ -176,7 +219,7 @@ export default function Portion() {
                     <h2 className="md:text-2xl text-xl font-semibold mb-1">
                       {portion.name} Portion
                     </h2>
-                    <p className="text-md text-white mb-6"  style={{color:'#fff'}}>
+                    <p className="text-md text-white mb-6" style={{ color: '#fff' }}>
                       {portion.detailCount} Subjects
                     </p>
                   </div>
@@ -192,17 +235,15 @@ export default function Portion() {
                 <div className="space-y-3">
                   <button
                     onClick={() => handleCustomPortionClick(portion)}
-                    className={`w-full py-3 rounded-full bg-white ${btnText} font-semibold text-md transition-all hover:translate-y-[-1px] ${
-                      isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    className={`w-full py-3 rounded-full bg-white ${btnText} font-semibold text-md transition-all hover:translate-y-[-1px] ${isRestrictedUser() ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                   >
                     Custom Chapter Test
                   </button>
                   <button
                     onClick={() => handlePortionClick(portion)}
-                    className={`w-full py-3 rounded-full bg-white ${btnText} font-semibold text-md transition-all hover:translate-y-[-1px] ${
-                      isGuestUser() ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    className={`w-full py-3 rounded-full bg-white ${btnText} font-semibold text-md transition-all hover:translate-y-[-1px] ${isRestrictedUser() ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                   >
                     Full Test
                   </button>

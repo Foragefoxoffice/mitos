@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // ✅ replace next/navigation
 import { FaArrowLeft } from "react-icons/fa";
 import UserDropdown from "../UserDropdown";
+import { getMe } from "../../utils/api";
 
 const PracticeNavbar = () => {
   const [user, setUser] = useState(null);
@@ -17,13 +18,7 @@ const PracticeNavbar = () => {
       }
 
       try {
-        const response = await fetch("https://mitoslearning.in/api/users/me", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await getMe(token);
 
         if (!response.ok) {
           throw new Error("Failed to fetch user data");

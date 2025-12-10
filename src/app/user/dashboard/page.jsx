@@ -325,32 +325,22 @@ export default function Dashboard() {
           </div>
           <div className="flex space-x-2 md:space-x-4">
             {Object.keys(tabDetails).map((tabKey) => {
-              const isRegistered = subscriptionStatus === 'REGISTERED' && !isPremium;
-              // Lock Practice and Test for Registered users
-              const isLocked = isRegistered && (tabKey === 'practice' || tabKey === 'test');
-
               return (
                 <button
                   key={tabKey}
-                  disabled={isLocked && false} // Don't actually disable, we want onClick to fire popup
+                  disabled={false} // Don't actually disable, we want onClick to fire popup
                   className={`px-4 py-2 rounded-3xl font-semibold transform transition-all duration-200 
                     ${activeTab === tabKey
                       ? "bg-[#007ACC] text-white shadow-md scale-105"
                       : "bg-[#dff4ff] text-[#00497A] hover:bg-[#bfe7ff] hover:scale-105 active:scale-95"
                     }
-                    ${isLocked ? "opacity-60 cursor-pointer" : ""}
                   `}
                   onClick={() => {
-                    if (isLocked) {
-                      setOpenPremiumPopup(true);
-                    } else {
-                      navigate(tabDetails[tabKey].path);
-                    }
+                    navigate(tabDetails[tabKey].path);
                   }}
                 >
                   {tabDetails[tabKey].icon}
                   {tabDetails[tabKey].label}
-                  {isLocked && <span className="ml-1 text-xs">🔒</span>}
                 </button>
               );
             })}

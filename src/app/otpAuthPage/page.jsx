@@ -14,7 +14,7 @@ const features = [
   {
     title: "NCERT Coverage",
     description:
-      "33000+ NCERT Line by Line NEET Questions, 10+ question types and past 34 years PYQs.",
+      "36000+ NCERT Line by Line NEET Questions, 10+ question types and past 34 years PYQs.",
     icon: (
       <svg
         className="w-6 h-6"

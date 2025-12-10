@@ -108,7 +108,7 @@ export default function LandingPage() {
               <img
                 src="images/practice/header-logo.png"
                 alt="MITOS LEARNING"
-                  referrerPolicy="no-referrer"
+                referrerPolicy="no-referrer"
                 className="md:w-[60%] w-[50%]"
               />
             </a>
@@ -170,7 +170,7 @@ export default function LandingPage() {
             <br className="br-tag" />
             in NEET Aspirants?
           </h1>
-          <p className="text-md md:text-2xl font-medium mb-8 max-w-2xl mx-auto text-white" style={{color:"#fff"}}>
+          <p className="text-md md:text-2xl font-medium mb-8 max-w-2xl mx-auto text-white" style={{ color: "#fff" }}>
             Master NEET with limitless practice, tests, Study Materials,
             <br className="br-tag" />
             data-driven personal analytics, and more.
@@ -273,10 +273,98 @@ export default function LandingPage() {
         </div>
       </section>
 
+ {/* MOBILE APP DOWNLOAD SECTION */}
+      <section className="px-6 py-16 md:py-24 text-white" style={{background: "linear-gradient(105.92deg, rgb(79, 31, 109) 0.93%, rgb(191, 95, 250) 134.75%)", }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className="inline-flex items-center bg-white/10 px-4 py-2 rounded-full mb-6 border border-white/20">
+                <FaUserGraduate className="mr-2" />
+                <span>Download Our Mobile App</span>
+              </div>
+
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+                Practice Anytime,
+                <br />
+                Anywhere with Our App
+              </h2>
+
+              <p className="text-lg mb-8 leading-relaxed" style={{color: "#fff"}}>
+                Get access to 30,000+ questions, unlimited tests, and personalized analytics right on your mobile device. Study on the go and ace NEET!
+              </p>
+
+              {/* Download Button */}
+              <motion.a
+                href="https://play.google.com/store/apps/details?id=com.mitoslearning"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center gap-3 bg-black text-white px-6 py-4 rounded-xl hover:bg-gray-900 transition-all shadow-lg"
+              >
+                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
+                </svg>
+                <div className="text-left">
+                  <div className="text-xs">GET IT ON</div>
+                  <div className="text-lg font-semibold -mt-1">Google Play</div>
+                </div>
+              </motion.a>
+
+              <div className="mt-8 flex items-center gap-6 text-sm text-purple-200">
+                <div className="flex items-center gap-2">
+                  <FaStar className="text-yellow-400" />
+                  <span>4.5+ Rating</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FaUserGraduate />
+                  <span>10,000+ Downloads</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right - App Mockup */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="relative hidden md:block"
+            >
+              <div className="relative mx-auto w-64 h-[500px] bg-gradient-to-br from-purple-400 to-indigo-500 rounded-[3rem] p-3 shadow-2xl">
+                <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden">
+                  <div className="bg-gradient-to-br from-purple-600 to-indigo-700 h-full flex items-center justify-center">
+                    <img
+                      src="/images/logo/logo1.png"
+                      alt="Mitos App"
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating elements */}
+              <div className="absolute -top-4 -right-4 bg-white text-purple-600 px-4 py-2 rounded-full shadow-lg font-semibold text-sm">
+                Free Download
+              </div>
+              <div className="absolute -bottom-4 -left-4 bg-yellow-400 text-purple-900 px-4 py-2 rounded-full shadow-lg font-semibold text-sm flex items-center gap-1">
+                <FaStar /> 4.5 Rating
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Comparision */}
 
       <section className="Comparision md:mr-16 md:ml-16 mr-2 ml-2">
-        <div className="rounded-[32px] bg-purple-50 px-2 py-10 md:px-32 md:py-24">
+        <div className="rounded-[32px] px-2 py-10 md:px-32 md:py-24">
           {/* Title */}
           <div className="text-center">
             <motion.h2
@@ -361,7 +449,7 @@ export default function LandingPage() {
                     No
                   </td>
                 </tr>
-               
+
                 <tr className="border-t text-center">
                   <td className="border border-[#e0e0e0] md:py-5 py-2 md:pl-6 md:pr-4 pl-2 pr-2 font-medium text-[#000000]">
                     NEET Score Predictor
@@ -373,9 +461,9 @@ export default function LandingPage() {
                     No
                   </td>
                 </tr>
-                  <tr className="border-t text-center">
+                <tr className="border-t text-center">
                   <td className="border border-[#e0e0e0] md:py-5 py-2 md:pl-6 md:pr-4 pl-2 pr-2 font-medium text-[#000000]">
-                   Biology questions framed even from Unit preface and Chapter summary
+                    Biology questions framed even from Unit preface and Chapter summary
                   </td>
                   <td className="py-5 border border-[#e0e0e0] px-4 font-bold text-lg text-[#fff] bg-[#6d3093]">
                     Yes
@@ -403,7 +491,7 @@ export default function LandingPage() {
 
           <div className="p-6 bg-[#6d3093]/90 rounded-2xl  mt-6 flex justify-center items-center gap-4">
             <FaGift className="text-white" />
-            <p className="text-center text-white text-lg" style={{color:"#fff"}}>
+            <p className="text-center text-white text-lg" style={{ color: "#fff" }}>
               Bonus Exercise: NCERT Exemplar, Solved Excercise, Very short, Short and Long Answers
             </p>
           </div>
@@ -560,7 +648,7 @@ export default function LandingPage() {
             Ready to boost your NEET <br className="br-tag" />
             Preparation effectively
           </h2>
-          <p className="text-xl mb-8 text-[#fff] font-medium" style={{color:"#fff"}}>
+          <p className="text-xl mb-8 text-[#fff] font-medium" style={{ color: "#fff" }}>
             Join thousands of students who trust us for NEET preparation.
           </p>
           <motion.div
@@ -578,6 +666,8 @@ export default function LandingPage() {
         </div>
       </section>
 
+     
+
       {/* FOOTER */}
       <footer className="text-sm text-center py-12 bg-gray-900 text-gray-400">
         <div className="container mx-auto px-6 md:px-20">
@@ -587,44 +677,44 @@ export default function LandingPage() {
                 <img
                   src="images/practice/header-logo.png"
                   alt="MITOS LEARNING"
-                    referrerPolicy="no-referrer"
+                  referrerPolicy="no-referrer"
                   className="md:w-[60%] w-[50%]"
                 />
               </div>
               <div className="flex md:flex-row flex-col md:gap-16 gap-6 max-md:w-100 max-md:px-3">
                 <div className="flex items-start flex-col gap-6">
-                 <a href="/about" className="hover:text-white">
-                  About
-                </a>
-                <a href="/privacy-policy" className="hover:text-white">
-                  Privacy Policy
-                </a>
-                <a href="/terms-and-conditions" className="hover:text-white">
-                  Terms & Conditions
-                </a>
-                               
+                  <a href="/about" className="hover:text-white">
+                    About
+                  </a>
+                  <a href="/privacy-policy" className="hover:text-white">
+                    Privacy Policy
+                  </a>
+                  <a href="/terms-and-conditions" className="hover:text-white">
+                    Terms & Conditions
+                  </a>
+
+                </div>
+                <div className="flex items-start flex-col gap-6">
+                  <a href="/playstore-terms" className="hover:text-white">
+                    Playstore Terms & Conditions
+                  </a>
+                  <a href="/applestore-terms" className="hover:text-white">
+                    Appstore Terms & Conditions
+                  </a>
+                  <a href="/applestore-privacy" className="hover:text-white">
+                    Appstore Privacy Policy
+                  </a>
+
+                </div>
+                <div className="flex items-start flex-col gap-6">
+                  <a href="/playstore-privacy" className="hover:text-white">
+                    Playstore Privacy Policy
+                  </a>
+                </div>
               </div>
-              <div className="flex items-start flex-col gap-6">
-                <a href="/playstore-terms" className="hover:text-white">
-                  Playstore Terms & Conditions
-                </a>
-                <a href="/applestore-terms" className="hover:text-white">
-                  Appstore Terms & Conditions
-                </a>
-                <a href="/applestore-privacy" className="hover:text-white">
-                  Appstore Privacy Policy
-                </a>
-                
-              </div>
-              <div className="flex items-start flex-col gap-6">
-                <a href="/playstore-privacy" className="hover:text-white">
-                  Playstore Privacy Policy
-                </a>                
-              </div>
-              </div>
-              
+
             </div>
-            <p className="text-white" style={{color:"#fff"}}>
+            <p className="text-white" style={{ color: "#fff" }}>
               © {new Date().getFullYear()} Mitos Learning (OPC) Private Limited. All rights reserved.
             </p>
           </div>

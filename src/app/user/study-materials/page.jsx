@@ -11,6 +11,8 @@ import { HiViewBoards, HiViewList } from "react-icons/hi";
 import { useMediaQuery } from "react-responsive";
 import { useSelectedTopics } from "../../../contexts/SelectedTopicsContext";
 import { fetchQuestionByTopic } from "../../../utils/api";
+import PremiumPopup from "../../../components/PremiumPopup";
+import CommonLoader from "../../../components/commonLoader";
 
 import * as pdfjsLib from "pdfjs-dist";
 import PdfWorker from "pdfjs-dist/build/pdf.worker.min?worker";
@@ -26,6 +28,88 @@ const DPR =
     ? Math.min(window.devicePixelRatio || 1, 2.5)
     : 1;
 
+/* ---------------------------------------------------
+   🔐 ACCESS LOGIC for Practice Button
+   Guest → restricted
+   Registered → restricted
+   Trial (active) → unrestricted
+   Premium (active) → unrestricted
+--------------------------------------------------- */
+const isRestrictedUser = () => {
+  if (typeof window === "undefined") return true;
+
+  // 1️⃣ Check if user is a guest (no token)
+  const token = localStorage.getItem("token");
+  console.log("DEBUG: Token:", token ? "exists" : "missing");
+  if (!token) return true;
+
+  const role = (localStorage.getItem("role") || "").toUpperCase();
+  console.log("DEBUG: Role:", role);
+  if (role === "GUEST") return true;
+
+  // 2️⃣ Get user data from localStorage
+  const stored = localStorage.getItem("user");
+  console.log("DEBUG: User Data (raw):", stored);
+  if (!stored || stored === "undefined" || stored === "null") {
+    console.log("DEBUG: No valid user data");
+    return true;
+  }
+
+  let user;
+  try {
+    user = JSON.parse(stored);
+    console.log("DEBUG: Parsed User:", user);
+  } catch (e) {
+    console.log("DEBUG: JSON Parse Error:", e);
+    return true;
+  }
+
+  const status = (user.status || "").toUpperCase();
+  const now = new Date();
+  console.log("DEBUG: User Status:", status);
+
+  // 3️⃣ Check PREMIUM status with active expiry
+  if (status === "PREMIUM") {
+    const premiumExpiry = user.premiumExpiry ? new Date(user.premiumExpiry) : null;
+    console.log("DEBUG: Premium Expiry:", premiumExpiry, "Now:", now);
+
+    // If no expiry date, treat as unlimited premium access
+    if (!premiumExpiry) {
+      console.log("DEBUG: ✅ PREMIUM USER (No Expiry) - UNRESTRICTED");
+      return false;
+    }
+
+    if (premiumExpiry && premiumExpiry > now) {
+      console.log("DEBUG: ✅ PREMIUM USER - UNRESTRICTED");
+      return false;
+    }
+    console.log("DEBUG: ❌ PREMIUM EXPIRED - RESTRICTED");
+    return true;
+  }
+
+  // 4️⃣ Check TRIALED status with active trial
+  if (status === "TRIALED") {
+    const trialEndsAt = user.trialEndsAt ? new Date(user.trialEndsAt) : null;
+    console.log("DEBUG: Trial Ends At:", trialEndsAt, "Now:", now);
+    if (trialEndsAt && trialEndsAt > now) {
+      console.log("DEBUG: ✅ TRIAL ACTIVE - UNRESTRICTED");
+      return false;
+    }
+    console.log("DEBUG: ❌ TRIAL EXPIRED - RESTRICTED");
+    return true;
+  }
+
+  // 5️⃣ REGISTERED (no premium/trial) → restricted
+  if (status === "REGISTERED") {
+    console.log("DEBUG: ❌ REGISTERED USER - RESTRICTED");
+    return true;
+  }
+
+  // 6️⃣ Default: restrict unknown statuses
+  console.log("DEBUG: ❌ UNKNOWN STATUS - RESTRICTED");
+  return true;
+};
+
 const PdfViewerComponent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,6 +121,7 @@ const PdfViewerComponent = () => {
   const [pdfTitle, setPdfTitle] = useState("Document");
   const [pagesPerView, setPagesPerView] = useState(1);
   const [questionCount, setQuestionCount] = useState(null);
+  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
 
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const { topicId } = useParams(); // ✅ from /chapters/:chapterId/topics/:topicId
@@ -52,6 +137,13 @@ const PdfViewerComponent = () => {
   }, [isMobile]);
 
   const handlePracticeNavigation = () => {
+    // Check if user is restricted (guest or registered)
+    if (isRestrictedUser()) {
+      setShowPremiumPopup(true);
+      return;
+    }
+
+    // Premium/Trial users can practice
     if (topicId) {
       setSelectedTopics([topicId]);
       navigate("/user/practice");
@@ -358,10 +450,7 @@ const PdfViewerComponent = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <RotateCw className="w-12 h-12 text-blue-500 animate-spin" />
-        <p className="mt-4 text-lg">Loading document...</p>
-      </div>
+      <CommonLoader />
     );
   }
 
@@ -544,6 +633,9 @@ const PdfViewerComponent = () => {
           )}
         </div>
       </div>
+
+      {/* Premium Popup for restricted users */}
+      {showPremiumPopup && <PremiumPopup onClose={() => setShowPremiumPopup(false)} />}
     </div>
   );
 };

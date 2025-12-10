@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import UserDropdown from "../UserDropdown";
-
+import { getMe } from "../../utils/api";
 const TestNavbar = () => {
   const [user, setUser] = useState(null);
 
@@ -14,13 +14,7 @@ const TestNavbar = () => {
       }
 
       try {
-        const response = await fetch("https://mitoslearning.in/api/users/me", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Send token in the header
-          },
-        });
+        const response = await getMe(token);
 
         if (!response.ok) {
           throw new Error("Failed to fetch user data");

@@ -7,7 +7,7 @@ import axios from "axios";
 import PremiumPopup from "../PremiumPopup";
 import CommonLoader from "../commonLoader";
 
-// ✅ Special topics that must appear LAST in this exact order
+// Special topics → always last
 const SPECIAL_BOTTOM_ORDER = [
   "Previous Year Questions",
   "Previous Year Questions-Part 1",
@@ -20,14 +20,71 @@ const SPECIAL_BOTTOM_ORDER = [
 
 const getSpecialRank = (name = "") => {
   const i = SPECIAL_BOTTOM_ORDER.findIndex(
-    (t) => t.toLowerCase() === String(name).toLowerCase().trim()
+    (t) => t.toLowerCase() === name.toLowerCase().trim()
   );
-  return i === -1 ? -1 : i; // -1 means not special
+  return i === -1 ? -1 : i;
+};
+
+/* ---------------------------------------------------
+   🔐 ACCESS LOGIC
+   Guest → restricted
+   Registered → restricted
+   Trial (active) → unrestricted
+   Premium (active) → unrestricted
+--------------------------------------------------- */
+const isRestrictedUser = () => {
+  if (typeof window === "undefined") return true;
+
+  // 1️⃣ Check if user is a guest (no token)
+  const token = localStorage.getItem("token");
+  if (!token) return true;
+
+  const role = (localStorage.getItem("role") || "").toUpperCase();
+  if (role === "GUEST") return true;
+
+  // 2️⃣ Get user data from localStorage
+  const stored = localStorage.getItem("user");
+
+  if (!stored) return true;
+
+  let user;
+  try {
+    user = JSON.parse(stored);
+  } catch {
+    return true;
+  }
+
+  const status = (user.status || "").toUpperCase();
+  const now = new Date();
+
+  // 3️⃣ Check PREMIUM status with active expiry
+  if (status === "PREMIUM") {
+    const premiumExpiry = user.premiumExpiry ? new Date(user.premiumExpiry) : null;
+    // If premium and expiry is in the future → unrestricted
+    if (premiumExpiry && premiumExpiry > now) return false;
+    // If premium but expired → restricted
+    return true;
+  }
+
+  // 4️⃣ Check TRIALED status with active trial
+  if (status === "TRIALED") {
+    const trialEndsAt = user.trialEndsAt ? new Date(user.trialEndsAt) : null;
+    // If trial and expiry is in the future → unrestricted
+    if (trialEndsAt && trialEndsAt > now) return false;
+    // If trial but expired → restricted
+    return true;
+  }
+
+  // 5️⃣ REGISTERED (no premium/trial) → restricted
+  if (status === "REGISTERED") return true;
+
+  // 6️⃣ Default: restrict unknown statuses
+  return true;
 };
 
 export default function TopicsPage() {
-  const { chapterId } = useParams(); // 👈 get chapterId from route
-  const { searchTerm } = useOutletContext(); // 👈 get search term from Dashboard
+  const { chapterId } = useParams();
+  const { searchTerm } = useOutletContext();
   const navigate = useNavigate();
 
   const [topics, setTopics] = useState([]);
@@ -40,53 +97,27 @@ export default function TopicsPage() {
 
   const { selectedTopics, setSelectedTopics } = useSelectedTopics();
 
-  const isGuestUser = () => {
-    if (typeof window !== "undefined") {
-      const roleFromLocal = localStorage.getItem("role");
-      const roleFromCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("role="))
-        ?.split("=")[1];
-      return (roleFromLocal || roleFromCookie) === "guest";
-    }
-    return false;
-  };
-
   useEffect(() => {
     const loadTopics = async () => {
       try {
         setLoading(true);
-        setError(null);
 
         const response = await fetchTopics(chapterId);
         const { data, chapterName } = response;
-
-        if (!Array.isArray(data))
-          throw new Error("Invalid data format received");
 
         setChapterName(chapterName);
 
         const topicsWithQuestions = await Promise.all(
           data.map(async (topic) => {
             try {
-              const questionsResponse = await fetchQuestionByTopic(topic.id);
-              let questionCount = 0;
+              const res = await fetchQuestionByTopic(topic.id);
+              let count = 0;
 
-              if (Array.isArray(questionsResponse?.data)) {
-                questionCount = questionsResponse.data.length;
-              } else if (Array.isArray(questionsResponse)) {
-                questionCount = questionsResponse.length;
-              }
+              if (Array.isArray(res?.data)) count = res.data.length;
+              else if (Array.isArray(res)) count = res.length;
 
-              return { ...topic, questionCount };
-            } catch (error) {
-              if (axios.isAxiosError(error) && error.response?.status === 404) {
-                return { ...topic, questionCount: 0 };
-              }
-              console.error(
-                `Error fetching questions for topic ${topic.id}:`,
-                error
-              );
+              return { ...topic, questionCount: count };
+            } catch {
               return { ...topic, questionCount: 0 };
             }
           })
@@ -96,13 +127,8 @@ export default function TopicsPage() {
 
         const valid = topicsWithQuestions.filter((t) => t.questionCount > 0);
         setFilteredTopics(valid);
-
-        if (valid.length === 0) {
-          setError("No topics with questions found in this chapter.");
-        }
       } catch (err) {
-        console.error("Failed to fetch topics:", err);
-        setError("Unable to load topics. Please try again later.");
+        setError("Unable to load topics.");
       } finally {
         setLoading(false);
       }
@@ -111,48 +137,43 @@ export default function TopicsPage() {
     if (chapterId) loadTopics();
   }, [chapterId]);
 
-  // 🔎 Filter list when searchTerm or topics change
+  // Search filtering
   useEffect(() => {
     const term = searchTerm?.trim().toLowerCase() || "";
     const valid = topics.filter((t) => t.questionCount > 0);
 
-    const bySearch = term
-      ? valid.filter((t) =>
-          String(t.name || "")
-            .toLowerCase()
-            .includes(term)
-        )
+    const result = term
+      ? valid.filter((t) => t.name.toLowerCase().includes(term))
       : valid;
 
-    setFilteredTopics(bySearch);
+    setFilteredTopics(result);
   }, [topics, searchTerm]);
 
-  // reset selection when filtered changes
+  // Reset all selections when list changes
   useEffect(() => {
     setSelectedTopics([]);
     setSelectAll(false);
-  }, [filteredTopics, setSelectedTopics]);
+  }, [filteredTopics]);
 
   const handleCheckboxChange = (topic) => {
-    if (isGuestUser() && topic.isPremium) {
+    if (isRestrictedUser() && topic.isPremium) {
       setShowPopup(true);
       return;
     }
 
     if (selectedTopics.includes(topic.id)) {
-      const updated = selectedTopics.filter((id) => id !== topic.id);
-      setSelectedTopics(updated);
+      setSelectedTopics(selectedTopics.filter((id) => id !== topic.id));
       setSelectAll(false);
     } else {
       const updated = [...selectedTopics, topic.id];
-      setSelectedTopics(updated);
 
       const allowedCount = filteredTopics.filter(
-        (t) => !isGuestUser() || !t.isPremium
+        (t) => !isRestrictedUser() || !t.isPremium
       ).length;
-      if (updated.length === allowedCount) {
-        setSelectAll(true);
-      }
+
+      setSelectedTopics(updated);
+
+      if (updated.length === allowedCount) setSelectAll(true);
     }
   };
 
@@ -161,41 +182,83 @@ export default function TopicsPage() {
       setSelectedTopics([]);
     } else {
       const allowed = filteredTopics.filter(
-        (topic) => !isGuestUser() || !topic.isPremium
+        (t) => !isRestrictedUser() || !t.isPremium
       );
-      setSelectedTopics(allowed.map((topic) => topic.id));
+      setSelectedTopics(allowed.map((t) => t.id));
     }
     setSelectAll(!selectAll);
   };
 
   const startTest = () => {
-    if (selectedTopics.length > 0) {
-      // 👇 use dashboard-based route
-      navigate(`/user/practice`);
-    } else {
+    if (selectedTopics.length === 0) {
       alert("Please select at least one topic.");
+      return;
     }
+    navigate("/user/practice");
   };
 
   const noMatches =
-    !loading &&
-    !error &&
-    filteredTopics.length === 0 &&
-    searchTerm?.trim().length > 0;
+    !loading && !error && filteredTopics.length === 0 && searchTerm?.trim();
 
-  // ✅ order topics: keep DB order, push special to bottom
-  const orderedTopics = [
-    ...filteredTopics.filter((t) => getSpecialRank(t.name) === -1),
-    ...filteredTopics
+  /* ---------------------------------------------------
+     ✅ SORTING LOGIC
+     For restricted users (Guest + Registered):
+       1. Free regular topics
+       2. Free special topics (ordered by SPECIAL_BOTTOM_ORDER)
+       3. Premium regular topics
+       4. Premium special topics (ordered by SPECIAL_BOTTOM_ORDER)
+     
+     For premium users:
+       1. Regular topics
+       2. Special topics (ordered by SPECIAL_BOTTOM_ORDER)
+  --------------------------------------------------- */
+  const restricted = isRestrictedUser();
+
+  let orderedTopics = [];
+
+  // 🟦 If user is GUEST or REGISTERED → FREE FIRST, then apply special ordering within each group
+  if (restricted) {
+    // Free regular topics (not special)
+    const freeRegular = filteredTopics.filter(
+      (t) => !t.isPremium && getSpecialRank(t.name) === -1
+    );
+
+    // Free special topics (ordered by SPECIAL_BOTTOM_ORDER)
+    const freeSpecial = filteredTopics
+      .filter((t) => !t.isPremium && getSpecialRank(t.name) !== -1)
+      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name));
+
+    // Premium regular topics (not special)
+    const premiumRegular = filteredTopics.filter(
+      (t) => t.isPremium && getSpecialRank(t.name) === -1
+    );
+
+    // Premium special topics (ordered by SPECIAL_BOTTOM_ORDER)
+    const premiumSpecial = filteredTopics
+      .filter((t) => t.isPremium && getSpecialRank(t.name) !== -1)
+      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name));
+
+    orderedTopics = [...freeRegular, ...freeSpecial, ...premiumRegular, ...premiumSpecial];
+  }
+
+  // 🟩 If PREMIUM user → normal topics first, special last
+  else {
+    const normalTopics = filteredTopics.filter(
+      (t) => getSpecialRank(t.name) === -1
+    );
+
+    const specialTopics = filteredTopics
       .filter((t) => getSpecialRank(t.name) !== -1)
-      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name)),
-  ];
+      .sort((a, b) => getSpecialRank(a.name) - getSpecialRank(b.name));
+
+    orderedTopics = [...normalTopics, ...specialTopics];
+  }
+
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold text-[#017bcd] pb-6">
-        Attempt by Topic
-      </h1>
+      <h1 className="text-xl font-bold text-[#017bcd] pb-6">Attempt by Topic</h1>
+
       {chapterName && <h2 className="text-lg mb-4">{chapterName}</h2>}
 
       {loading && <CommonLoader />}
@@ -210,7 +273,9 @@ export default function TopicsPage() {
           {!noMatches && (
             <>
               <div className="topic_cards space-y-3">
-                {filteredTopics.length > 0 && !isGuestUser() && (
+
+                {/* Select All only for premium users */}
+                {filteredTopics.length > 0 && !restricted && (
                   <div className="topic_card">
                     <input
                       type="checkbox"
@@ -218,44 +283,37 @@ export default function TopicsPage() {
                       checked={selectAll}
                       onChange={handleSelectAll}
                     />
-                    <label
-                      htmlFor="selectAll"
-                      className="cursor-pointer text-md ml-2"
-                    >
+                    <label htmlFor="selectAll" className="ml-2 cursor-pointer">
                       Full Chapter ({filteredTopics.length} topics)
                     </label>
                   </div>
                 )}
 
                 {orderedTopics.map((topic) => {
-                  const isLocked = isGuestUser() && topic.isPremium;
+                  const locked = restricted && topic.isPremium;
+
                   return (
                     <div
                       key={topic.id}
-                      className={`topic_card flex items-center space-x-2 ${
-                        isLocked ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                      className={`topic_card flex items-center space-x-2 ${locked ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                       onClick={() => {
-                        if (isLocked) setShowPopup(true);
+                        if (locked) setShowPopup(true);
                       }}
                     >
                       <input
                         type="checkbox"
-                        id={`topic-${topic.id}`}
-                        className="cursor-pointer"
                         checked={selectedTopics.includes(topic.id)}
-                        disabled={isLocked}
+                        disabled={locked}
                         onChange={(e) => {
                           e.stopPropagation();
                           handleCheckboxChange(topic);
                         }}
                       />
-                      <label
-                        htmlFor={`topic-${topic.id}`}
-                        className="cursor-pointer text-lg font-normal"
-                      >
+
+                      <label className="cursor-pointer text-lg font-normal">
                         {topic.name}
-                        {topic.isPremium && isGuestUser() && (
+                        {locked && (
                           <span className="text-red-500 ml-2">🔒 Locked</span>
                         )}
                       </label>
@@ -266,7 +324,7 @@ export default function TopicsPage() {
 
               {filteredTopics.length > 0 && (
                 <button
-                  className="mx-auto mt-14 btn bg-blue-600 text-white px-4 py-2 rounded"
+                  className="mx-auto mt-14 btn bg-green-500 text-white px-4 py-2 rounded"
                   onClick={startTest}
                 >
                   Lets Practice

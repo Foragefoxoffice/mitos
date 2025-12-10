@@ -34,6 +34,7 @@ const REGISTERED_ALLOWED_ROUTES = [
   "/user/settings",
   "/user/faq",
   "/user/news",
+  "/user/subscription",
 ];
 
 // Routes that require Premium or Trial
@@ -44,6 +45,7 @@ const PREMIUM_ROUTES = [
   "/user/neet-score-predictor",
   "/user/leaderboard",
   "/user/favorites",
+  "/user/subscription",
 ];
 
 export default function RouteGuard({ children }) {

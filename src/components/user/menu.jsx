@@ -14,6 +14,7 @@ import {
   FiTarget,
   FiFileText, // ✅ News
 } from "react-icons/fi";
+import { getMe } from "../../utils/api";
 
 const navItems = [
   {
@@ -117,28 +118,10 @@ const Menu = () => {
 
   // Fetch updated user status from DB
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      try {
-        const response = await fetch("https://mitoslearning.in/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          console.log("DEBUG: Menu User Fetch:", data);
-          console.log("DEBUG: User Status:", data?.status);
-          setUser(data);
-          if (data.role) setUserRole(data.role); // ✅ Sync role from DB to ensure access
-        } else {
-          console.error("DEBUG: Menu Fetch Failed", response.status);
-        }
-      } catch (e) {
-        console.error("Menu fetch user error", e);
-      }
-    };
-    fetchUser();
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []); // Run once on mount
 
   const toggleMobileMenu = () => {

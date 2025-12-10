@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { validateSubscription, startFreeTrial as startTrialAPI, verifyRazorpayPayment as verifyRazorpayPaymentAPI } from '../utils/api';
+import { validateSubscription, startFreeTrial as startTrialAPI, verifyRazorpayPayment as verifyRazorpayPaymentAPI, getMe } from '../utils/api';
 import { useNavigate } from "react-router-dom";
 
 const SubscriptionContext = createContext();
@@ -64,7 +64,47 @@ export const SubscriptionProvider = ({ children }) => {
     const [trialEndsAt, setTrialEndsAt] = useState(null);
     const [currentPlan, setCurrentPlan] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    // ✅ NEW: User data state (centralized)
+    const [userData, setUserData] = useState(() => {
+        const stored = localStorage.getItem('user');
+        // Handle null, undefined, or string "undefined"
+        if (!stored || stored === 'undefined' || stored === 'null') {
+            return null;
+        }
+        try {
+            return JSON.parse(stored);
+        } catch (error) {
+            console.error('Failed to parse user data from localStorage:', error);
+            return null;
+        }
+    });
+
     const navigate = useNavigate();
+
+    // ✅ NEW: Fetch user data using getMe API (centralized, cached)
+    const fetchUserData = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setUserData(null);
+                localStorage.removeItem('user');
+                return null;
+            }
+
+            const response = await getMe();
+            const data = response.data;
+
+            // Cache user data in state and localStorage
+            setUserData(data);
+            localStorage.setItem('user', JSON.stringify(data));
+
+            return data;
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+            return null;
+        }
+    };
 
     const checkStatus = async () => {
         try {
@@ -75,37 +115,44 @@ export const SubscriptionProvider = ({ children }) => {
             if (!token) {
                 setSubscriptionStatus('REGISTERED');
                 localStorage.removeItem('subscriptionStatus');
+                setUserData(null);
+                localStorage.removeItem('user');
                 setIsLoading(false);
                 return;
             }
 
-            const data = await validateSubscription();
-            console.log('DEBUG: Backend Subscription Data:', data);
+            // ✅ Fetch user data first (single API call)
+            const user = await fetchUserData();
 
-            const status = data.status ? data.status.toUpperCase() : 'REGISTERED';
-            setSubscriptionStatus(status);
-            localStorage.setItem('subscriptionStatus', status); // Cache status
+            if (user) {
+                // Use user data from getMe instead of validateSubscription
+                const status = user.status ? user.status.toUpperCase() : 'REGISTERED';
+                setSubscriptionStatus(status);
+                localStorage.setItem('subscriptionStatus', status);
 
-            setPremiumExpiry(data.premiumExpiry ? new Date(data.premiumExpiry) : null);
-            setTrialEndsAt(data.trialEndsAt ? new Date(data.trialEndsAt) : null);
+                setPremiumExpiry(user.premiumExpiry ? new Date(user.premiumExpiry) : null);
+                setTrialEndsAt(user.trialEndsAt ? new Date(user.trialEndsAt) : null);
 
-            // Determine current plan based on expiry date
-            if (data.premiumExpiry) {
-                const expiry = new Date(data.premiumExpiry);
-                const plan = Object.values(NEET_PLANS).find(p =>
-                    p.expiryDate.getTime() === expiry.getTime()
-                );
-                setCurrentPlan(plan || null);
+                // Determine current plan based on expiry date
+                if (user.premiumExpiry) {
+                    const expiry = new Date(user.premiumExpiry);
+                    const plan = Object.values(NEET_PLANS).find(p =>
+                        p.expiryDate.getTime() === expiry.getTime()
+                    );
+                    setCurrentPlan(plan || null);
+                }
+            } else {
+                // Fallback if getMe fails
+                const data = await validateSubscription();
+                const status = data.status ? data.status.toUpperCase() : 'REGISTERED';
+                setSubscriptionStatus(status);
+                localStorage.setItem('subscriptionStatus', status);
+
+                setPremiumExpiry(data.premiumExpiry ? new Date(data.premiumExpiry) : null);
+                setTrialEndsAt(data.trialEndsAt ? new Date(data.trialEndsAt) : null);
             }
         } catch (error) {
             console.error('Failed to check subscription status:', error);
-            // Fallback to REGISTERED on error, or keep existing if network fails?
-            // Safer to fallback to what we had or REGISTERED. 
-            // If we have local storage value, maybe keep it? But if 401/403, clear it.
-            // For now, let's play safe and default to REGISTERED but DON'T verify just yet to avoid locking valid users offline.
-            // Actually, if validateSubscription fails, it might be auth error.
-
-            // Let's stick to simple logic:
             if (!localStorage.getItem('subscriptionStatus')) {
                 setSubscriptionStatus('REGISTERED');
             }
@@ -176,6 +223,8 @@ export const SubscriptionProvider = ({ children }) => {
                 currentPlan,
                 isLoading,
                 isPremium,
+                userData,              // ✅ NEW: Expose user data
+                fetchUserData,         // ✅ NEW: Expose fetch function
                 checkStatus,
                 activateTrial,
                 verifyPayment,

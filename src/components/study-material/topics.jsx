@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchTopicsWithPDF } from "../../utils/api";
-import PremiumPopup from "../PremiumPopup";
-import { useSubscription } from "../../contexts/SubscriptionContext";
 import CommonLoader from "../commonLoader";
 
 // ✅ Special topics that must always appear LAST
@@ -34,35 +32,12 @@ export default function MeterialsTopicsPage({
   const [chapterName, setChapterName] = useState(selectedChapter?.name || "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
 
   const navigate = useNavigate();
 
-  // ✅ guest check
-  const isGuestUser = () => {
-    if (typeof window !== "undefined") {
-      const roleFromLocal = localStorage.getItem("role");
-      const roleFromCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("role="))
-        ?.split("=")[1];
-      return (roleFromLocal || roleFromCookie) === "guest";
-    }
-    return false;
-  };
-
-  // ✅ check if topic or any PDF inside is premium
-  const topicHasPremiumPdf = (topic) =>
-    Array.isArray(topic?.pdf) && topic.pdf.some((p) => !!p?.isPremium);
-
-  const { isPremium } = useSubscription();
-
+  // ✅ Study materials are FREE for all users - no restrictions
   const isLocked = (topic) => {
-    // If user has active premium/trial, everything is unlocked
-    if (isPremium) return false;
-
-    // Otherwise (Guest or Registered), check if topic is premium
-    return topic?.isPremium || topicHasPremiumPdf(topic);
+    return false; // All topics are unlocked in study materials
   }
 
   // ✅ fetch topics (keep from API)
@@ -124,13 +99,8 @@ export default function MeterialsTopicsPage({
     return [...normal, ...special];
   }, [filteredTopics]);
 
-  // ✅ navigation
+  // ✅ navigation - all topics are free, no restrictions
   const handleGoToMaterials = (topic) => {
-    if (isLocked(topic)) {
-      setShowPopup(true);
-      return;
-    }
-
     navigate(`/user/study/topics/${topic.id}/materials`);
     if (onTopicSelect) onTopicSelect(topic);
   };
@@ -162,7 +132,7 @@ export default function MeterialsTopicsPage({
                 return (
                   <div
                     key={topic.id}
-                    className="rounded-xl bg-transparent p-6 text-black border border-[#ccc] shadow-sm"
+                    className="rounded-xl bg-transparent p-6 text-black border border-[#ccc] shadow-sm grid place-content-between"
                   >
                     <p className="text-2xl font-semibold leading-tight text-black break-words">
                       {topic.name}
@@ -199,7 +169,7 @@ export default function MeterialsTopicsPage({
         </>
       )}
 
-      {showPopup && <PremiumPopup onClose={() => setShowPopup(false)} />}
+
     </div>
   );
 }
