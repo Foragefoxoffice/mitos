@@ -37,6 +37,7 @@ import NotificationsPage from "./app/user/notifications/page";
 import NewsDetailPage from "./app/user/news/single-news/page";
 import UserSettings from "./app/user/settings/page";
 import SubscriptionPage from "./app/user/subscription/page";
+import CheckoutPage from "./app/user/checkout/page";
 
 import PracticePage from "./app/user/practice/page";
 import TestPage from "./app/user/test/page";
@@ -131,6 +132,7 @@ function App() {
                     <Route path="notifications" element={<NotificationsPage />} />
                     <Route path="settings" element={<UserSettings />} />
                     <Route path="subscription" element={<SubscriptionPage />} />
+                    <Route path="checkout" element={<CheckoutPage />} />
 
                     {/* ---- Free Materials Flow ---- */}
 

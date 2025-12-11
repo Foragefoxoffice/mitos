@@ -4,6 +4,7 @@ import { createRazorpayOrder } from "../../../utils/api";
 import { useSubscription } from "../../../contexts/SubscriptionContext";
 import { useNavigate } from "react-router-dom";
 import { PulseLoader } from "react-spinners";
+import { message } from "antd";
 
 const SubscriptionPage = () => {
     const {
@@ -49,45 +50,66 @@ const SubscriptionPage = () => {
         setLoading(true);
 
         try {
+            console.log("🔵 Creating Razorpay order for plan:", planKey);
             const orderData = await createRazorpayOrder(planKey);
+            console.log("🟢 Order created successfully:", orderData);
+
             const rzpKey = orderData.key || import.meta.env.VITE_RAZORPAY_KEY_ID;
+            console.log("🔑 Using Razorpay key:", rzpKey);
 
             const options = {
-                key: rzpKey,
-                amount: orderData.amount * 100,
+                key: rzpKey,                               // Razorpay Key ID
+                amount: orderData.amount,                  // amount in paise from backend
                 currency: "INR",
                 name: "Mitos Learning",
-                description: `Subscription for ${plan.name}`,
-                image: "https://mitoslearning.in/logo.png",
-                order_id: orderData.orderId,
+                description: `Subscription for ${selectedPlan.name}`,
+                image: "https://mitoslearning.com/images/logo/logo.png",
+                order_id: orderData.orderId,               // IMPORTANT (Orders API)
+
                 handler: async function (response) {
-                    try {
-                        await verifyPayment({
-                            orderId: response.razorpay_order_id,
-                            paymentId: response.razorpay_payment_id,
-                            signature: response.razorpay_signature,
-                            plan: planKey,
-                        });
-                        alert("Subscription Successful!");
-                        navigate("/user/dashboard");
-                    } catch (err) {
-                        alert("Payment verification failed.");
-                    }
+                    console.log("PAYMENT SUCCESS:", response);
+
+                    await verifyPayment({
+                        orderId: response.razorpay_order_id,
+                        paymentId: response.razorpay_payment_id,
+                        signature: response.razorpay_signature,
+                        plan: selectedPlanKey,
+                    });
+
+                    message.success("Payment Successful! 🎉");
+                    setTimeout(() => {
+                        window.location.href = "/user/dashboard";
+                    }, 1000);
                 },
+
                 prefill: {
                     name: storedUser.name || "",
                     email: storedUser.email || "",
                     contact: storedUser.phoneNumber || "",
                 },
-                theme: { color: "#3399cc" },
+
+                theme: {
+                    color: "#6D3093",
+                },
             };
 
-            const rzp1 = new window.Razorpay(options);
-            rzp1.on("payment.failed", (res) => alert(res.error.description));
-            rzp1.open();
+
+            console.log("📋 Razorpay options:", options);
+
+            const rzp = new window.Razorpay(options);
+
+            // V2 Error handling
+            rzp.on("payment.failed", function (response) {
+                console.error("❌ Payment failed:", response.error);
+                message.error(`Payment failed: ${response.error.description}`);
+                setLoading(false);
+            });
+
+            console.log("🚀 Opening Razorpay checkout...");
+            rzp.open();
         } catch (e) {
-            alert("Payment initiation failed.");
-        } finally {
+            console.error("❌ Payment initiation error:", e);
+            message.error("Payment initiation failed. Please try again.");
             setLoading(false);
         }
     };
@@ -186,17 +208,17 @@ const SubscriptionPage = () => {
 
                     <div className="space-y-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 ">
                         {[
-                            { icon: "📘", title: "36,000+ NCERT Line-by-Line Questions" },
-                            { icon: "📈", title: "Personalised Weak Area Analytics" },
-                            { icon: "🧩", title: "Unlimited Custom & Full Tests" },
-                            { icon: "🚀", title: "Mark Booster" },
-                            { icon: "❓", title: "10+ Question Types" },
-                            { icon: "📅", title: "34+ Years NEET PYQs" },
-                            { icon: "🔍", title: "100+ A & R Questions per Chapter" },
-                            { icon: "📄", title: "HD Study Notes" },
-                            { icon: "🎯", title: "NEET Score Predictor" },
-                            { icon: "🏆", title: "Leaderboard Rankings" },
-                            { icon: "🎁", title: "Bonus: Free Downloadable NEET DPPs & NCERT Exemplar" },
+                            { icon: "📘", title: "36,000+ NCERT Line-by-Line Questions", message: "Master every concept — no gaps." },
+                            { icon: "📈", title: "Personalised Weak Area Analytics", message: "Instant insights to improve faster." },
+                            { icon: "🧩", title: "Unlimited Custom & Full Tests", message: "Practice what you want, anytime." },
+                            { icon: "🚀", title: "Mark Booster", message: "Turn weak areas into strengths." },
+                            { icon: "❓", title: "10+ Question Types", message: "Be ready for every NEET twist." },
+                            { icon: "📅", title: "34+ Years NEET PYQs", message: "Learn patterns. Score smarter." },
+                            { icon: "🔍", title: "100+ A & R Questions per Chapter", message: "Sharpen logic & reasoning skills." },
+                            { icon: "📄", title: "HD Study Notes", message: "Fast and clear revision support." },
+                            { icon: "🎯", title: "NEET Score Predictor", message: "Track your rank potential." },
+                            { icon: "🏆", title: "Leaderboard Rankings", message: "See where you stand nationwide." },
+                            { icon: "🎁", title: "Bonus: Free Downloadable NEET DPPs, NCERT Exemplar:", message: " Solved Examples and Questions" },
                         ].map((item, index) => (
                             <div key={index} className="flex items-start gap-4 bg-gray-100 p-4 rounded-lg m-0">
                                 <div className="p-3 rounded-xl bg-gray-100 text-xl ">
@@ -204,7 +226,7 @@ const SubscriptionPage = () => {
                                 </div>
                                 <div>
                                     <p className="font-semibold text-gray-900">{item.title}</p>
-                                    <p className="text-gray-500 text-sm">Master every concept — no gaps.</p>
+                                    <p className="text-gray-500 text-sm">{item.message}</p>
                                 </div>
                             </div>
                         ))}
@@ -237,11 +259,14 @@ const SubscriptionPage = () => {
                                     </ul>
 
                                     <button
-                                        onClick={() => handleSubscribe(key)}
+                                        onClick={() => {
+                                            localStorage.setItem('selectedPlan', key);
+                                            navigate(`/user/checkout?plan=${key}`);
+                                        }}
                                         disabled={loading}
                                         className="mt-6 w-full py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
                                     >
-                                        {loading ? "Processing..." : "Subscribe Now"}
+                                        Continue to Checkout
                                     </button>
                                 </div>
                             ))}

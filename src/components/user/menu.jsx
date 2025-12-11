@@ -181,9 +181,9 @@ const Menu = () => {
                   }
 
                   return isAllowed ? (
-                    <Link
+                    <a
                       key={item.title}
-                      to={item.href}
+                      href={item.href}
                       onClick={() => {
                         if (isMobile) setIsMobileMenuOpen(false);
                       }}
@@ -211,7 +211,7 @@ const Menu = () => {
                       >
                         {item.title}
                       </span>
-                    </Link>
+                    </a>
                   ) : (
                     <button
                       key={item.title}
