@@ -249,14 +249,7 @@ const SubscriptionPage = () => {
                                         </span>
                                     </p>
 
-                                    <ul className="mt-4 space-y-2 flex-1">
-                                        {plan.features.map((f, i) => (
-                                            <li key={i} className="flex items-start text-gray-700">
-                                                <Check className="h-5 w-5 text-green-500" />
-                                                <span className="ml-2 text-sm">{f}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                   
 
                                     <button
                                         onClick={() => {
