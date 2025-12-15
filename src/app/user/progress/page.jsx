@@ -273,15 +273,14 @@ const groupResultsByWeek = (results) => {
   const currentWeekLabel =
     currentStartDay === 29
       ? `${currentMonthStr} 29 - ${lastDayOfCurrent}`
-      : `${currentMonthStr} ${currentStartDay} - ${
-          currentStartDay === 1
-            ? 7
-            : currentStartDay === 8
-            ? 14
-            : currentStartDay === 15
+      : `${currentMonthStr} ${currentStartDay} - ${currentStartDay === 1
+        ? 7
+        : currentStartDay === 8
+          ? 14
+          : currentStartDay === 15
             ? 21
             : 28
-        }`;
+      }`;
 
   results.forEach((test) => {
     if (!test.createdAt) return;
@@ -296,12 +295,12 @@ const groupResultsByWeek = (results) => {
       startDay === 1
         ? 7
         : startDay === 8
-        ? 14
-        : startDay === 15
-        ? 21
-        : startDay === 22
-        ? 28
-        : new Date(y, mIdx + 1, 0).getDate();
+          ? 14
+          : startDay === 15
+            ? 21
+            : startDay === 22
+              ? 28
+              : new Date(y, mIdx + 1, 0).getDate();
 
     const weekLabel = `${monthStr} ${startDay} - ${endDay}`;
     const weekStartDate = new Date(y, mIdx, startDay);

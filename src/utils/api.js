@@ -472,11 +472,21 @@ export const validateSubscription = async () => {
   }
 };
 
-export const createRazorpayOrder = async (planType, amount) => {
-  const payload = { plan: planType };
-  if (amount) payload.amount = amount;
-  return (await API.post("/subscription/razorpay/create-order", payload)).data;
+// utils/api.js
+export const createRazorpayOrder = async (data) => {
+  const res = await API.post(
+    "/subscription/razorpay/create-order",
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return res.data;
 };
+
+
 
 export const verifyRazorpayPayment = async (paymentData) =>
   (await API.post("/subscription/razorpay/verify", paymentData)).data;

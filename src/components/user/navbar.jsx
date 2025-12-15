@@ -9,9 +9,9 @@ import { FiBell } from "react-icons/fi";
 const UserComponent = () => {
   const [role, setRole] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  
+
   // ✅ Use centralized user data from context
-  const { userData } = useSubscription();
+  const { userData, getDaysRemaining } = useSubscription();
   const [user, setUser] = useState(userData);
 
   useEffect(() => {
@@ -81,8 +81,14 @@ const UserComponent = () => {
     let text = status;
 
     if (status === 'TRIALED' || status === 'TRIAL') {
-      colorClass = "bg-orange-100 text-orange-800 border border-orange-200";
-      text = "TRIAL ACTIVE";
+      const daysLeft = getDaysRemaining();
+      if (daysLeft <= 0) {
+        colorClass = "bg-red-100 text-red-800 border border-red-200";
+        text = "TRIAL ENDED";
+      } else {
+        colorClass = "bg-orange-100 text-orange-800 border border-orange-200";
+        text = "TRIAL ACTIVE";
+      }
     } else if (status === 'PREMIUM') {
       colorClass = "bg-green-100 text-green-800 border border-green-200";
       text = "PREMIUM";

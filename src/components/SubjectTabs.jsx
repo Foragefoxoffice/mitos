@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelectedQuestionTypes } from "@/contexts/SelectedQuestionTypesContext";
 import { useNavigate } from "react-router-dom";
+import { useSubscription } from "../contexts/SubscriptionContext";
+import PremiumPopup from "./PremiumPopup";
 
 /**
  * Props:
@@ -18,6 +20,10 @@ const SubjectTabs = ({ monthData = {}, section = "", orderedSubjects = [], group
     setSubject,
     setSubjectId,
   } = useSelectedQuestionTypes();
+
+  // Subscription context for restriction
+  const { userData, getDaysRemaining } = useSubscription();
+  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
 
   // subject order mapping
   const subjectOrder = { Physics: 1, Chemistry: 2, Biology: 3 };
@@ -68,21 +74,21 @@ const SubjectTabs = ({ monthData = {}, section = "", orderedSubjects = [], group
     }
 
     // sort keys by subjectOrder (Physics -> Chemistry -> Biology), keep grade numbers
-   // sort keys first by grade (11 before 12), then by subjectOrder
-subjectKeys.sort((a, b) => {
-  // extract grade number (e.g. "11" from "11 Physics")
-  const gradeA = parseInt(a.match(/^\d+/)?.[0] || "999", 10);
-  const gradeB = parseInt(b.match(/^\d+/)?.[0] || "999", 10);
+    // sort keys first by grade (11 before 12), then by subjectOrder
+    subjectKeys.sort((a, b) => {
+      // extract grade number (e.g. "11" from "11 Physics")
+      const gradeA = parseInt(a.match(/^\d+/)?.[0] || "999", 10);
+      const gradeB = parseInt(b.match(/^\d+/)?.[0] || "999", 10);
 
-  if (gradeA !== gradeB) return gradeA - gradeB;
+      if (gradeA !== gradeB) return gradeA - gradeB;
 
-  // within the same grade, sort Physics → Chemistry → Biology
-  const aBase = getBaseSubject(a);
-  const bBase = getBaseSubject(b);
-  const aOrder = subjectOrder[aBase] ?? 999;
-  const bOrder = subjectOrder[bBase] ?? 999;
-  return aOrder - bOrder;
-});
+      // within the same grade, sort Physics → Chemistry → Biology
+      const aBase = getBaseSubject(a);
+      const bBase = getBaseSubject(b);
+      const aOrder = subjectOrder[aBase] ?? 999;
+      const bOrder = subjectOrder[bBase] ?? 999;
+      return aOrder - bOrder;
+    });
 
 
     return subjectKeys.map((key) => ({
@@ -106,23 +112,33 @@ subjectKeys.sort((a, b) => {
     }
   }, [subjectsArray, activeSubjectKey]);
 
- const handlePracticeNavigation = (chapterName, chapterData) => {
-  const subjectStats = chapterData.subjects[activeSubjectKey];
-  const selectedSubjectId = subjectStats?.subjectId;
+  const handlePracticeNavigation = (chapterName, chapterData) => {
+    // 🔒 RESTRICTION CHECK: If trial ended, block access
+    const status = userData?.status ? userData.status.toUpperCase() : "REGISTERED";
+    if (status === "TRIALED" || status === "TRIAL") {
+      const daysLeft = getDaysRemaining();
+      if (daysLeft <= 0) {
+        setShowPremiumPopup(true);
+        return;
+      }
+    }
 
-  setSubject(activeSubjectKey);
-  setSubjectId(selectedSubjectId);
+    const subjectStats = chapterData.subjects[activeSubjectKey];
+    const selectedSubjectId = subjectStats?.subjectId;
 
-  if (section === "resultsByType") {
-    // set both single and array
-    setSelectedQuestionTypes([chapterData.typeId]);
-    setSelectedQuestionTypeId(chapterData.typeId);  // ✅ single ID
-  } else if (section === "resultsByChapter") {
-    setChapterId(chapterData.chapterId);
-  }
+    setSubject(activeSubjectKey);
+    setSubjectId(selectedSubjectId);
 
-  navigate("/user/practice");
-};
+    if (section === "resultsByType") {
+      // set both single and array
+      setSelectedQuestionTypes([chapterData.typeId]);
+      setSelectedQuestionTypeId(chapterData.typeId);  // ✅ single ID
+    } else if (section === "resultsByChapter") {
+      setChapterId(chapterData.chapterId);
+    }
+
+    navigate("/user/practice");
+  };
   const mergedChapterData = useMemo(() => {
     if (section !== "resultsByChapter") return monthData?.resultsByType || {};
     return monthData?.resultsByChapter || {};
@@ -143,15 +159,20 @@ subjectKeys.sort((a, b) => {
 
   return (
     <div>
+      {showPremiumPopup && (
+        <PremiumPopup
+          onClose={() => setShowPremiumPopup(false)}
+          isLoggedIn={true} // Since we are in user dashboard area
+        />
+      )}
       <div className="flex space-x-4 mb-6 overflow-auto">
         {subjectsArray.map(({ key, label }) => (
           <button
             key={key}
-            className={`px-4 py-2 rounded text-md font-semibold whitespace-nowrap ${
-              activeSubjectKey === key
-                ? "bg-[#31CA31] text-white"
-                : "bg-white text-[#35095e] border border-gray-200 hover:text-[#017bcd] duration-200"
-            }`}
+            className={`px-4 py-2 rounded text-md font-semibold whitespace-nowrap ${activeSubjectKey === key
+              ? "bg-[#31CA31] text-white"
+              : "bg-white text-[#35095e] border border-gray-200 hover:text-[#017bcd] duration-200"
+              }`}
             onClick={() => setActiveSubjectKey(key)}
           >
             {label}

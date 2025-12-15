@@ -20,6 +20,8 @@ const CheckoutPage = () => {
     const [isProcessing, setIsProcessing] = useState(false);
 
     const selectedPlan = NEET_PLANS[selectedPlanKey];
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+
 
     // Coupon codes configuration (you can move this to backend later)
     const COUPONS = {
@@ -60,6 +62,23 @@ const CheckoutPage = () => {
         }, 500);
     };
 
+    const loadRazorpay = () => {
+        return new Promise((resolve) => {
+            if (document.getElementById("razorpay-script")) {
+                return resolve(true);
+            }
+
+            const script = document.createElement("script");
+            script.id = "razorpay-script";
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+
+            document.body.appendChild(script);
+        });
+    };
+
+
     const handleRemoveCoupon = () => {
         setAppliedCoupon(null);
         setCouponCode("");
@@ -69,26 +88,34 @@ const CheckoutPage = () => {
 
     const handleProceedToPayment = async () => {
         setIsProcessing(true);
+        delete window.Razorpay;
+
+        const loaded = await loadRazorpay();
+        if (!loaded) {
+            message.error("Failed to load Razorpay. Check your internet.");
+            setIsProcessing(false);
+            return;
+        }
 
         try {
-            const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+            const orderData = await createRazorpayOrder({
+  plan: selectedPlanKey,
+  coupon: appliedCoupon || null,
+});
 
-            // Create order with final price
-            const orderData = await createRazorpayOrder(selectedPlanKey, finalPrice);
-            const rzpKey = orderData.key || import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+            console.log("ORDER DATA:", orderData);
+
 
             const options = {
-                key: rzpKey,                               // Razorpay Key ID
-                amount: orderData.amount,                  // amount in paise from backend
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+                amount: orderData.amount,
                 currency: "INR",
                 name: "Mitos Learning",
-                description: `Subscription for ${selectedPlan.name}`,
-                image: "https://mitoslearning.com/images/logo/logo.png",
-                order_id: orderData.orderId,               // IMPORTANT (Orders API)
+                description: selectedPlan.name,
+                order_id: orderData.orderId,
 
                 handler: async function (response) {
-                    console.log("PAYMENT SUCCESS:", response);
-
                     await verifyPayment({
                         orderId: response.razorpay_order_id,
                         paymentId: response.razorpay_payment_id,
@@ -97,9 +124,7 @@ const CheckoutPage = () => {
                     });
 
                     message.success("Payment Successful! 🎉");
-                    setTimeout(() => {
-                        window.location.href = "/user/dashboard";
-                    }, 1000);
+                    window.location.href = "/user/dashboard";
                 },
 
                 prefill: {
@@ -108,26 +133,20 @@ const CheckoutPage = () => {
                     contact: storedUser.phoneNumber || "",
                 },
 
-                theme: {
-                    color: "#6D3093",
-                },
+                theme: { color: "#6D3093" }
             };
 
 
             const rzp = new window.Razorpay(options);
-
-            rzp.on("payment.failed", function (response) {
-                message.error(`Payment failed: ${response.error.description}`);
-                setIsProcessing(false);
-            });
-
             rzp.open();
-        } catch (e) {
-            console.error("Payment error:", e);
-            message.error("Payment initiation failed. Please try again.");
-            setIsProcessing(false);
+        } catch (err) {
+            console.error(err);
+            message.error("Payment failed. Try again.");
         }
+
+        setIsProcessing(false);
     };
+
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4">

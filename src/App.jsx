@@ -67,8 +67,7 @@ import FreeMaterialsList from "./app/freeMaterials/FreeMaterialsList";
 import FreeMaterialsMedia from "./app/freeMaterials/FreeMaterialsMedia";
 
 function App() {
-  // ✅ Activate protection
-  useDevProtector();
+  
 
   return (
     <GuestTimerProvider>

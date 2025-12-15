@@ -190,13 +190,23 @@ const SubscriptionPage = () => {
                 {/* ACTIVE TRIAL SECTION */}
                 {isTrialActive && (
                     <div className="text-center mb-12">
-                        <div className="p-8 rounded-3xl shadow-lg text-white bg-gradient-to-r from-emerald-500 to-teal-600">
-                            <Clock className="w-16 h-16 mx-auto mb-4" />
-                            <h2 className="text-3xl font-extrabold">Trial Active</h2>
-                            <p className="text-xl opacity-90 mt-2">
-                                {daysLeft} days remaining • Expires on {formatDate(expiryDate)}
-                            </p>
-                        </div>
+                        {daysLeft > 0 ? (
+                            <div className="p-8 rounded-3xl shadow-lg text-white bg-gradient-to-r from-emerald-500 to-teal-600">
+                                <Clock className="w-16 h-16 mx-auto mb-4" />
+                                <h2 className="text-3xl font-extrabold">Trial Active</h2>
+                                <p className="text-xl opacity-90 mt-2">
+                                    {daysLeft} days remaining • Expires on {formatDate(expiryDate)}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="p-8 rounded-3xl shadow-lg text-white bg-gradient-to-r from-red-500 to-orange-600">
+                                <AlertCircle className="w-16 h-16 mx-auto mb-4" />
+                                <h2 className="text-3xl font-extrabold">Trial Ended</h2>
+                                <p className="text-xl opacity-90 mt-2">
+                                    Your trial has expired on {formatDate(expiryDate)}. Please upgrade to continue.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -249,10 +259,18 @@ const SubscriptionPage = () => {
                                         </span>
                                     </p>
 
-                                   
+
 
                                     <button
                                         onClick={() => {
+                                            // if (isTrialActive) {
+                                            //     alert("Please wait to complete your trial period.");
+                                            //     return;
+                                            // }
+                                            // if (isRegistered && !hasUsedTrial && !isTrialActive) {
+                                            //     alert("Please try or click the trial option.");
+                                            //     return;
+                                            // }
                                             localStorage.setItem('selectedPlan', key);
                                             navigate(`/user/checkout?plan=${key}`);
                                         }}
