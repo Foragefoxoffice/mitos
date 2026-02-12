@@ -1,250 +1,212 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Check, Tag, AlertCircle, Loader } from "lucide-react";
 import { message } from "antd";
-import { useSubscription } from "../../../contexts/SubscriptionContext";
-import { createRazorpayOrder } from "../../../utils/api";
+import {
+    validateCoupon,
+    createRazorpayOrder,
+    verifyRazorpayPayment,
+} from "../../../utils/api";
+
+const PLAN_PRICE = {
+    NEET_2026: 1399,
+    NEET_2027: 3599,
+    NEET_2028: 6299,
+};
 
 const CheckoutPage = () => {
-    const navigate = useNavigate();
-    const { NEET_PLANS, verifyPayment } = useSubscription();
-
-    // Get selected plan from URL params or localStorage
     const urlParams = new URLSearchParams(window.location.search);
-    const selectedPlanKey = urlParams.get('plan') || localStorage.getItem('selectedPlan') || 'NEET_2026';
+    const selectedPlanKey =
+        urlParams.get("plan") ||
+        localStorage.getItem("selectedPlan") ||
+        "NEET_2026";
+
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
 
     const [couponCode, setCouponCode] = useState("");
-    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponData, setCouponData] = useState(null);
     const [couponError, setCouponError] = useState("");
     const [isApplying, setIsApplying] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const selectedPlan = NEET_PLANS[selectedPlanKey];
-    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    const originalPrice = PLAN_PRICE[selectedPlanKey];
+    const discount = couponData?.discountAmount || 0;
+    const finalPrice = couponData?.finalAmount || originalPrice;
 
+    /* =============================
+       APPLY COUPON
+    ============================== */
+    const handleApplyCoupon = async () => {
+        if (!couponCode) return;
 
-    // Coupon codes configuration (you can move this to backend later)
-    const COUPONS = {
-        "OM15": { discount: 15, type: "percentage", description: "Flat 15% off" },
-    };
-
-    const calculateDiscount = () => {
-        if (!appliedCoupon) return 0;
-
-        const coupon = COUPONS[appliedCoupon];
-        if (coupon.type === "flat") {
-            return coupon.discount;
-        } else {
-            return Math.round((selectedPlan.price * coupon.discount) / 100);
-        }
-    };
-
-    const discount = calculateDiscount();
-    const finalPrice = selectedPlan.price - discount;
-
-    const handleApplyCoupon = () => {
         setIsApplying(true);
         setCouponError("");
 
-        // Simulate API call
-        setTimeout(() => {
-            const code = couponCode.toUpperCase().trim();
+        try {
+            const res = await validateCoupon({
+                code: couponCode,
+                plan: selectedPlanKey,
+            });
 
-            if (COUPONS[code]) {
-                setAppliedCoupon(code);
-                message.success(`Coupon "${code}" applied successfully! 🎉`);
-                setCouponCode("");
-            } else {
-                setCouponError("Invalid coupon code");
-                message.error("Invalid coupon code");
-            }
+            setCouponData(res);
+            setCouponCode("");
+            message.success("Coupon applied successfully");
+        } catch (e) {
+            setCouponError(e.response?.data?.message || "Invalid coupon");
+        } finally {
             setIsApplying(false);
-        }, 500);
+        }
     };
 
-    const loadRazorpay = () => {
-        return new Promise((resolve) => {
-            if (document.getElementById("razorpay-script")) {
-                return resolve(true);
-            }
+    const handleRemoveCoupon = () => {
+        setCouponData(null);
+        setCouponCode("");
+        setCouponError("");
+    };
 
+    /* =============================
+       RAZORPAY
+    ============================== */
+    const loadRazorpay = () =>
+        new Promise((resolve) => {
+            if (window.Razorpay) return resolve(true);
             const script = document.createElement("script");
-            script.id = "razorpay-script";
             script.src = "https://checkout.razorpay.com/v1/checkout.js";
             script.onload = () => resolve(true);
             script.onerror = () => resolve(false);
-
             document.body.appendChild(script);
         });
-    };
-
-
-    const handleRemoveCoupon = () => {
-        setAppliedCoupon(null);
-        setCouponCode("");
-        setCouponError("");
-        message.info("Coupon removed");
-    };
 
     const handleProceedToPayment = async () => {
         setIsProcessing(true);
-        delete window.Razorpay;
 
         const loaded = await loadRazorpay();
         if (!loaded) {
-            message.error("Failed to load Razorpay. Check your internet.");
+            message.error("Failed to load Razorpay");
             setIsProcessing(false);
             return;
         }
 
         try {
             const orderData = await createRazorpayOrder({
-  plan: selectedPlanKey,
-  coupon: appliedCoupon || null,
-});
+                plan: selectedPlanKey,
+                coupon: couponData?.code || null,
+            });
 
-
-            console.log("ORDER DATA:", orderData);
-
+            console.log("Razorpay Order Data:", orderData);
 
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
                 amount: orderData.amount,
                 currency: "INR",
                 name: "Mitos Learning",
-                description: selectedPlan.name,
-                order_id: orderData.orderId,
+                description: `Subscription - ${selectedPlanKey}`,
+                order_id: orderData.id || orderData.orderId,
+                image: "https://mitoslearning.com/images/logo/logo1.png",
 
-                handler: async function (response) {
-                    await verifyPayment({
+                handler: async (response) => {
+                    await verifyRazorpayPayment({
                         orderId: response.razorpay_order_id,
                         paymentId: response.razorpay_payment_id,
                         signature: response.razorpay_signature,
                         plan: selectedPlanKey,
                     });
 
-                    message.success("Payment Successful! 🎉");
+                    message.success("Payment Successful 🎉");
                     window.location.href = "/user/dashboard";
                 },
 
                 prefill: {
                     name: storedUser.name || "",
                     email: storedUser.email || "",
-                    contact: storedUser.phoneNumber || "",
                 },
 
-                theme: { color: "#6D3093" }
+                theme: { color: "#6D3093" },
             };
-
 
             const rzp = new window.Razorpay(options);
             rzp.open();
         } catch (err) {
             console.error(err);
-            message.error("Payment failed. Try again.");
+            message.error("Payment failed. Please try again.");
+        } finally {
+            setIsProcessing(false);
         }
-
-        setIsProcessing(false);
     };
-
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4">
             <div className="max-w-4xl mx-auto">
-                {/* Header */}
+                {/* HEADER */}
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
                     <p className="text-gray-600">Complete your subscription</p>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6">
-                    {/* Left - Order Summary */}
+                    {/* LEFT */}
                     <div className="md:col-span-2 space-y-6">
-                        {/* Selected Plan */}
+                        {/* PLAN */}
                         <div className="bg-white rounded-xl shadow-sm p-6">
                             <h2 className="text-xl font-bold mb-4">Selected Plan</h2>
-
                             <div className="border border-purple-200 rounded-lg p-4 bg-purple-50">
-                                <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                        <h3 className="text-lg font-bold text-gray-900">{selectedPlan.name}</h3>
-                                        <p className="text-sm text-gray-600">{selectedPlan.description}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => navigate("/user/subscription")}
-                                        className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                                    >
-                                        Change
-                                    </button>
-                                </div>
-
-                                {/* <ul className="space-y-2">
-                                    {selectedPlan.features.slice(0, 3).map((feature, i) => (
-                                        <li key={i} className="flex items-start text-sm text-gray-700">
-                                            <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                            <span>{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul> */}
+                                <h3 className="text-lg font-bold">{selectedPlanKey}</h3>
+                                <p className="text-sm text-gray-600">NEET Subscription</p>
                             </div>
                         </div>
 
-                        {/* Coupon Code */}
+                        {/* COUPON */}
                         <div className="bg-white rounded-xl shadow-sm p-6">
                             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                                 <Tag className="h-5 w-5 text-purple-600" />
                                 Apply Coupon Code
                             </h2>
 
-                            {!appliedCoupon ? (
-                                <div>
+                            {!couponData ? (
+                                <>
                                     <div className="flex gap-3">
                                         <input
-                                            type="text"
                                             value={couponCode}
-                                            onChange={(e) => {
-                                                setCouponCode(e.target.value.toUpperCase());
-                                                setCouponError("");
-                                            }}
-                                            onKeyPress={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                                            onChange={(e) =>
+                                                setCouponCode(e.target.value.toUpperCase())
+                                            }
                                             placeholder="Enter coupon code"
-                                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            className="flex-1 px-4 py-2 border rounded-lg"
                                         />
                                         <button
                                             onClick={handleApplyCoupon}
-                                            disabled={!couponCode.trim() || isApplying}
-                                            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                                            disabled={!couponCode || isApplying}
+                                            className="px-6 py-2 bg-purple-600 text-white rounded-lg"
                                         >
-                                            {isApplying ? <Loader className="h-5 w-5 animate-spin" /> : "Apply"}
+                                            {isApplying ? (
+                                                <Loader className="animate-spin" />
+                                            ) : (
+                                                "Apply"
+                                            )}
                                         </button>
                                     </div>
 
                                     {couponError && (
                                         <div className="mt-2 flex items-center gap-2 text-red-600 text-sm">
                                             <AlertCircle className="h-4 w-4" />
-                                            <span>{couponError}</span>
+                                            {couponError}
                                         </div>
                                     )}
-
-                                    {/* Available Coupons */}
-
-                                </div>
+                                </>
                             ) : (
                                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex justify-between">
                                         <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <Check className="h-5 w-5 text-green-600" />
-                                                <span className="font-bold text-green-900">{appliedCoupon}</span>
+                                            <div className="flex items-center gap-2">
+                                                <Check className="text-green-600" />
+                                                <b>{couponData.code}</b>
                                             </div>
-                                            <p className="text-sm text-green-700">{COUPONS[appliedCoupon].description}</p>
-                                            <p className="text-sm text-green-600 font-semibold mt-1">
-                                                You save ₹{discount}!
+                                            <p className="text-sm text-green-700">
+                                                You save ₹{couponData.discountAmount}
                                             </p>
                                         </div>
                                         <button
                                             onClick={handleRemoveCoupon}
-                                            className="text-sm text-red-600 hover:text-red-700 font-medium"
+                                            className="text-red-600"
                                         >
                                             Remove
                                         </button>
@@ -254,63 +216,38 @@ const CheckoutPage = () => {
                         </div>
                     </div>
 
-                    {/* Right - Price Summary */}
-                    <div className="md:col-span-1">
+                    {/* RIGHT */}
+                    <div>
                         <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
                             <h2 className="text-xl font-bold mb-4">Price Summary</h2>
 
                             <div className="space-y-3 mb-4">
-                                <div className="flex justify-between text-gray-700">
+                                <div className="flex justify-between">
                                     <span>Plan Price</span>
-                                    <span>₹{selectedPlan.originalPrice}</span>
+                                    <span>₹{originalPrice}</span>
                                 </div>
 
-                                {selectedPlan.originalPrice > selectedPlan.price && (
+                                {discount > 0 && (
                                     <div className="flex justify-between text-green-600">
-                                        <span>Plan Discount</span>
-                                        <span>-₹{selectedPlan.originalPrice - selectedPlan.price}</span>
-                                    </div>
-                                )}
-
-                                {appliedCoupon && (
-                                    <div className="flex justify-between text-green-600 font-medium">
                                         <span>Coupon Discount</span>
                                         <span>-₹{discount}</span>
                                     </div>
                                 )}
 
-                                <div className="border-t pt-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-lg font-bold text-gray-900">Total</span>
-                                        <div className="text-right">
-                                            <div className="text-2xl font-bold text-purple-600">₹{finalPrice}</div>
-
-                                        </div>
-                                    </div>
+                                <div className="border-t pt-3 flex justify-between font-bold">
+                                    <span>Total</span>
+                                    <span className="text-purple-600 text-xl">
+                                        ₹{finalPrice}
+                                    </span>
                                 </div>
-
-                                {discount > 0 && (
-                                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                                        <p className="text-sm font-semibold text-green-800">
-                                            🎉 You're saving ₹{(selectedPlan.originalPrice - finalPrice)}!
-                                        </p>
-                                    </div>
-                                )}
                             </div>
 
                             <button
                                 onClick={handleProceedToPayment}
                                 disabled={isProcessing}
-                                className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg transition-all"
+                                className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg"
                             >
-                                {isProcessing ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <Loader className="h-5 w-5 animate-spin" />
-                                        Processing...
-                                    </span>
-                                ) : (
-                                    `Proceed to Payment`
-                                )}
+                                {isProcessing ? "Processing..." : "Proceed to Payment"}
                             </button>
 
                             <p className="text-xs text-gray-500 text-center mt-3">

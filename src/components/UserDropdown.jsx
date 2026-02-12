@@ -74,7 +74,7 @@ const UserDropdown = ({ user }) => {
       {isPopupOpen && (
         <div
           ref={popupRef}
-          className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg animate-slide-down z-50"
+          className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg animate-slide-down z-100"
         >
           <ul>
             <li className="px-4 py-2 flex gap-3 items-center text-gray-700 font-semibold">

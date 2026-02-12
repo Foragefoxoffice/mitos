@@ -24,6 +24,8 @@ import PlaystoreTerms from "./app/playstore-terms/page";
 import ApplestoreTerms from "./app/applestore-terms/page";
 import ApplestorePrivacy from "./app/applestore-privacy/page";
 import PlaystorePrivacy from "./app/playstore-privacy/page";
+import PricingPage from "./app/pricing/page";
+
 
 // User dashboard pages
 import ResultPage from "./app/user/progress/page";
@@ -67,103 +69,122 @@ import FreeMaterialsList from "./app/freeMaterials/FreeMaterialsList";
 import FreeMaterialsMedia from "./app/freeMaterials/FreeMaterialsMedia";
 
 function App() {
-  
 
   return (
-    <GuestTimerProvider>
-      <TestProvider>
-        <SubscriptionProvider>
-          <SelectedTopicsProvider>
-            <SelectedQuestionTypesProvider>
-              <RouteGuard>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/login" element={<OtpAuthPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/playstore-terms" element={<PlaystoreTerms />} />
-                  <Route path="/applestore-terms" element={<ApplestoreTerms />} />
-                  <Route path="/applestore-privacy" element={<ApplestorePrivacy />} />
-                  <Route path="/playstore-privacy" element={<PlaystorePrivacy />} />
+    <TestProvider>
+      <SubscriptionProvider>
+        <SelectedTopicsProvider>
+          <SelectedQuestionTypesProvider>
+            <RouteGuard>
+              <Routes>
+                {/* Public routes - WITHOUT GuestTimerProvider */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<OtpAuthPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/playstore-terms" element={<PlaystoreTerms />} />
+                <Route path="/applestore-terms" element={<ApplestoreTerms />} />
+                <Route path="/applestore-privacy" element={<ApplestorePrivacy />} />
+                <Route path="/playstore-privacy" element={<PlaystorePrivacy />} />
 
-                  {/* Flow entry routes */}
-                  <Route path="/user/practice" element={<PracticePage />} />
-                  <Route path="/user/test" element={<TestPage />} />
+                {/* Flow entry routes - WITH GuestTimerProvider */}
+                <Route
+                  path="/user/practice"
+                  element={
+                    <GuestTimerProvider>
+                      <PracticePage />
+                    </GuestTimerProvider>
+                  }
+                />
+                <Route
+                  path="/user/test"
+                  element={
+                    <GuestTimerProvider>
+                      <TestPage />
+                    </GuestTimerProvider>
+                  }
+                />
 
-                  {/* User routes */}
-                  <Route path="/user" element={<Layout />}>
-                    <Route path="study/topics/:topicId/materials" element={<StudyMaterialsPage />} />
+                {/* User routes - WITH GuestTimerProvider */}
+                <Route
+                  path="/user"
+                  element={
+                    <GuestTimerProvider>
+                      <Layout />
+                    </GuestTimerProvider>
+                  }
+                >
+                  <Route path="study/topics/:topicId/materials" element={<StudyMaterialsPage />} />
 
-                    {/* Dashboard flow */}
-                    <Route path="dashboard" element={<Dashboard />}>
-                      <Route index element={<Subject />} />
+                  {/* Dashboard flow */}
+                  <Route path="dashboard" element={<Dashboard />}>
+                    <Route index element={<Subject />} />
 
-                      {/* Practice flow */}
-                      <Route path="practice/subjects" element={<Subject />} />
-                      <Route path="practice/:subjectId/chapters" element={<Chapter />} />
-                      <Route path="practice/:chapterId/topics" element={<TopicsPage />} />
-                      <Route path="practice/:chapterId/questiontypes" element={<QuestiontypePage />} />
+                    {/* Practice flow */}
+                    <Route path="practice/subjects" element={<Subject />} />
+                    <Route path="practice/:subjectId/chapters" element={<Chapter />} />
+                    <Route path="practice/:chapterId/topics" element={<TopicsPage />} />
+                    <Route path="practice/:chapterId/questiontypes" element={<QuestiontypePage />} />
 
-                      {/* Test flow */}
-                      <Route path="test/portions" element={<Portion />} />
-                      <Route path="test/:portionId/subjects" element={<TestSubject />} />
-                      <Route path="test/:subjectId/:portionId/chapters" element={<TestChapter />} />
-                      <Route path="test/:chapterId/topics" element={<TestTopics />} />
-                      <Route path="test/:topicId/questiontypes" element={<QuestiontypePage />} />
+                    {/* Test flow */}
+                    <Route path="test/portions" element={<Portion />} />
+                    <Route path="test/:portionId/subjects" element={<TestSubject />} />
+                    <Route path="test/:subjectId/:portionId/chapters" element={<TestChapter />} />
+                    <Route path="test/:chapterId/topics" element={<TestTopics />} />
+                    <Route path="test/:topicId/questiontypes" element={<QuestiontypePage />} />
 
-                      {/* Study material flow */}
-                      <Route path="study/subjects" element={<MeterialsSubject />} />
-                      <Route path="study/subjects/:subjectId/chapters" element={<MeterialsChapter />} />
-                      <Route path="study/chapters/:chapterId/topics" element={<MeterialsTopicsPage />} />
-                    </Route>
-
-                    {/* Other user pages */}
-                    <Route path="progress" element={<ResultPage />} />
-                    <Route path="neet-score-predictor" element={<NeetScorePredictorPage />} />
-                    <Route path="leaderboard" element={<Leaderboard />} />
-                    <Route path="favorites" element={<FavoriteQuestionsPage />} />
-                    <Route path="faq" element={<FAQPage />} />
-                    <Route path="news" element={<NewsListPage />} />
-                    <Route path="news/:id" element={<NewsDetailPage />} />
-                    <Route path="notifications" element={<NotificationsPage />} />
-                    <Route path="settings" element={<UserSettings />} />
-                    <Route path="subscription" element={<SubscriptionPage />} />
-                    <Route path="checkout" element={<CheckoutPage />} />
-
-                    {/* ---- Free Materials Flow ---- */}
-
-                    <Route
-                      path="free-materials"
-                      element={<FreeMaterialsSubject />}
-                    />
-
-                    <Route
-                      path="free-materials/subject/:subjectId"
-                      element={<FreeMaterialsChapter />}
-                    />
-
-                    <Route
-                      path="free-materials/chapter/:chapterId"
-                      element={<FreeMaterialsList />}
-                    />
-
-                    <Route
-                      path="free-materials/media/:chapterId"
-                      element={<FreeMaterialsMedia />}
-                    />
-
-
+                    {/* Study material flow */}
+                    <Route path="study/subjects" element={<MeterialsSubject />} />
+                    <Route path="study/subjects/:subjectId/chapters" element={<MeterialsChapter />} />
+                    <Route path="study/chapters/:chapterId/topics" element={<MeterialsTopicsPage />} />
                   </Route>
-                </Routes>
-              </RouteGuard>
-            </SelectedQuestionTypesProvider>
-          </SelectedTopicsProvider>
-        </SubscriptionProvider>
-      </TestProvider>
-    </GuestTimerProvider>
+
+                  {/* Other user pages */}
+                  <Route path="progress" element={<ResultPage />} />
+                  <Route path="neet-score-predictor" element={<NeetScorePredictorPage />} />
+                  <Route path="leaderboard" element={<Leaderboard />} />
+                  <Route path="favorites" element={<FavoriteQuestionsPage />} />
+                  <Route path="faq" element={<FAQPage />} />
+                  <Route path="news" element={<NewsListPage />} />
+                  <Route path="news/:id" element={<NewsDetailPage />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
+                  <Route path="settings" element={<UserSettings />} />
+                  <Route path="subscription" element={<SubscriptionPage />} />
+                  <Route path="checkout" element={<CheckoutPage />} />
+
+                  {/* ---- Free Materials Flow ---- */}
+
+                  <Route
+                    path="free-materials"
+                    element={<FreeMaterialsSubject />}
+                  />
+
+                  <Route
+                    path="free-materials/subject/:subjectId"
+                    element={<FreeMaterialsChapter />}
+                  />
+
+                  <Route
+                    path="free-materials/chapter/:chapterId"
+                    element={<FreeMaterialsList />}
+                  />
+
+                  <Route
+                    path="free-materials/media/:chapterId"
+                    element={<FreeMaterialsMedia />}
+                  />
+
+
+                </Route>
+              </Routes>
+            </RouteGuard>
+          </SelectedQuestionTypesProvider>
+        </SelectedTopicsProvider>
+      </SubscriptionProvider>
+    </TestProvider>
   );
 }
 

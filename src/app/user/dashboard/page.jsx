@@ -298,7 +298,7 @@ export default function Dashboard() {
       {/* HEADER + TABS */}
       <div className="sticky top-0 z-50">
         {/* Mobile Header */}
-        <div className="flex items-center sm:hidden justify-between px-5 py-4 rounded-3xl bg-white shadow mb-2">
+        <div className="flex gap-3 items-center sm:hidden justify-between px-5 py-4 rounded-3xl bg-white shadow mb-2">
           <button
             onClick={() => navigate(-1)}
             className="flex items-center px-3 py-1.5 rounded-xl bg-[#007ACC] text-white"
@@ -323,13 +323,13 @@ export default function Dashboard() {
               <span className="ml-1">Back</span>
             </button>
           </div>
-          <div className="flex space-x-2 md:space-x-4">
+          <div className="flex justify-between space-x-2 md:space-x-4">
             {Object.keys(tabDetails).map((tabKey) => {
               return (
                 <button
                   key={tabKey}
                   disabled={false} // Don't actually disable, we want onClick to fire popup
-                  className={`px-4 py-2 rounded-3xl font-semibold transform transition-all duration-200 
+                  className={`px-4 py-2 rounded-3xl text-md font-semibold transform transition-all duration-200 
                     ${activeTab === tabKey
                       ? "bg-[#007ACC] text-white shadow-md scale-105"
                       : "bg-[#dff4ff] text-[#00497A] hover:bg-[#bfe7ff] hover:scale-105 active:scale-95"
@@ -339,7 +339,7 @@ export default function Dashboard() {
                     navigate(tabDetails[tabKey].path);
                   }}
                 >
-                  {tabDetails[tabKey].icon}
+                  <span className="hidden sm:inline">{tabDetails[tabKey].icon}</span>
                   {tabDetails[tabKey].label}
                 </button>
               );

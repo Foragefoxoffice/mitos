@@ -488,9 +488,18 @@ export const createRazorpayOrder = async (data) => {
 
 
 
-export const verifyRazorpayPayment = async (paymentData) =>
-  (await API.post("/subscription/razorpay/verify", paymentData)).data;
+export const verifyRazorpayPayment = async (payload) => {
+  const { data } = await API.post(
+    "/subscription/razorpay/verify",
+    payload
+  );
+  return data;
+};
 
+export const validateCoupon = async (payload) => {
+  const { data } = await API.post("/coupons/validate", payload);
+  return data;
+};
 /* ---------- GOOGLE SUBSCRIPTION ---------- */
 export const verifyGoogleSubscription = async ({
   purchaseToken,

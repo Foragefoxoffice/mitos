@@ -214,6 +214,9 @@ export const SubscriptionProvider = ({ children }) => {
 
     const isPremium = subscriptionStatus === 'PREMIUM' || subscriptionStatus === 'TRIALED';
 
+    const isTrialActive = subscriptionStatus === 'TRIALED' && trialEndsAt && trialEndsAt > new Date();
+    const isTrialExpired = subscriptionStatus === 'TRIALED' && trialEndsAt && trialEndsAt < new Date();
+
     return (
         <SubscriptionContext.Provider
             value={{
@@ -223,6 +226,8 @@ export const SubscriptionProvider = ({ children }) => {
                 currentPlan,
                 isLoading,
                 isPremium,
+                isTrialActive,
+                isTrialExpired,
                 userData,              // ✅ NEW: Expose user data
                 fetchUserData,         // ✅ NEW: Expose fetch function
                 checkStatus,

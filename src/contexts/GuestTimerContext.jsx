@@ -3,7 +3,18 @@ import { getUserRole } from "../utils/auth"; // Assuming getUserRole is reusable
 
 const GuestTimerContext = createContext();
 
-export const useGuestTimer = () => useContext(GuestTimerContext);
+export const useGuestTimer = () => {
+    const context = useContext(GuestTimerContext);
+    // Return default values if provider is not available (e.g., on public routes)
+    if (!context) {
+        return {
+            isGuestTimeExpired: false,
+            timeLeft: 0,
+            resetTimer: () => { }
+        };
+    }
+    return context;
+};
 
 const GUEST_TIME_LIMIT_MS = 10 * 60 * 1000; // 10 minutes
 

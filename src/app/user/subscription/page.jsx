@@ -17,6 +17,7 @@ const SubscriptionPage = () => {
         verifyPayment,
         getDaysRemaining,
         NEET_PLANS,
+        userData,
     } = useSubscription();
 
     const [loading, setLoading] = useState(false);
@@ -26,6 +27,9 @@ const SubscriptionPage = () => {
     const storedUser = JSON.parse(localStorage.getItem("user")) || {};
     const hasUsedTrial = storedUser.hasUsedTrial || false;
     const userStatus = storedUser.status;
+
+    // Check if user has any trial data (trialStart or trialEndsAt)
+    const hasTrialData = !!(userData?.trialStart || userData?.trialEndsAt || storedUser?.trialStart || storedUser?.trialEndsAt);
 
     const isRegistered = userStatus === "REGISTERED";
     const isTrialActive = subscriptionStatus === "TRIALED";
@@ -158,7 +162,7 @@ const SubscriptionPage = () => {
                 )}
 
                 {/* REGISTERED USERS – TRIAL SECTION */}
-                {isRegistered && (
+                {isRegistered && !hasTrialData && (
                     <>
                         {/* Already used trial */}
                         {hasUsedTrial ? (
@@ -182,7 +186,7 @@ const SubscriptionPage = () => {
                                 >
                                     {loading ? "Activating..." : "Start 10-Day Free Trial"}
                                 </button>
-                            </div>
+                            </div >
                         )}
                     </>
                 )}
@@ -216,7 +220,7 @@ const SubscriptionPage = () => {
                 <div className="mx-auto mt-12">
                     <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">What You’ll Get</h2>
 
-                    <div className="space-y-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 ">
+                    <div className="space-y-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 ">
                         {[
                             { icon: "📘", title: "36,000+ NCERT Line-by-Line Questions", message: "Master every concept — no gaps." },
                             { icon: "📈", title: "Personalised Weak Area Analytics", message: "Instant insights to improve faster." },

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useParams, useNavigate,useOutletContext } from "react-router-dom";
+import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import {
   fetchChapter,
   fetchChapterTopics,
@@ -108,12 +108,12 @@ export default function Chapter() {
 
   // search filter
   const filteredChapters = useMemo(() => {
-  const term = searchTerm?.trim().toLowerCase();
-  if (!term) return chapters;
-  return chapters.filter((c) =>
-    String(c.name || "").toLowerCase().includes(term)
-  );
-}, [chapters, searchTerm]);
+    const term = searchTerm?.trim().toLowerCase();
+    if (!term) return chapters;
+    return chapters.filter((c) =>
+      String(c.name || "").toLowerCase().includes(term)
+    );
+  }, [chapters, searchTerm]);
 
   // 👇 Navigation handlers
   const handleTopicClick = (chapter) => {
@@ -282,9 +282,7 @@ export default function Chapter() {
     "Biomolecules": {
       image: "/images/chapterImg/C12.10-Biomolecules.svg",
     },
-    "Thermodynamics": {
-      image: "/images/chapterImg/C11.5-Thermodynamics.svg",
-    },
+
     "Redox Reactions": {
       image: "/images/chapterImg/C11.7-Redox-Reactions.svg",
     },

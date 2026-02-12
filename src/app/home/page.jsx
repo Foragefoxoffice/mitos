@@ -114,24 +114,32 @@ export default function LandingPage() {
             </a>
           </div>
 
-          {/* CTA Button */}
-          <a
-            href="/user/dashboard"
-            className="flex items-center gap-2 rounded-full border border-purple-600 text-[#6F3195] font-semibold px-5 py-3 bg-gradient-to-b from-purple-600/10 to-purple-600/5 shadow-[inset_0_0_0_1px_rgba(122,42,239,0.12)] transition-all hover:bg-purple-600 hover:text-white hover:shadow-[0_6px_18px_rgba(122,42,239,0.25)] active:translate-y-[1px] whitespace-nowrap md:whitespace-normal"
-          >
-            Start your NEET success now
-            <svg
-              viewBox="0 0 24 24"
-              className="w-[18px] h-[18px]"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {/* Navigation Buttons */}
+          <div className="flex items-center gap-3">
+            <a
+              href="/pricing"
+              className="flex items-center gap-2 rounded-full border border-purple-600 text-[#6F3195] font-semibold px-5 py-3 bg-white hover:bg-purple-50 transition-all whitespace-nowrap"
             >
-              <path d="M5 12h14M13 5l7 7-7 7" />
-            </svg>
-          </a>
+              Pricing
+            </a>
+            <a
+              href="/user/dashboard"
+              className="flex items-center gap-2 rounded-full border border-purple-600 text-[#6F3195] font-semibold px-5 py-3 bg-gradient-to-b from-purple-600/10 to-purple-600/5 shadow-[inset_0_0_0_1px_rgba(122,42,239,0.12)] transition-all hover:bg-purple-600 hover:text-white hover:shadow-[0_6px_18px_rgba(122,42,239,0.25)] active:translate-y-[1px] whitespace-nowrap md:whitespace-normal"
+            >
+              Start your NEET success now
+              <svg
+                viewBox="0 0 24 24"
+                className="w-[18px] h-[18px]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14M13 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -183,6 +191,14 @@ export default function LandingPage() {
               className="bg-white whitespace-nowrap md:whitespace-normal text-[#6F3195] px-8 py-4 text-lg rounded-full hover:bg-white font-medium flex items-center justify-center gap-2 shadow-lg shadow-[#51216e]/30"
             >
               Click your way into 650+ in NEET <FaArrowRight />
+            </motion.a>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              href="/pricing"
+              className="bg-transparent border-2 border-white whitespace-nowrap md:whitespace-normal text-white px-8 py-4 text-lg rounded-full hover:bg-white hover:text-[#6F3195] font-medium flex items-center justify-center gap-2 shadow-lg transition-all"
+            >
+              View Pricing <FaArrowRight />
             </motion.a>
           </div>
         </motion.div>
@@ -273,8 +289,8 @@ export default function LandingPage() {
         </div>
       </section>
 
- {/* MOBILE APP DOWNLOAD SECTION */}
-      <section className="px-6 py-16 md:py-24 text-white" style={{background: "linear-gradient(105.92deg, rgb(79, 31, 109) 0.93%, rgb(191, 95, 250) 134.75%)", }}>
+      {/* MOBILE APP DOWNLOAD SECTION */}
+      <section className="px-6 py-16 md:py-24 text-white" style={{ background: "linear-gradient(105.92deg, rgb(79, 31, 109) 0.93%, rgb(191, 95, 250) 134.75%)", }}>
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
@@ -295,7 +311,7 @@ export default function LandingPage() {
                 Anywhere with Our App
               </h2>
 
-              <p className="text-lg mb-8 leading-relaxed" style={{color: "#fff"}}>
+              <p className="text-lg mb-8 leading-relaxed" style={{ color: "#fff" }}>
                 Get access to 30,000+ questions, unlimited tests, and personalized analytics right on your mobile device. Study on the go and ace NEET!
               </p>
 
@@ -666,7 +682,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-     
+
 
       {/* FOOTER */}
       <footer className="text-sm text-center py-12 bg-gray-900 text-gray-400">

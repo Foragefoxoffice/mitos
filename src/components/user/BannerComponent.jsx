@@ -3,10 +3,16 @@ import { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 const BannerComponent = () => {
   const [banners, setBanners] = useState([]);
   const [loadingBanners, setLoadingBanners] = useState(true);
+  const { subscriptionStatus, isTrialActive, isTrialExpired } = useSubscription();
+
+  // Detect platform: mobile web or desktop
+  const isMobileWeb = typeof window !== "undefined" && window.innerWidth < 768;
+  const platform = isMobileWeb ? "WEB_MOBILE" : "WEB_DESKTOP";
 
   // Slider settings
   const sliderSettings = {
@@ -33,7 +39,26 @@ const BannerComponent = () => {
         }
 
         const data = await response.json();
-        const activeBanners = data.filter(banner => banner.isActive);
+        const activeBanners = data.filter(banner => {
+          if (!banner.isActive) return false;
+          if (banner.platform !== platform) return false;
+          if (banner.targetUser === 'ALL') return true;
+
+          // Handle active trial and trial expired targets
+          if (banner.targetUser === 'ACTIVE_TRIAL') return isTrialActive;
+          if (banner.targetUser === 'TRIAL_EXPIRED') return isTrialExpired;
+
+          const statusMap = {
+            'PREMIUM': 'PREMIUM',
+            'TRIAL': 'TRIALED',
+            'TRIALED': 'TRIALED',
+            'REGISTERED': 'REGISTERED',
+            'SUSPENDED': 'SUSPENDED'
+          };
+
+          const myStatus = statusMap[subscriptionStatus] || 'REGISTERED';
+          return banner.targetUser === myStatus;
+        });
         setBanners(activeBanners);
       } catch (error) {
         console.error("Error fetching banners:", error);
@@ -42,8 +67,10 @@ const BannerComponent = () => {
       }
     };
 
-    fetchBanners();
-  }, []);
+    if (subscriptionStatus && subscriptionStatus !== 'loading') {
+      fetchBanners();
+    }
+  }, [subscriptionStatus, isTrialActive, isTrialExpired, platform]);
 
   return (
     <div className="banner-slider-container">
