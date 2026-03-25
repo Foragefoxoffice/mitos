@@ -43,6 +43,7 @@ import CheckoutPage from "./app/user/checkout/page";
 
 import PracticePage from "./app/user/practice/page";
 import TestPage from "./app/user/test/page";
+import MyTestsPage from "./app/user/my-tests/page";
 import StudyMaterialsPage from "./app/user/study-materials/page";
 
 // Step components (Practice)
@@ -143,6 +144,7 @@ function App() {
                   </Route>
 
                   {/* Other user pages */}
+                  <Route path="my-tests" element={<MyTestsPage />} />
                   <Route path="progress" element={<ResultPage />} />
                   <Route path="neet-score-predictor" element={<NeetScorePredictorPage />} />
                   <Route path="leaderboard" element={<Leaderboard />} />

@@ -43,13 +43,16 @@ export default function TestPage() {
   const [subjectFilter, setSubjectFilter] = useState(null);
 
   const navigate = useNavigate();
-  const { testData } = useContext(TestContext);
+  const { testData, savedTestData, setSavedTestData } = useContext(TestContext);
   const portionId = testData?.portionId;
   const chapterIds = testData?.chapterIds;
   const questionLimit = testData?.questionLimit;
+  const [isViewOnlyMode, setIsViewOnlyMode] = useState(false);
+  const [currentTestName, setCurrentTestName] = useState(null);
 
   const [token, setToken] = useState(null);
   const questionNavRefs = useRef([]);
+  const hasLoadedRef = useRef(false);
   const [userId, setUserId] = useState(null);
 
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
@@ -633,6 +636,8 @@ export default function TestPage() {
   const handleSubmit = useCallback(async () => {
     setShowSubmitConfirmation(false);
 
+    if (isViewOnlyMode) return;
+
     if (!userId) {
       setError("User ID not found. Please log in again.");
       return;
@@ -644,34 +649,69 @@ export default function TestPage() {
     }
 
     try {
+      const score = calculateScore();
+      const correct = calculateCorrectAnswers();
+      const wrong = calculateWrongAnswers();
+      const accuracy = calculateAccuracy();
       const resultsBySubject = calculateResultsBySubject();
+      const resultsByType = calculateResultsByType();
+      const resultsByChapter = calculateResultsByChapter();
+      const timeTaken = formatTime(totalTime - timeLeft);
+      const unanswered = questions.length - Object.keys(userAnswers).length;
 
       const resultData = {
         userId: parseInt(userId, 10),
-        score: calculateScore(),
+        score,
         totalMarks: questions.length * 4,
         answered: Object.keys(userAnswers).length,
-        correct: calculateCorrectAnswers(),
-        wrong: calculateWrongAnswers(),
-        unanswered: questions.length - Object.keys(userAnswers).length,
-        accuracy: calculateAccuracy(),
-        totalTimeTaken: formatTime(totalTime - timeLeft),
-        resultsByType: calculateResultsByType(),
-        resultsByChapter: calculateResultsByChapter(),
+        correct,
+        wrong,
+        unanswered,
+        accuracy,
+        totalTimeTaken: timeTaken,
+        resultsByType,
+        resultsByChapter,
         resultsBySubject,
       };
 
       await saveTestResult(resultData);
-      console.log("test result", resultData)
+
+      // Save to localStorage for My Tests history
+      const testRecord = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        testName: currentTestName || "custom-test",
+        questions,
+        userAnswers,
+        score,
+        totalMarks: questions.length * 4,
+        correct,
+        wrong,
+        unanswered,
+        accuracy,
+        timeTaken,
+        resultsBySubject,
+        resultsByType,
+      };
+      try {
+        const existing = JSON.parse(localStorage.getItem("myTests") || "[]");
+        existing.unshift(testRecord);
+        localStorage.setItem("myTests", JSON.stringify(existing.slice(0, 20)));
+      } catch (storageError) {
+        console.error("Failed to save test to history:", storageError);
+      }
+
       setShowResults(true);
     } catch (error) {
       console.error("Failed to save test result:", error);
       setError("Failed to save test result. Please try again.");
     }
   }, [
+    isViewOnlyMode,
     userId,
     questions,
     userAnswers,
+    currentTestName,
     calculateScore,
     calculateCorrectAnswers,
     calculateWrongAnswers,
@@ -695,6 +735,7 @@ export default function TestPage() {
     if (
       !showInstructionPopup &&
       !showResults &&
+      !isViewOnlyMode &&
       Array.isArray(questions) &&
       questions.length > 0
     ) {
@@ -717,17 +758,37 @@ export default function TestPage() {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [showInstructionPopup, showResults, questions, totalTime, handleSubmit]);
+  }, [showInstructionPopup, showResults, isViewOnlyMode, questions, totalTime, handleSubmit]);
 
   useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+
     const loadQuestions = async () => {
       try {
+        // Replay / view-answers mode: use saved questions directly
+        if (savedTestData?.questions?.length > 0) {
+          setCurrentTestName(savedTestData.testName || "custom-test");
+          setQuestions(savedTestData.questions);
+          if (savedTestData.mode === "view-answers") {
+            setUserAnswers(savedTestData.userAnswers || {});
+            setShowAnswer(true);
+            setIsViewOnlyMode(true);
+            setShowInstructionPopup(false);
+          }
+          setSavedTestData(null);
+          setLoading(false);
+          return;
+        }
+
         if (!testData) {
           setError("Test data is not available. Please go back and try again.");
           setLoading(false);
           navigate("/user/dashboard");
           return;
         }
+
+        setCurrentTestName(testData.testname);
 
         let testQuestions = [];
 
@@ -850,7 +911,7 @@ export default function TestPage() {
     };
 
     loadQuestions();
-  }, [testData, portionId, chapterIds]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (error) {
@@ -1043,9 +1104,13 @@ export default function TestPage() {
       {showAnswer === true && (
         <button
           onClick={() => {
-            setShowAnswer(false);
-            setShowResults(true);
-            setShowResultsModal(false);
+            if (isViewOnlyMode) {
+              navigate("/user/my-tests");
+            } else {
+              setShowAnswer(false);
+              setShowResults(true);
+              setShowResultsModal(false);
+            }
           }}
           className="btn whitespace-nowrap mt-3"
           style={{ padding: "0.5rem 2rem" }}
@@ -1080,7 +1145,11 @@ export default function TestPage() {
                 showSubmitConfirmationPopup={showSubmitConfirmationPopup}
                 showAnswer={showAnswer}
                 onShowAnswers={(value) => {
-                  setShowAnswer(value);
+                  if (isViewOnlyMode && value === false) {
+                    navigate("/user/my-tests");
+                  } else {
+                    setShowAnswer(value);
+                  }
                 }}
                 onReportQuestion={() => {
                   setReportModal({

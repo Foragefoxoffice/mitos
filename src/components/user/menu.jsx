@@ -12,7 +12,8 @@ import {
   FiMenu,
   FiX,
   FiTarget,
-  FiFileText, // ✅ News
+  FiFileText,
+  FiClipboard,
 } from "react-icons/fi";
 import { getMe } from "../../utils/api";
 
@@ -31,6 +32,12 @@ const navItems = [
         icon: <FiAward size={18} />,
         href: "/user/free-materials",
         allowedRoles: ["guest", "user", "admin"],
+      },
+      {
+        title: "My Tests",
+        icon: <FiClipboard size={18} />,
+        href: "/user/my-tests",
+        allowedRoles: ["user", "admin"],
       },
       {
         title: "Mark Booster",
